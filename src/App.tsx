@@ -11,6 +11,7 @@ import Keywords from "./pages/Keywords";
 import Analytics from "./pages/Analytics";
 import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
+import ContentGeneration from "./pages/ContentGeneration";
 
 const queryClient = new QueryClient();
 
@@ -28,6 +29,7 @@ const App = () => {
             <Route path="/keywords" element={<Keywords />} />
             <Route path="/analytics" element={<Analytics />} />
             <Route path="/settings" element={<Settings />} />
+            <Route path="/content-generation" element={<ContentGeneration />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
