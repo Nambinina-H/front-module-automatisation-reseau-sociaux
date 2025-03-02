@@ -7,17 +7,18 @@ import AnalyticsOverview from '@/components/dashboard/AnalyticsOverview';
 import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
+import PlatformIcon from '@/components/common/PlatformIcon';
 
 const Index = () => {
   const isMobile = useIsMobile();
   
-  // Sample data for posts
+  // Sample data for posts - fix the readonly array issue by creating regular arrays
   const posts = [
     {
       id: '1',
       title: 'Lancement de notre nouveau produit',
       content: 'Nous sommes ravis de vous annoncer le lancement de notre nouveau produit innovant qui va révolutionner votre quotidien...',
-      platforms: ['linkedin', 'twitter', 'facebook'] as const,
+      platforms: ['linkedin', 'twitter', 'facebook'] as ('linkedin' | 'twitter' | 'facebook' | 'instagram')[],
       keywords: ['lancement', 'produit', 'innovation'],
       scheduledDate: new Date('2023-06-15T10:00:00'),
       status: 'scheduled' as const,
@@ -26,7 +27,7 @@ const Index = () => {
       id: '2',
       title: 'Astuces pour améliorer votre productivité',
       content: 'Découvrez nos 5 astuces pour améliorer votre productivité au travail et atteindre vos objectifs plus rapidement...',
-      platforms: ['linkedin', 'instagram'] as const,
+      platforms: ['linkedin', 'instagram'] as ('linkedin' | 'twitter' | 'facebook' | 'instagram')[],
       keywords: ['productivité', 'travail', 'astuces'],
       scheduledDate: new Date('2023-06-17T14:30:00'),
       status: 'draft' as const,
@@ -35,7 +36,7 @@ const Index = () => {
       id: '3',
       title: 'Événement annuel de networking',
       content: 'Rejoignez-nous pour notre événement annuel de networking où vous pourrez rencontrer des professionnels de votre secteur...',
-      platforms: ['linkedin', 'facebook', 'twitter', 'instagram'] as const,
+      platforms: ['linkedin', 'facebook', 'twitter', 'instagram'] as ('linkedin' | 'twitter' | 'facebook' | 'instagram')[],
       keywords: ['événement', 'networking', 'rencontre'],
       scheduledDate: new Date('2023-06-10T18:00:00'),
       status: 'published' as const,
@@ -52,7 +53,8 @@ const Index = () => {
         <main className="p-6">
           <div className="flex justify-between items-center mb-6">
             <h1 className="text-2xl font-semibold">Tableau de bord</h1>
-            <Button className="button-effect" iconLeft={<Plus size={16} />}>
+            <Button className="button-effect">
+              <Plus size={16} className="mr-2" />
               Nouveau post
             </Button>
           </div>
