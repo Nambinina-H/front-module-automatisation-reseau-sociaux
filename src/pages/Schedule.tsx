@@ -8,13 +8,17 @@ import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import PlatformIcon from '@/components/common/PlatformIcon';
 import { Clock, Calendar as CalendarIcon, Plus } from 'lucide-react';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import Button from '@/components/common/Button';
-import { DateTimePicker } from '@/components/common/DateTimePicker';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 const Schedule = () => {
   const [date, setDate] = useState<Date | undefined>(new Date());
+  const [selectedHour, setSelectedHour] = useState<string>('12');
+  const [selectedMinute, setSelectedMinute] = useState<string>('00');
+  const [selectedAmPm, setSelectedAmPm] = useState<string>('PM');
   const [showDateTimePicker, setShowDateTimePicker] = useState(false);
-  const [newScheduleDate, setNewScheduleDate] = useState<Date | undefined>(new Date());
   
   // Sample scheduled posts data - in a real app this would come from an API
   const scheduledPosts = [
@@ -47,9 +51,19 @@ const Schedule = () => {
       ) 
     : [];
 
+  const getFormattedDateTime = () => {
+    if (!date) return "Aucune date sélectionnée";
+    
+    const formattedDate = format(date, 'dd MMMM yyyy', { locale: fr });
+    return `${formattedDate} à ${selectedHour}:${selectedMinute} ${selectedAmPm}`;
+  };
+
+  const hours = Array.from({ length: 12 }, (_, i) => (i + 1).toString().padStart(2, '0'));
+  const minutes = Array.from({ length: 60 }, (_, i) => i.toString().padStart(2, '0'));
+
   const handleAddNewSchedule = () => {
     // Cette fonction serait implémentée pour ajouter une nouvelle planification
-    console.log("Nouvelle planification:", newScheduleDate);
+    console.log("Nouvelle planification:", getFormattedDateTime());
     setShowDateTimePicker(false);
   };
 
@@ -75,11 +89,67 @@ const Schedule = () => {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  <DateTimePicker 
-                    date={newScheduleDate} 
-                    setDate={setNewScheduleDate} 
-                    placeholder="Sélectionner date et heure" 
-                  />
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className="w-full justify-start text-left font-normal"
+                        iconLeft={<CalendarIcon size={16} />}
+                      >
+                        {date ? getFormattedDateTime() : "Sélectionner date et heure"}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-4" align="start">
+                      <div className="space-y-4">
+                        <Calendar
+                          mode="single"
+                          selected={date}
+                          onSelect={setDate}
+                          initialFocus
+                          locale={fr}
+                        />
+                        
+                        <div className="flex flex-col space-y-2 pt-4 border-t">
+                          <Label className="text-sm font-medium">Heure</Label>
+                          <div className="flex items-center gap-2">
+                            <Select value={selectedHour} onValueChange={setSelectedHour}>
+                              <SelectTrigger className="w-20">
+                                <SelectValue placeholder="Heure" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {hours.map(hour => (
+                                  <SelectItem key={hour} value={hour}>{hour}</SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                            
+                            <span>:</span>
+                            
+                            <Select value={selectedMinute} onValueChange={setSelectedMinute}>
+                              <SelectTrigger className="w-20">
+                                <SelectValue placeholder="Min" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {minutes.map(minute => (
+                                  <SelectItem key={minute} value={minute}>{minute}</SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                            
+                            <Select value={selectedAmPm} onValueChange={setSelectedAmPm}>
+                              <SelectTrigger className="w-20">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="AM">AM</SelectItem>
+                                <SelectItem value="PM">PM</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        </div>
+                      </div>
+                    </PopoverContent>
+                  </Popover>
                   
                   <div className="flex justify-end gap-2 mt-4">
                     <Button variant="outline" onClick={() => setShowDateTimePicker(false)}>Annuler</Button>
