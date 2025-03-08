@@ -1,3 +1,4 @@
+
 import React from 'react';
 import {
   Home,
@@ -6,10 +7,13 @@ import {
   Settings,
   Hash,
   LayoutDashboard,
-  Wand2
+  Wand2,
+  LogOut
 } from 'lucide-react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
+import { Separator } from '@/components/ui/separator';
+import Button from '@/components/common/Button';
 
 interface NavItem {
   icon: React.ReactNode;
@@ -58,10 +62,16 @@ const navigationItems: NavItem[] = [
 const Sidebar = () => {
   const location = useLocation();
 
+  const handleLogout = () => {
+    // À implémenter: logique de déconnexion
+    console.log('Déconnexion...');
+    // Exemple de notification: vous pourriez ajouter une notification toast ici
+  };
+
   return (
     <aside className="fixed left-0 top-0 z-50 h-full w-16 flex-none bg-white shadow-sm transition-all duration-300 md:w-60">
       <div className="flex h-full flex-col px-3 py-4 overflow-y-auto bg-white">
-        <ul className="space-y-2 font-medium">
+        <ul className="space-y-2 font-medium flex-grow">
           {navigationItems.map((item) => (
             <li key={item.label}>
               <NavLink
@@ -79,6 +89,17 @@ const Sidebar = () => {
             </li>
           ))}
         </ul>
+        <div className="mt-auto">
+          <Separator className="my-2" />
+          <Button 
+            onClick={handleLogout}
+            variant="ghost" 
+            className="w-full flex items-center justify-start p-2 text-gray-700 hover:bg-gray-100 hover:text-gray-900 rounded-md"
+          >
+            <span className="mr-3"><LogOut size={18} /></span>
+            <span className="hidden md:inline">Déconnexion</span>
+          </Button>
+        </div>
       </div>
     </aside>
   );
