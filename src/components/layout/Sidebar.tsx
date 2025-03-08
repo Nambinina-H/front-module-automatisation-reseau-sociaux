@@ -1,4 +1,3 @@
-
 import React from 'react';
 import {
   Home,
@@ -7,8 +6,7 @@ import {
   Settings,
   Hash,
   LayoutDashboard,
-  Wand2,
-  LogOut
+  Wand2
 } from 'lucide-react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
@@ -60,16 +58,10 @@ const navigationItems: NavItem[] = [
 const Sidebar = () => {
   const location = useLocation();
 
-  const handleLogout = () => {
-    // Ici, vous pourriez ajouter la logique de déconnexion réelle
-    console.log('Déconnexion');
-    // Par exemple: auth.signOut(), localStorage.clear(), etc.
-  };
-
   return (
     <aside className="fixed left-0 top-0 z-50 h-full w-16 flex-none bg-white shadow-sm transition-all duration-300 md:w-60">
       <div className="flex h-full flex-col px-3 py-4 overflow-y-auto bg-white">
-        <ul className="space-y-2 font-medium flex-grow">
+        <ul className="space-y-2 font-medium">
           {navigationItems.map((item) => (
             <li key={item.label}>
               <NavLink
@@ -87,17 +79,6 @@ const Sidebar = () => {
             </li>
           ))}
         </ul>
-        
-        {/* Bouton de déconnexion en bas de la barre latérale */}
-        <div className="mt-auto pt-4 border-t border-gray-200">
-          <button
-            onClick={handleLogout}
-            className="flex w-full items-center rounded-md p-2 text-gray-700 hover:bg-gray-100 hover:text-gray-900"
-          >
-            <span className="mr-3"><LogOut size={18} /></span>
-            <span className="hidden md:inline">Déconnexion</span>
-          </button>
-        </div>
       </div>
     </aside>
   );
