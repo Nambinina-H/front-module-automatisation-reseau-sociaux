@@ -15,6 +15,7 @@ import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { toast } from 'sonner';
 
 interface PostCreatorProps {
   className?: string;
@@ -57,6 +58,19 @@ const PostCreator: React.FC<PostCreatorProps> = ({ className }) => {
 
   const hours = Array.from({ length: 12 }, (_, i) => (i + 1).toString().padStart(2, '0'));
   const minutes = Array.from({ length: 60 }, (_, i) => i.toString().padStart(2, '0'));
+
+  const handlePublishPost = () => {
+    // Vérifier si une date est sélectionnée pour la planification
+    if (date) {
+      toast.success("Post planifié avec succès pour " + getFormattedDateTime());
+    } else {
+      toast.success("Post publié avec succès");
+    }
+  };
+
+  const handleSaveDraft = () => {
+    toast.success("Brouillon enregistré avec succès");
+  };
 
   return (
     <Card className={cn('w-full fancy-border', className)}>
@@ -164,6 +178,7 @@ const PostCreator: React.FC<PostCreatorProps> = ({ className }) => {
                   onSelect={setDate}
                   initialFocus
                   locale={fr}
+                  className="pointer-events-auto"
                 />
                 
                 <div className="flex flex-col space-y-2 pt-4 border-t">
@@ -203,6 +218,15 @@ const PostCreator: React.FC<PostCreatorProps> = ({ className }) => {
                       </SelectContent>
                     </Select>
                   </div>
+                  
+                  <div className="flex justify-end pt-4">
+                    <Button onClick={() => setDate(undefined)} variant="outline" className="mr-2">
+                      Effacer
+                    </Button>
+                    <Button onClick={() => document.body.click()}>
+                      Appliquer
+                    </Button>
+                  </div>
                 </div>
               </div>
             </PopoverContent>
@@ -210,8 +234,10 @@ const PostCreator: React.FC<PostCreatorProps> = ({ className }) => {
         </div>
       </CardContent>
       <CardFooter className="flex justify-end space-x-2 pt-6">
-        <Button variant="outline">Enregistrer comme brouillon</Button>
-        <Button>Planifier</Button>
+        <Button variant="outline" onClick={handleSaveDraft}>Enregistrer comme brouillon</Button>
+        <Button onClick={handlePublishPost}>
+          {date ? "Planifier" : "Publier maintenant"}
+        </Button>
       </CardFooter>
     </Card>
   );

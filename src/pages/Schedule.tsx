@@ -12,6 +12,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import Button from '@/components/common/Button';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { toast } from 'sonner';
 
 const Schedule = () => {
   const [date, setDate] = useState<Date | undefined>(new Date());
@@ -64,6 +65,7 @@ const Schedule = () => {
   const handleAddNewSchedule = () => {
     // Cette fonction serait implémentée pour ajouter une nouvelle planification
     console.log("Nouvelle planification:", getFormattedDateTime());
+    toast.success(`Nouvelle publication planifiée pour ${getFormattedDateTime()}`);
     setShowDateTimePicker(false);
   };
 
@@ -107,6 +109,7 @@ const Schedule = () => {
                           onSelect={setDate}
                           initialFocus
                           locale={fr}
+                          className="pointer-events-auto"
                         />
                         
                         <div className="flex flex-col space-y-2 pt-4 border-t">
@@ -145,6 +148,15 @@ const Schedule = () => {
                                 <SelectItem value="PM">PM</SelectItem>
                               </SelectContent>
                             </Select>
+                          </div>
+                          
+                          <div className="flex justify-end pt-4">
+                            <Button onClick={() => setDate(undefined)} variant="outline" className="mr-2">
+                              Effacer
+                            </Button>
+                            <Button onClick={() => document.body.click()}>
+                              Appliquer
+                            </Button>
                           </div>
                         </div>
                       </div>
