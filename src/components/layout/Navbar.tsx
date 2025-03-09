@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Bell, Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
@@ -18,13 +17,7 @@ const Navbar: React.FC<NavbarProps> = ({ className }) => {
       )}
     >
       <div className="flex-1">
-        <div className="relative max-w-md">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
-          <Input 
-            placeholder="Rechercher..." 
-            className="pl-10 w-full max-w-xs bg-gray-50 border-gray-200 focus-visible:ring-primary"
-          />
-        </div>
+        
       </div>
       
       <div className="flex items-center space-x-4">
