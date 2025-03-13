@@ -1,6 +1,7 @@
 
 import { useState, useCallback } from 'react';
 import { apiService } from '@/services/apiService';
+import { User, Content, Log, LoginCredentials, RegisterCredentials, AuthResponse, ContentGenerationParams, PublishParams } from '@/services/apiService';
 
 // Hook générique pour les appels API
 export function useApi<T, P = any>(
@@ -41,10 +42,10 @@ export function useApi<T, P = any>(
 // Hooks spécifiques pour différentes fonctionnalités
 export function useAuth() {
   const { execute: executeLogin, loading: loginLoading, error: loginError } = 
-    useApi(apiService.login.bind(apiService));
+    useApi<AuthResponse, LoginCredentials>(apiService.login.bind(apiService));
   
   const { execute: executeRegister, loading: registerLoading, error: registerError } = 
-    useApi(apiService.register.bind(apiService));
+    useApi<AuthResponse, RegisterCredentials>(apiService.register.bind(apiService));
   
   const logout = useCallback(() => {
     apiService.logout();
@@ -55,7 +56,7 @@ export function useAuth() {
     loading: profileLoading, 
     error: profileError,
     execute: fetchProfile 
-  } = useApi(apiService.getProfile.bind(apiService));
+  } = useApi<User>(apiService.getProfile.bind(apiService));
 
   return {
     login: executeLogin,
@@ -84,25 +85,25 @@ export function useContent() {
     error: listError,
     execute: fetchContentList,
     setData: setContentList
-  } = useApi(apiService.getContentList.bind(apiService), []);
+  } = useApi<Content[]>(apiService.getContentList.bind(apiService), []);
 
   const {
     execute: executeGenerate,
     loading: generateLoading,
     error: generateError
-  } = useApi(apiService.generateContent.bind(apiService));
+  } = useApi<Content, ContentGenerationParams>(apiService.generateContent.bind(apiService));
 
   const {
     execute: executeUpdate,
     loading: updateLoading,
     error: updateError
-  } = useApi(apiService.updateContent.bind(apiService));
+  } = useApi<Content, {id: string, data: Partial<Content>}>(apiService.updateContent.bind(apiService));
 
   const {
     execute: executeDelete,
     loading: deleteLoading,
     error: deleteError
-  } = useApi(apiService.deleteContent.bind(apiService));
+  } = useApi<void, string>(apiService.deleteContent.bind(apiService));
 
   // Wrapper qui met à jour la liste après suppression
   const deleteContent = useCallback(
@@ -141,13 +142,13 @@ export function usePublish() {
     execute: executePublish,
     loading: publishLoading,
     error: publishError
-  } = useApi(apiService.publishContent.bind(apiService));
+  } = useApi<any, PublishParams>(apiService.publishContent.bind(apiService));
 
   const {
     execute: executeCancel,
     loading: cancelLoading,
     error: cancelError
-  } = useApi(apiService.cancelPublication.bind(apiService));
+  } = useApi<void, string>(apiService.cancelPublication.bind(apiService));
 
   return {
     publishContent: executePublish,
@@ -169,13 +170,13 @@ export function useLogs() {
     loading: logsLoading,
     error: logsError,
     execute: fetchLogs
-  } = useApi(apiService.getLogs.bind(apiService), []);
+  } = useApi<Log[]>(apiService.getLogs.bind(apiService), []);
 
   const {
     execute: executeExport,
     loading: exportLoading,
     error: exportError
-  } = useApi(apiService.exportLogs.bind(apiService));
+  } = useApi<Blob, 'csv' | 'json'>(apiService.exportLogs.bind(apiService));
 
   // Fonction utilitaire pour télécharger les logs exportés
   const downloadLogs = useCallback(
