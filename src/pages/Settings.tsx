@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Switch } from '@/components/ui/switch';
-import { Bell, Lock, Globe, Wordpress } from 'lucide-react';
+import { Bell, Lock, Globe, FileCode } from 'lucide-react';
 import PlatformIcon from '@/components/common/PlatformIcon';
 
 const Settings = () => {
