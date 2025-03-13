@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Switch } from '@/components/ui/switch';
-import { Bell, Lock, Globe } from 'lucide-react';
+import { Bell, Lock, Globe, Wordpress } from 'lucide-react';
 import PlatformIcon from '@/components/common/PlatformIcon';
 
 const Settings = () => {
@@ -91,8 +91,6 @@ const Settings = () => {
                   {[
                     { id: 'post-published', label: 'Publication de post', description: 'Recevoir une notification lorsqu\'un post est publié' },
                     { id: 'post-scheduled', label: 'Planification de post', description: 'Recevoir une notification lorsqu\'un post est planifié' },
-                    { id: 'post-engagement', label: 'Engagement sur les posts', description: 'Recevoir une notification lorsqu\'un post reçoit un engagement significatif' },
-                    { id: 'analytics-weekly', label: 'Rapport analytique hebdomadaire', description: 'Recevoir un rapport hebdomadaire de vos performances' },
                     { id: 'platform-updates', label: 'Mises à jour de la plateforme', description: 'Recevoir des notifications concernant les mises à jour de la plateforme' },
                   ].map((notification) => (
                     <div key={notification.id} className="flex items-center justify-between border-b border-gray-100 pb-4">
@@ -100,7 +98,7 @@ const Settings = () => {
                         <p className="font-medium">{notification.label}</p>
                         <p className="text-sm text-gray-500">{notification.description}</p>
                       </div>
-                      <Switch defaultChecked={['post-published', 'post-scheduled', 'analytics-weekly'].includes(notification.id)} />
+                      <Switch defaultChecked={['post-published', 'post-scheduled'].includes(notification.id)} />
                     </div>
                   ))}
                   
@@ -135,6 +133,7 @@ const Settings = () => {
                     { platform: 'instagram', name: 'Instagram', connected: true },
                     { platform: 'twitter', name: 'Twitter', connected: false },
                     { platform: 'facebook', name: 'Facebook', connected: true },
+                    { platform: 'wordpress', name: 'WordPress', connected: false },
                   ].map((connection) => (
                     <div key={connection.platform} className="flex items-center justify-between border-b border-gray-100 pb-4">
                       <div className="flex items-center space-x-3">

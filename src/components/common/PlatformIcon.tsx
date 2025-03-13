@@ -1,9 +1,9 @@
 
 import React from 'react';
-import { Facebook, Instagram, Linkedin, Twitter } from 'lucide-react';
+import { Facebook, Instagram, Linkedin, Twitter, Wordpress } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-type PlatformType = 'linkedin' | 'instagram' | 'twitter' | 'facebook';
+type PlatformType = 'linkedin' | 'instagram' | 'twitter' | 'facebook' | 'wordpress';
 
 interface PlatformIconProps {
   platform: PlatformType;
@@ -30,6 +30,8 @@ const PlatformIcon: React.FC<PlatformIconProps> = ({
       return <Twitter {...iconProps} className={cn('text-socialBlue-twitter', className)} />;
     case 'facebook':
       return <Facebook {...iconProps} className={cn('text-socialBlue-facebook', className)} />;
+    case 'wordpress':
+      return <Wordpress {...iconProps} className={cn('text-blue-600', className)} />;
     default:
       return null;
   }
