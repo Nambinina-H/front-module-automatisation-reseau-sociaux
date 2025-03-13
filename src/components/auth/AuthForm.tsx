@@ -5,6 +5,9 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import Button from '@/components/common/Button';
 import { cn } from '@/lib/utils';
+import { useAuth } from '@/hooks/useApi';
+import { useNavigate } from 'react-router-dom';
+import { toast } from '@/components/ui/use-toast';
 
 type AuthMode = 'login' | 'register';
 
@@ -12,21 +15,43 @@ const AuthForm = () => {
   const [authMode, setAuthMode] = useState<AuthMode>('login');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
+  const [confirmPassword, setConfirmPassword] = useState('');
+  
+  const { login, register, loading } = useAuth();
+  const navigate = useNavigate();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
     
-    // Simulate loading for demo purposes
-    setTimeout(() => {
-      setIsLoading(false);
-      console.log('Auth data:', { email, password, authMode });
-    }, 1500);
+    try {
+      if (authMode === 'register') {
+        if (password !== confirmPassword) {
+          toast({
+            title: "Erreur",
+            description: "Les mots de passe ne correspondent pas.",
+            variant: "destructive",
+          });
+          return;
+        }
+        
+        await register({ email, password });
+      } else {
+        await login({ email, password });
+      }
+      
+      // Redirection après connexion réussie
+      navigate('/');
+      
+    } catch (error) {
+      console.error('Erreur d\'authentification:', error);
+      // Les toasts d'erreur sont gérés par l'intercepteur dans apiService
+    }
   };
 
   const toggleAuthMode = () => {
     setAuthMode(authMode === 'login' ? 'register' : 'login');
+    // Réinitialiser les champs lors du changement de mode
+    setConfirmPassword('');
   };
 
   return (
@@ -75,10 +100,28 @@ const AuthForm = () => {
           </div>
         </div>
 
+        {authMode === 'register' && (
+          <div className="space-y-2">
+            <Label htmlFor="confirmPassword">Confirmer le mot de passe</Label>
+            <div className="relative">
+              <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+              <Input
+                id="confirmPassword"
+                type="password"
+                placeholder="••••••••"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                className="pl-10"
+                required
+              />
+            </div>
+          </div>
+        )}
+
         <Button
           type="submit"
           className="w-full"
-          loading={isLoading}
+          loading={loading.login || loading.register}
         >
           {authMode === 'login' ? 'Se connecter' : 'Créer un compte'}
         </Button>
