@@ -5,7 +5,6 @@ import {
   Calendar,
   BarChart2,
   Settings,
-  Hash,
   LayoutDashboard,
   Wand2,
   LogOut
@@ -36,11 +35,6 @@ const navigationItems: NavItem[] = [
     icon: <Calendar size={18} />,
     label: 'Calendrier',
     href: '/schedule'
-  },
-  {
-    icon: <Hash size={18} />,
-    label: 'Mots-clés',
-    href: '/keywords'
   },
   {
     icon: <BarChart2 size={18} />,

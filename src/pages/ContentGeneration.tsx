@@ -14,10 +14,31 @@ import { Separator } from '@/components/ui/separator';
 import Badge from '@/components/common/Badge';
 import { Slider } from '@/components/ui/slider';
 import { toast } from 'sonner';
-import { Image, FileVideo, FileText, Wand2, Sliders, Upload, Download, AlertCircle } from 'lucide-react';
+import { 
+  Image, 
+  FileVideo, 
+  FileText, 
+  Wand2, 
+  Sliders, 
+  Upload, 
+  Download, 
+  AlertCircle, 
+  Plus,
+  Variable,
+} from 'lucide-react';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogFooter,
+  DialogClose,
+} from "@/components/ui/dialog";
 
 // Sample template data
-const templates = [
+const initialTemplates = [
   { id: 'blog', name: 'Article de blog', contentType: 'text' },
   { id: 'social', name: 'Légende pour réseaux sociaux', contentType: 'text' },
   { id: 'newsletter', name: 'Newsletter', contentType: 'text' },
@@ -25,6 +46,15 @@ const templates = [
   { id: 'banner', name: 'Bannière sociale', contentType: 'image' },
   { id: 'promo', name: 'Vidéo promotionnelle', contentType: 'video' },
   { id: 'tutorial', name: 'Tutoriel', contentType: 'video' }
+];
+
+// Initial tones
+const initialTones = [
+  { id: 'professional', name: 'Professionnel' },
+  { id: 'casual', name: 'Décontracté' },
+  { id: 'friendly', name: 'Amical' },
+  { id: 'formal', name: 'Formel' },
+  { id: 'humorous', name: 'Humoristique' },
 ];
 
 // Sample placeholders for generated content
@@ -46,6 +76,17 @@ interface DynamicVariable {
   value: string;
 }
 
+interface Template {
+  id: string;
+  name: string;
+  contentType: string;
+}
+
+interface Tone {
+  id: string;
+  name: string;
+}
+
 interface ContentSettings {
   tone: string;
   length: number;
@@ -63,6 +104,16 @@ const ContentGeneration = () => {
   const [generatedContent, setGeneratedContent] = useState<any>(null);
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [filePreview, setFilePreview] = useState<string | null>(null);
+  
+  // New state for template and tone management
+  const [templates, setTemplates] = useState<Template[]>(initialTemplates);
+  const [tones, setTones] = useState<Tone[]>(initialTones);
+  const [newTemplateName, setNewTemplateName] = useState('');
+  const [newTemplateType, setNewTemplateType] = useState('text');
+  const [newToneName, setNewToneName] = useState('');
+  
+  // Variable management
+  const [newVariableName, setNewVariableName] = useState('');
   
   // Content settings
   const [settings, setSettings] = useState<ContentSettings>({
@@ -108,6 +159,72 @@ const ContentGeneration = () => {
         variable.id === id ? { ...variable, value } : variable
       )
     });
+  };
+  
+  // Add new template
+  const handleAddTemplate = () => {
+    if (newTemplateName.trim() === '') {
+      toast.error('Le nom du modèle ne peut pas être vide');
+      return;
+    }
+    
+    const newTemplate = {
+      id: Date.now().toString(),
+      name: newTemplateName,
+      contentType: newTemplateType
+    };
+    
+    setTemplates([...templates, newTemplate]);
+    setNewTemplateName('');
+    toast.success('Nouveau modèle ajouté');
+  };
+  
+  // Add new tone
+  const handleAddTone = () => {
+    if (newToneName.trim() === '') {
+      toast.error('Le nom du ton ne peut pas être vide');
+      return;
+    }
+    
+    const newTone = {
+      id: Date.now().toString(),
+      name: newToneName
+    };
+    
+    setTones([...tones, newTone]);
+    setNewToneName('');
+    toast.success('Nouveau ton ajouté');
+  };
+  
+  // Add new variable
+  const handleAddVariable = () => {
+    if (newVariableName.trim() === '') {
+      toast.error('Le nom de la variable ne peut pas être vide');
+      return;
+    }
+    
+    const newVariable = {
+      id: Date.now().toString(),
+      name: newVariableName,
+      value: ''
+    };
+    
+    setSettings({
+      ...settings,
+      dynamicVariables: [...settings.dynamicVariables, newVariable]
+    });
+    
+    setNewVariableName('');
+    toast.success('Nouvelle variable ajoutée');
+  };
+  
+  // Remove variable
+  const handleRemoveVariable = (id: string) => {
+    setSettings({
+      ...settings,
+      dynamicVariables: settings.dynamicVariables.filter(variable => variable.id !== id)
+    });
+    toast.success('Variable supprimée');
   };
   
   const simulateGeneration = () => {
@@ -268,7 +385,62 @@ const ContentGeneration = () => {
                     </CardHeader>
                     <CardContent className="space-y-4">
                       <div className="space-y-2">
-                        <Label htmlFor="template">Modèle</Label>
+                        <div className="flex justify-between items-center">
+                          <Label htmlFor="template">Modèle</Label>
+                          <Dialog>
+                            <DialogTrigger asChild>
+                              <Button variant="outline" size="sm" className="h-8">
+                                <Plus className="h-3.5 w-3.5 mr-1" />
+                                Ajouter
+                              </Button>
+                            </DialogTrigger>
+                            <DialogContent className="sm:max-w-[425px]">
+                              <DialogHeader>
+                                <DialogTitle>Ajouter un nouveau modèle</DialogTitle>
+                                <DialogDescription>
+                                  Créez un nouveau modèle pour la génération de contenu.
+                                </DialogDescription>
+                              </DialogHeader>
+                              <div className="grid gap-4 py-4">
+                                <div className="grid grid-cols-4 items-center gap-4">
+                                  <Label htmlFor="templateName" className="text-right">
+                                    Nom
+                                  </Label>
+                                  <Input
+                                    id="templateName"
+                                    value={newTemplateName}
+                                    onChange={(e) => setNewTemplateName(e.target.value)}
+                                    className="col-span-3"
+                                  />
+                                </div>
+                                <div className="grid grid-cols-4 items-center gap-4">
+                                  <Label htmlFor="templateType" className="text-right">
+                                    Type
+                                  </Label>
+                                  <Select 
+                                    value={newTemplateType} 
+                                    onValueChange={setNewTemplateType}
+                                  >
+                                    <SelectTrigger className="col-span-3">
+                                      <SelectValue placeholder="Sélectionner un type" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      <SelectItem value="text">Texte</SelectItem>
+                                      <SelectItem value="image">Image</SelectItem>
+                                      <SelectItem value="video">Vidéo</SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                </div>
+                              </div>
+                              <DialogFooter>
+                                <DialogClose asChild>
+                                  <Button variant="outline">Annuler</Button>
+                                </DialogClose>
+                                <Button onClick={handleAddTemplate}>Ajouter</Button>
+                              </DialogFooter>
+                            </DialogContent>
+                          </Dialog>
+                        </div>
                         <Select 
                           onValueChange={(value) => setSettings({...settings, template: value})}
                           value={settings.template}
@@ -362,7 +534,63 @@ const ContentGeneration = () => {
                     </CardHeader>
                     <CardContent className="space-y-4">
                       <div className="space-y-2">
-                        <Label htmlFor="template">Modèle</Label>
+                        <div className="flex justify-between items-center">
+                          <Label htmlFor="template">Modèle</Label>
+                          <Dialog>
+                            <DialogTrigger asChild>
+                              <Button variant="outline" size="sm" className="h-8">
+                                <Plus className="h-3.5 w-3.5 mr-1" />
+                                Ajouter
+                              </Button>
+                            </DialogTrigger>
+                            <DialogContent className="sm:max-w-[425px]">
+                              <DialogHeader>
+                                <DialogTitle>Ajouter un nouveau modèle</DialogTitle>
+                                <DialogDescription>
+                                  Créez un nouveau modèle pour la génération d'images.
+                                </DialogDescription>
+                              </DialogHeader>
+                              <div className="grid gap-4 py-4">
+                                <div className="grid grid-cols-4 items-center gap-4">
+                                  <Label htmlFor="templateName" className="text-right">
+                                    Nom
+                                  </Label>
+                                  <Input
+                                    id="templateName"
+                                    value={newTemplateName}
+                                    onChange={(e) => setNewTemplateName(e.target.value)}
+                                    className="col-span-3"
+                                  />
+                                </div>
+                                <div className="grid grid-cols-4 items-center gap-4">
+                                  <Label htmlFor="templateType" className="text-right">
+                                    Type
+                                  </Label>
+                                  <Select 
+                                    value={newTemplateType} 
+                                    onValueChange={setNewTemplateType}
+                                    defaultValue="image"
+                                  >
+                                    <SelectTrigger className="col-span-3">
+                                      <SelectValue placeholder="Sélectionner un type" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      <SelectItem value="text">Texte</SelectItem>
+                                      <SelectItem value="image">Image</SelectItem>
+                                      <SelectItem value="video">Vidéo</SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                </div>
+                              </div>
+                              <DialogFooter>
+                                <DialogClose asChild>
+                                  <Button variant="outline">Annuler</Button>
+                                </DialogClose>
+                                <Button onClick={handleAddTemplate}>Ajouter</Button>
+                              </DialogFooter>
+                            </DialogContent>
+                          </Dialog>
+                        </div>
                         <Select 
                           onValueChange={(value) => setSettings({...settings, template: value})}
                           value={settings.template}
@@ -504,7 +732,63 @@ const ContentGeneration = () => {
                     </CardHeader>
                     <CardContent className="space-y-4">
                       <div className="space-y-2">
-                        <Label htmlFor="template">Modèle</Label>
+                        <div className="flex justify-between items-center">
+                          <Label htmlFor="template">Modèle</Label>
+                          <Dialog>
+                            <DialogTrigger asChild>
+                              <Button variant="outline" size="sm" className="h-8">
+                                <Plus className="h-3.5 w-3.5 mr-1" />
+                                Ajouter
+                              </Button>
+                            </DialogTrigger>
+                            <DialogContent className="sm:max-w-[425px]">
+                              <DialogHeader>
+                                <DialogTitle>Ajouter un nouveau modèle</DialogTitle>
+                                <DialogDescription>
+                                  Créez un nouveau modèle pour la génération de vidéos.
+                                </DialogDescription>
+                              </DialogHeader>
+                              <div className="grid gap-4 py-4">
+                                <div className="grid grid-cols-4 items-center gap-4">
+                                  <Label htmlFor="templateName" className="text-right">
+                                    Nom
+                                  </Label>
+                                  <Input
+                                    id="templateName"
+                                    value={newTemplateName}
+                                    onChange={(e) => setNewTemplateName(e.target.value)}
+                                    className="col-span-3"
+                                  />
+                                </div>
+                                <div className="grid grid-cols-4 items-center gap-4">
+                                  <Label htmlFor="templateType" className="text-right">
+                                    Type
+                                  </Label>
+                                  <Select 
+                                    value={newTemplateType} 
+                                    onValueChange={setNewTemplateType}
+                                    defaultValue="video"
+                                  >
+                                    <SelectTrigger className="col-span-3">
+                                      <SelectValue placeholder="Sélectionner un type" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      <SelectItem value="text">Texte</SelectItem>
+                                      <SelectItem value="image">Image</SelectItem>
+                                      <SelectItem value="video">Vidéo</SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                </div>
+                              </div>
+                              <DialogFooter>
+                                <DialogClose asChild>
+                                  <Button variant="outline">Annuler</Button>
+                                </DialogClose>
+                                <Button onClick={handleAddTemplate}>Ajouter</Button>
+                              </DialogFooter>
+                            </DialogContent>
+                          </Dialog>
+                        </div>
                         <Select 
                           onValueChange={(value) => setSettings({...settings, template: value})}
                           value={settings.template}
@@ -641,7 +925,44 @@ const ContentGeneration = () => {
                   <CardContent className="space-y-6">
                     <div className="space-y-4">
                       <div className="space-y-2">
-                        <Label htmlFor="tone">Ton</Label>
+                        <div className="flex justify-between items-center">
+                          <Label htmlFor="tone">Ton</Label>
+                          <Dialog>
+                            <DialogTrigger asChild>
+                              <Button variant="outline" size="sm" className="h-8">
+                                <Plus className="h-3.5 w-3.5 mr-1" />
+                                Ajouter
+                              </Button>
+                            </DialogTrigger>
+                            <DialogContent className="sm:max-w-[425px]">
+                              <DialogHeader>
+                                <DialogTitle>Ajouter un nouveau ton</DialogTitle>
+                                <DialogDescription>
+                                  Créez un nouveau ton pour vos contenus.
+                                </DialogDescription>
+                              </DialogHeader>
+                              <div className="grid gap-4 py-4">
+                                <div className="grid grid-cols-4 items-center gap-4">
+                                  <Label htmlFor="toneName" className="text-right">
+                                    Nom
+                                  </Label>
+                                  <Input
+                                    id="toneName"
+                                    value={newToneName}
+                                    onChange={(e) => setNewToneName(e.target.value)}
+                                    className="col-span-3"
+                                  />
+                                </div>
+                              </div>
+                              <DialogFooter>
+                                <DialogClose asChild>
+                                  <Button variant="outline">Annuler</Button>
+                                </DialogClose>
+                                <Button onClick={handleAddTone}>Ajouter</Button>
+                              </DialogFooter>
+                            </DialogContent>
+                          </Dialog>
+                        </div>
                         <Select 
                           value={settings.tone}
                           onValueChange={(value) => setSettings({...settings, tone: value})}
@@ -650,11 +971,11 @@ const ContentGeneration = () => {
                             <SelectValue placeholder="Choisir un ton" />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="professional">Professionnel</SelectItem>
-                            <SelectItem value="casual">Décontracté</SelectItem>
-                            <SelectItem value="friendly">Amical</SelectItem>
-                            <SelectItem value="formal">Formel</SelectItem>
-                            <SelectItem value="humorous">Humoristique</SelectItem>
+                            {tones.map(tone => (
+                              <SelectItem key={tone.id} value={tone.id}>
+                                {tone.name}
+                              </SelectItem>
+                            ))}
                           </SelectContent>
                         </Select>
                       </div>
@@ -685,7 +1006,46 @@ const ContentGeneration = () => {
                     <Separator />
                     
                     <div className="space-y-4">
-                      <h3 className="text-sm font-medium">Variables dynamiques</h3>
+                      <div className="flex justify-between items-center">
+                        <h3 className="text-sm font-medium">Variables dynamiques</h3>
+                        <Dialog>
+                          <DialogTrigger asChild>
+                            <Button variant="outline" size="sm" className="h-8">
+                              <Variable className="h-3.5 w-3.5 mr-1" />
+                              Ajouter une variable
+                            </Button>
+                          </DialogTrigger>
+                          <DialogContent className="sm:max-w-[425px]">
+                            <DialogHeader>
+                              <DialogTitle>Ajouter une variable</DialogTitle>
+                              <DialogDescription>
+                                Créez une nouvelle variable pour votre contenu.
+                              </DialogDescription>
+                            </DialogHeader>
+                            <div className="grid gap-4 py-4">
+                              <div className="grid grid-cols-4 items-center gap-4">
+                                <Label htmlFor="variableName" className="text-right">
+                                  Nom
+                                </Label>
+                                <Input
+                                  id="variableName"
+                                  value={newVariableName}
+                                  onChange={(e) => setNewVariableName(e.target.value)}
+                                  className="col-span-3"
+                                  placeholder="ex: Entreprise, Produit..."
+                                />
+                              </div>
+                            </div>
+                            <DialogFooter>
+                              <DialogClose asChild>
+                                <Button variant="outline">Annuler</Button>
+                              </DialogClose>
+                              <Button onClick={handleAddVariable}>Ajouter</Button>
+                            </DialogFooter>
+                          </DialogContent>
+                        </Dialog>
+                      </div>
+                      
                       <p className="text-xs text-gray-500">
                         Ces variables seront remplacées dans le contenu généré.
                       </p>
@@ -701,12 +1061,16 @@ const ContentGeneration = () => {
                             onChange={(e) => handleVariableChange(variable.id, e.target.value)}
                             className="flex-1"
                           />
+                          <Button 
+                            variant="ghost" 
+                            size="icon" 
+                            className="h-8 w-8 text-gray-500"
+                            onClick={() => handleRemoveVariable(variable.id)}
+                          >
+                            &times;
+                          </Button>
                         </div>
                       ))}
-                      
-                      <Button variant="outline" className="w-full text-sm">
-                        + Ajouter une variable
-                      </Button>
                     </div>
                     
                     <Separator />
