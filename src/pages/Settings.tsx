@@ -1,5 +1,4 @@
-
-import React from 'react';
+import React, { useState } from 'react';
 import Sidebar from '@/components/layout/Sidebar';
 import Navbar from '@/components/layout/Navbar';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -7,10 +6,23 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
 import { Bell, Lock, Globe, FileCode } from 'lucide-react';
 import PlatformIcon from '@/components/common/PlatformIcon';
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
 const Settings = () => {
+  const [email, setEmail] = useState('');
+
   return (
     <div className="min-h-screen bg-gray-50">
       <Sidebar />
@@ -72,7 +84,35 @@ const Settings = () => {
                       <p className="text-sm text-gray-600 mb-4">
                         Cette action est irréversible et supprimera toutes vos données.
                       </p>
-                      <Button variant="destructive">Supprimer mon compte</Button>
+                      <Dialog>
+                        <DialogTrigger asChild>
+                          <Button variant="destructive">Supprimer mon compte</Button>
+                        </DialogTrigger>
+                        <DialogContent>
+                          <DialogHeader>
+                            <DialogTitle>Confirmation suppression de compte</DialogTitle>
+                            <DialogDescription>
+                              Cette action ne peut pas être annulée. Pour confirmer, veuillez entrer votre email.
+                            </DialogDescription>
+                          </DialogHeader>
+                          <div className="space-y-4">
+                            <Label htmlFor="email">Tapez "email" pour confirmer </Label>
+                            <Input 
+                              id="email" 
+                              type="email" 
+                              placeholder="Your email" 
+                              value={email}
+                              onChange={(e) => setEmail(e.target.value)}
+                            />
+                          </div>
+                          <DialogFooter>
+                            <DialogClose asChild>
+                              <Button variant="outline">Annuler</Button>
+                            </DialogClose>
+                            <Button variant="destructive">Supprimer</Button>
+                          </DialogFooter>
+                        </DialogContent>
+                      </Dialog>
                     </div>
                   </div>
                 </CardContent>
