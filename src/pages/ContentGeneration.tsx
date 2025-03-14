@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import Sidebar from '@/components/layout/Sidebar';
 import Navbar from '@/components/layout/Navbar';
@@ -36,6 +35,8 @@ import {
   DialogFooter,
   DialogClose,
 } from "@/components/ui/dialog";
+import { useContent } from '@/hooks/useApi';
+import { ContentGenerationParams, ContentPersonalization } from '@/services/apiService';
 
 // Sample template data
 const initialTemplates = [
@@ -127,6 +128,12 @@ const ContentGeneration = () => {
       { id: '3', name: 'Lieu', value: 'Paris' }
     ]
   });
+
+  // Utiliser le hook useContent pour la génération de contenu
+  const { 
+    generateContent,
+    loading: { generate: isApiGenerating }
+  } = useContent();
   
   const addKeyword = () => {
     if (newKeyword && !keywords.includes(newKeyword)) {
@@ -227,6 +234,78 @@ const ContentGeneration = () => {
     toast.success('Variable supprimée');
   };
   
+  const handleGeneration = async () => {
+    if (!prompt && keywords.length === 0) {
+      toast.error("Veuillez ajouter un prompt ou des mots-clés");
+      return;
+    }
+    
+    setIsGenerating(true);
+    
+    // Préparer les variables pour l'API
+    const variablesObject: Record<string, string> = {};
+    settings.dynamicVariables.forEach(variable => {
+      variablesObject[variable.name] = variable.value;
+    });
+    
+    // Préparer les paramètres pour l'API
+    const templateItem = templates.find(t => t.id === settings.template);
+    
+    const personalization: ContentPersonalization = {
+      ton: tones.find(t => t.id === settings.tone)?.name || 'professionnel',
+      longueur: `${settings.length}%`,
+      modelType: templateItem?.name || 'article de blog',
+      promptInstructions: prompt,
+      variables: variablesObject
+    };
+    
+    const params: ContentGenerationParams = {
+      type: activeTab as 'text' | 'image' | 'video',
+      keywords: keywords,
+      personalization: personalization
+    };
+    
+    try {
+      const response = await generateContent(params);
+      
+      if (response && response.content && response.content.length > 0) {
+        // Succès - afficher le contenu généré
+        const content = response.content[0];
+        
+        if (activeTab === 'text') {
+          setGeneratedContent({
+            type: 'text',
+            content: content.content || ''
+          });
+          toast.success(response.message || "Texte généré avec succès");
+        } else if (activeTab === 'image') {
+          setGeneratedContent({
+            type: 'image',
+            content: content.content || placeholderImages[0]
+          });
+          toast.success(response.message || "Image générée avec succès");
+        } else if (activeTab === 'video') {
+          setGeneratedContent({
+            type: 'video',
+            content: content.content || placeholderVideo
+          });
+          toast.success(response.message || "Aperçu de la vidéo généré avec succès");
+        }
+      } else {
+        toast.error("Aucun contenu n'a été généré");
+      }
+    } catch (error) {
+      console.error("Erreur lors de la génération du contenu:", error);
+      toast.error("Erreur lors de la génération du contenu");
+      
+      // En cas d'erreur, simuler une réponse pour la démo
+      simulateGeneration();
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+  
+  // Fallback en cas d'échec de l'API
   const simulateGeneration = () => {
     if (!prompt && keywords.length === 0) {
       toast.error("Veuillez ajouter un prompt ou des mots-clés");
@@ -274,14 +353,26 @@ const ContentGeneration = () => {
         return (
           <div className="mt-6 space-y-4">
             <h3 className="text-lg font-medium">Contenu généré</h3>
-            <div className="p-4 bg-white border rounded-md shadow-sm min-h-[200px]">
+            <div className="p-4 bg-white border rounded-md shadow-sm min-h-[200px] whitespace-pre-line">
               {generatedContent.content.split('\n').map((paragraph: string, i: number) => (
                 <p key={i} className="mb-4">{paragraph}</p>
               ))}
             </div>
             <div className="flex justify-end space-x-2">
               <Button variant="outline">Modifier</Button>
-              <Button>
+              <Button onClick={() => {
+                // Créer un blob et télécharger le contenu
+                const blob = new Blob([generatedContent.content], { type: 'text/plain' });
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `contenu-genere-${new Date().toISOString().slice(0, 10)}.txt`;
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+                toast.success("Contenu téléchargé avec succès");
+              }}>
                 <Download className="mr-2 h-4 w-4" />
                 Exporter
               </Button>
@@ -504,11 +595,11 @@ const ContentGeneration = () => {
                       
                       <div className="pt-4">
                         <Button 
-                          onClick={simulateGeneration} 
-                          disabled={isGenerating}
+                          onClick={handleGeneration} 
+                          disabled={isGenerating || isApiGenerating}
                           className="w-full"
                         >
-                          {isGenerating ? (
+                          {isGenerating || isApiGenerating ? (
                             <>Génération en cours...</>
                           ) : (
                             <>
@@ -824,271 +915,3 @@ const ContentGeneration = () => {
                         <div className="grid grid-cols-2 gap-4">
                           <div className="space-y-2">
                             <Label htmlFor="duration" className="text-sm">Durée</Label>
-                            <Select defaultValue="15">
-                              <SelectTrigger>
-                                <SelectValue placeholder="Durée" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="15">15 secondes</SelectItem>
-                                <SelectItem value="30">30 secondes</SelectItem>
-                                <SelectItem value="60">60 secondes</SelectItem>
-                              </SelectContent>
-                            </Select>
-                          </div>
-                          <div className="space-y-2">
-                            <Label htmlFor="ratio" className="text-sm">Format</Label>
-                            <Select defaultValue="portrait">
-                              <SelectTrigger>
-                                <SelectValue placeholder="Format" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="portrait">Portrait (9:16)</SelectItem>
-                                <SelectItem value="square">Carré (1:1)</SelectItem>
-                                <SelectItem value="landscape">Paysage (16:9)</SelectItem>
-                              </SelectContent>
-                            </Select>
-                          </div>
-                        </div>
-                      </div>
-                      
-                      <div className="space-y-2">
-                        <Label className="flex items-center gap-2">
-                          Ajouter de la musique
-                          <Switch />
-                        </Label>
-                      </div>
-                      
-                      <div className="space-y-2">
-                        <Label>Mots-clés</Label>
-                        <div className="flex gap-2">
-                          <Input 
-                            placeholder="Ajouter un mot-clé" 
-                            value={newKeyword}
-                            onChange={(e) => setNewKeyword(e.target.value)}
-                            onKeyDown={(e) => {
-                              if (e.key === 'Enter') {
-                                e.preventDefault();
-                                addKeyword();
-                              }
-                            }}
-                          />
-                          <Button onClick={addKeyword} disabled={!newKeyword}>Ajouter</Button>
-                        </div>
-                        
-                        {keywords.length > 0 && (
-                          <div className="flex flex-wrap gap-1 mt-2">
-                            {keywords.map((keyword) => (
-                              <Badge
-                                key={keyword}
-                                variant="secondary"
-                                className="cursor-pointer hover:bg-gray-200"
-                                onClick={() => removeKeyword(keyword)}
-                              >
-                                {keyword} &times;
-                              </Badge>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                      
-                      <div className="pt-4">
-                        <Button 
-                          onClick={simulateGeneration} 
-                          disabled={isGenerating}
-                          className="w-full"
-                        >
-                          {isGenerating ? (
-                            <>Génération en cours...</>
-                          ) : (
-                            <>
-                              <Wand2 className="mr-2 h-4 w-4" />
-                              Générer la vidéo
-                            </>
-                          )}
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
-                  
-                  {renderGeneratedContent()}
-                </TabsContent>
-              </div>
-              
-              <div className="lg:col-span-1">
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <Sliders className="h-4 w-4" />
-                      Personnalisation
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-6">
-                    <div className="space-y-4">
-                      <div className="space-y-2">
-                        <div className="flex justify-between items-center">
-                          <Label htmlFor="tone">Ton</Label>
-                          <Dialog>
-                            <DialogTrigger asChild>
-                              <Button variant="outline" size="sm" className="h-8">
-                                <Plus className="h-3.5 w-3.5 mr-1" />
-                                Ajouter
-                              </Button>
-                            </DialogTrigger>
-                            <DialogContent className="sm:max-w-[425px]">
-                              <DialogHeader>
-                                <DialogTitle>Ajouter un nouveau ton</DialogTitle>
-                                <DialogDescription>
-                                  Créez un nouveau ton pour vos contenus.
-                                </DialogDescription>
-                              </DialogHeader>
-                              <div className="grid gap-4 py-4">
-                                <div className="grid grid-cols-4 items-center gap-4">
-                                  <Label htmlFor="toneName" className="text-right">
-                                    Nom
-                                  </Label>
-                                  <Input
-                                    id="toneName"
-                                    value={newToneName}
-                                    onChange={(e) => setNewToneName(e.target.value)}
-                                    className="col-span-3"
-                                  />
-                                </div>
-                              </div>
-                              <DialogFooter>
-                                <DialogClose asChild>
-                                  <Button variant="outline">Annuler</Button>
-                                </DialogClose>
-                                <Button onClick={handleAddTone}>Ajouter</Button>
-                              </DialogFooter>
-                            </DialogContent>
-                          </Dialog>
-                        </div>
-                        <Select 
-                          value={settings.tone}
-                          onValueChange={(value) => setSettings({...settings, tone: value})}
-                        >
-                          <SelectTrigger>
-                            <SelectValue placeholder="Choisir un ton" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {tones.map(tone => (
-                              <SelectItem key={tone.id} value={tone.id}>
-                                {tone.name}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      
-                      <div className="space-y-2">
-                        <div className="flex justify-between">
-                          <Label htmlFor="length">Longueur du contenu</Label>
-                          <span className="text-xs text-gray-500">
-                            {settings.length}%
-                          </span>
-                        </div>
-                        <Slider
-                          id="length"
-                          min={10}
-                          max={100}
-                          step={10}
-                          defaultValue={[settings.length]}
-                          onValueChange={(value) => setSettings({...settings, length: value[0]})}
-                        />
-                        <div className="flex justify-between text-xs text-gray-500">
-                          <span>Court</span>
-                          <span>Moyen</span>
-                          <span>Long</span>
-                        </div>
-                      </div>
-                    </div>
-                    
-                    <Separator />
-                    
-                    <div className="space-y-4">
-                      <div className="flex justify-between items-center">
-                        <h3 className="text-sm font-medium">Variables dynamiques</h3>
-                        <Dialog>
-                          <DialogTrigger asChild>
-                            <Button variant="outline" size="sm" className="h-8">
-                              <Variable className="h-3.5 w-3.5 mr-1" />
-                              Ajouter une variable
-                            </Button>
-                          </DialogTrigger>
-                          <DialogContent className="sm:max-w-[425px]">
-                            <DialogHeader>
-                              <DialogTitle>Ajouter une variable</DialogTitle>
-                              <DialogDescription>
-                                Créez une nouvelle variable pour votre contenu.
-                              </DialogDescription>
-                            </DialogHeader>
-                            <div className="grid gap-4 py-4">
-                              <div className="grid grid-cols-4 items-center gap-4">
-                                <Label htmlFor="variableName" className="text-right">
-                                  Nom
-                                </Label>
-                                <Input
-                                  id="variableName"
-                                  value={newVariableName}
-                                  onChange={(e) => setNewVariableName(e.target.value)}
-                                  className="col-span-3"
-                                  placeholder="ex: Entreprise, Produit..."
-                                />
-                              </div>
-                            </div>
-                            <DialogFooter>
-                              <DialogClose asChild>
-                                <Button variant="outline">Annuler</Button>
-                              </DialogClose>
-                              <Button onClick={handleAddVariable}>Ajouter</Button>
-                            </DialogFooter>
-                          </DialogContent>
-                        </Dialog>
-                      </div>
-                      
-                      <p className="text-xs text-gray-500">
-                        Ces variables seront remplacées dans le contenu généré.
-                      </p>
-                      
-                      {settings.dynamicVariables.map(variable => (
-                        <div key={variable.id} className="flex items-center gap-2">
-                          <Label htmlFor={`var-${variable.id}`} className="w-20 text-sm">
-                            {variable.name}
-                          </Label>
-                          <Input
-                            id={`var-${variable.id}`}
-                            value={variable.value}
-                            onChange={(e) => handleVariableChange(variable.id, e.target.value)}
-                            className="flex-1"
-                          />
-                          <Button 
-                            variant="ghost" 
-                            size="icon" 
-                            className="h-8 w-8 text-gray-500"
-                            onClick={() => handleRemoveVariable(variable.id)}
-                          >
-                            &times;
-                          </Button>
-                        </div>
-                      ))}
-                    </div>
-                    
-                    <Separator />
-                    
-                    <div className="pt-2">
-                      <Button variant="outline" className="w-full">
-                        Enregistrer comme préréglage
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-            </div>
-          </Tabs>
-        </main>
-      </div>
-    </div>
-  );
-};
-
-export default ContentGeneration;

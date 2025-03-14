@@ -1,7 +1,7 @@
 
 import { useState, useCallback } from 'react';
 import { apiService } from '@/services/apiService';
-import { User, Content, Log, LoginCredentials, RegisterCredentials, AuthResponse, ContentGenerationParams, PublishParams } from '@/services/apiService';
+import { User, Content, Log, LoginCredentials, RegisterCredentials, AuthResponse, ContentGenerationParams, PublishParams, ContentGenerationResponse } from '@/services/apiService';
 
 // Hook générique pour les appels API
 export function useApi<T, P = any>(
@@ -91,7 +91,7 @@ export function useContent() {
     execute: executeGenerate,
     loading: generateLoading,
     error: generateError
-  } = useApi<Content, ContentGenerationParams>(apiService.generateContent.bind(apiService));
+  } = useApi<ContentGenerationResponse, ContentGenerationParams>(apiService.generateContent.bind(apiService));
 
   const {
     execute: executeUpdate,
