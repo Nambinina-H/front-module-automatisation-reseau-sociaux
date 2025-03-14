@@ -125,7 +125,11 @@ const ContentGeneration = () => {
   const [newKeyword, setNewKeyword] = useState('');
   const [keywords, setKeywords] = useState<string[]>([]);
   const [isGenerating, setIsGenerating] = useState(false);
-  const [generatedContent, setGeneratedContent] = useState<any>(null);
+  const [generatedContent, setGeneratedContent] = useState({
+    text: null,
+    image: null,
+    video: null
+  });
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [filePreview, setFilePreview] = useState<string | null>(null);
   
@@ -300,10 +304,13 @@ const ContentGeneration = () => {
         
         if (response && response.content && response.content.length > 0) {
           const content = response.content[0];
-          setGeneratedContent({
-            type: 'text',
-            content: content.content || ''
-          });
+          setGeneratedContent(prev => ({
+            ...prev,
+            text: {
+              type: 'text',
+              content: content.content || ''
+            }
+          }));
           toast.success(response.message || "Texte généré avec succès");
         } else {
           toast.error("Aucun contenu n'a été généré");
@@ -321,10 +328,13 @@ const ContentGeneration = () => {
         try {
           const response = await generateImage(imageParams);
           
-          setGeneratedContent({
-            type: 'image',
-            content: response.imageUrl
-          });
+          setGeneratedContent(prev => ({
+            ...prev,
+            image: {
+              type: 'image',
+              content: response.imageUrl
+            }
+          }));
           
           toast.success(response.message || "Image générée avec succès");
         } catch (error) {
@@ -349,10 +359,13 @@ const ContentGeneration = () => {
   // Simulation spécifique pour les images
   const simulateImageGeneration = () => {
     setTimeout(() => {
-      setGeneratedContent({
-        type: 'image',
-        content: placeholderImages[Math.floor(Math.random() * placeholderImages.length)]
-      });
+      setGeneratedContent(prev => ({
+        ...prev,
+        image: {
+          type: 'image',
+          content: placeholderImages[Math.floor(Math.random() * placeholderImages.length)]
+        }
+      }));
       toast.success("Image générée avec succès (simulation)");
     }, 2000);
   };
@@ -372,22 +385,31 @@ const ContentGeneration = () => {
       
       // Generate different content based on active tab
       if (activeTab === 'text') {
-        setGeneratedContent({
-          type: 'text',
-          content: placeholderText
-        });
+        setGeneratedContent(prev => ({
+          ...prev,
+          text: {
+            type: 'text',
+            content: placeholderText
+          }
+        }));
         toast.success("Texte généré avec succès");
       } else if (activeTab === 'image') {
-        setGeneratedContent({
-          type: 'image',
-          content: placeholderImages[Math.floor(Math.random() * placeholderImages.length)]
-        });
+        setGeneratedContent(prev => ({
+          ...prev,
+          image: {
+            type: 'image',
+            content: placeholderImages[Math.floor(Math.random() * placeholderImages.length)]
+          }
+        }));
         toast.success("Image générée avec succès");
       } else if (activeTab === 'video') {
-        setGeneratedContent({
-          type: 'video',
-          content: placeholderVideo
-        });
+        setGeneratedContent(prev => ({
+          ...prev,
+          video: {
+            type: 'video',
+            content: placeholderVideo
+          }
+        }));
         toast.success("Aperçu de la vidéo généré avec succès");
       }
     }, 2000);
@@ -398,15 +420,16 @@ const ContentGeneration = () => {
   };
 
   const renderGeneratedContent = () => {
-    if (!generatedContent) return null;
+    const content = generatedContent[activeTab];
+    if (!content) return null;
     
-    switch (generatedContent.type) {
+    switch (content.type) {
       case 'text':
         return (
           <div className="mt-6 space-y-4">
             <h3 className="text-lg font-medium">Contenu généré</h3>
             <div className="p-4 bg-white border rounded-md shadow-sm min-h-[200px] whitespace-pre-line">
-              {generatedContent.content.split('\n').map((paragraph: string, i: number) => (
+              {content.content.split('\n').map((paragraph: string, i: number) => (
                 <p key={i} className="mb-4">{paragraph}</p>
               ))}
             </div>
@@ -414,7 +437,7 @@ const ContentGeneration = () => {
               <Button variant="outline">Modifier</Button>
               <Button onClick={() => {
                 // Créer un blob et télécharger le contenu
-                const blob = new Blob([generatedContent.content], { type: 'text/plain' });
+                const blob = new Blob([content.content], { type: 'text/plain' });
                 const url = window.URL.createObjectURL(blob);
                 const a = document.createElement('a');
                 a.href = url;
@@ -437,7 +460,7 @@ const ContentGeneration = () => {
             <h3 className="text-lg font-medium">Image générée</h3>
             <div className="p-2 bg-white border rounded-md shadow-sm">
               <img 
-                src={generatedContent.content} 
+                src={content.content} 
                 alt="Generated content" 
                 className="rounded-md max-h-[400px] mx-auto"
               />
@@ -458,7 +481,7 @@ const ContentGeneration = () => {
             <div className="p-2 bg-white border rounded-md shadow-sm">
               <div className="relative pt-[56.25%] bg-gray-100 rounded-md">
                 <img 
-                  src={generatedContent.content} 
+                  src={content.content} 
                   alt="Video preview" 
                   className="absolute inset-0 w-full h-full object-cover rounded-md"
                 />
