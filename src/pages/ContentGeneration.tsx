@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import Sidebar from '@/components/layout/Sidebar';
 import Navbar from '@/components/layout/Navbar';
@@ -915,4 +916,225 @@ const ContentGeneration = () => {
                         <div className="grid grid-cols-2 gap-4">
                           <div className="space-y-2">
                             <Label htmlFor="duration" className="text-sm">Durée</Label>
-                            <
+                            <Select defaultValue="30">
+                              <SelectTrigger>
+                                <SelectValue placeholder="Durée" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="15">15 secondes</SelectItem>
+                                <SelectItem value="30">30 secondes</SelectItem>
+                                <SelectItem value="60">1 minute</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="quality" className="text-sm">Qualité</Label>
+                            <Select defaultValue="standard">
+                              <SelectTrigger>
+                                <SelectValue placeholder="Qualité" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="standard">Standard</SelectItem>
+                                <SelectItem value="high">Haute qualité</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <Label>Mots-clés</Label>
+                        <div className="flex gap-2">
+                          <Input 
+                            placeholder="Ajouter un mot-clé" 
+                            value={newKeyword}
+                            onChange={(e) => setNewKeyword(e.target.value)}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter') {
+                                e.preventDefault();
+                                addKeyword();
+                              }
+                            }}
+                          />
+                          <Button onClick={addKeyword} disabled={!newKeyword}>Ajouter</Button>
+                        </div>
+                        
+                        {keywords.length > 0 && (
+                          <div className="flex flex-wrap gap-1 mt-2">
+                            {keywords.map((keyword) => (
+                              <Badge
+                                key={keyword}
+                                variant="secondary"
+                                className="cursor-pointer hover:bg-gray-200"
+                                onClick={() => removeKeyword(keyword)}
+                              >
+                                {keyword} &times;
+                              </Badge>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                      
+                      <div className="pt-4">
+                        <Button 
+                          onClick={simulateGeneration} 
+                          disabled={isGenerating}
+                          className="w-full"
+                        >
+                          {isGenerating ? (
+                            <>Génération en cours...</>
+                          ) : (
+                            <>
+                              <Wand2 className="mr-2 h-4 w-4" />
+                              Générer la vidéo
+                            </>
+                          )}
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                  
+                  {renderGeneratedContent()}
+                </TabsContent>
+              </div>
+              
+              <div className="space-y-6">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Paramètres</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-6">
+                    <div className="space-y-2">
+                      <div className="flex justify-between items-center">
+                        <Label htmlFor="tone">Ton</Label>
+                        <Dialog>
+                          <DialogTrigger asChild>
+                            <Button variant="outline" size="sm" className="h-8">
+                              <Plus className="h-3.5 w-3.5 mr-1" />
+                              Ajouter
+                            </Button>
+                          </DialogTrigger>
+                          <DialogContent className="sm:max-w-[425px]">
+                            <DialogHeader>
+                              <DialogTitle>Ajouter un nouveau ton</DialogTitle>
+                              <DialogDescription>
+                                Créez un nouveau ton pour vos contenus.
+                              </DialogDescription>
+                            </DialogHeader>
+                            <div className="grid gap-4 py-4">
+                              <div className="grid grid-cols-4 items-center gap-4">
+                                <Label htmlFor="toneName" className="text-right">
+                                  Nom
+                                </Label>
+                                <Input
+                                  id="toneName"
+                                  value={newToneName}
+                                  onChange={(e) => setNewToneName(e.target.value)}
+                                  className="col-span-3"
+                                />
+                              </div>
+                            </div>
+                            <DialogFooter>
+                              <DialogClose asChild>
+                                <Button variant="outline">Annuler</Button>
+                              </DialogClose>
+                              <Button onClick={handleAddTone}>Ajouter</Button>
+                            </DialogFooter>
+                          </DialogContent>
+                        </Dialog>
+                      </div>
+                      <Select 
+                        onValueChange={(value) => setSettings({...settings, tone: value})}
+                        value={settings.tone}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Sélectionner un ton" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {tones.map(tone => (
+                            <SelectItem key={tone.id} value={tone.id}>
+                              {tone.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="length">Longueur ({settings.length}%)</Label>
+                      <Slider
+                        id="length"
+                        value={[settings.length]}
+                        max={100}
+                        step={1}
+                        onValueChange={(value) => setSettings({...settings, length: value[0]})}
+                      />
+                    </div>
+                    
+                    <Separator />
+                    
+                    <div className="space-y-2">
+                      <div className="flex justify-between items-center">
+                        <Label>Variables</Label>
+                        <div className="flex items-center gap-1">
+                          <Input
+                            placeholder="Nom de la variable"
+                            value={newVariableName}
+                            onChange={(e) => setNewVariableName(e.target.value)}
+                            className="w-40 h-8 text-xs"
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter') {
+                                e.preventDefault();
+                                handleAddVariable();
+                              }
+                            }}
+                          />
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            className="h-8"
+                            onClick={handleAddVariable}
+                            disabled={!newVariableName.trim()}
+                          >
+                            <Plus className="h-3.5 w-3.5" />
+                          </Button>
+                        </div>
+                      </div>
+                      
+                      <div className="space-y-3 mt-2">
+                        {settings.dynamicVariables.map((variable) => (
+                          <div key={variable.id} className="flex items-center gap-2">
+                            <div className="bg-muted rounded px-2 py-1 text-xs flex items-center">
+                              <Variable className="h-3 w-3 mr-1 text-muted-foreground" />
+                              {variable.name}
+                            </div>
+                            <Input 
+                              value={variable.value}
+                              onChange={(e) => handleVariableChange(variable.id, e.target.value)}
+                              className="flex-1"
+                              placeholder={`Valeur pour ${variable.name}`}
+                            />
+                            <Button 
+                              variant="ghost" 
+                              size="sm"
+                              className="h-8 w-8 p-0" 
+                              onClick={() => handleRemoveVariable(variable.id)}
+                            >
+                              &times;
+                            </Button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
+          </Tabs>
+        </main>
+      </div>
+    </div>
+  );
+};
+
+export default ContentGeneration;
