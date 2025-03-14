@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import Sidebar from '@/components/layout/Sidebar';
 import Navbar from '@/components/layout/Navbar';
@@ -53,6 +52,20 @@ const initialTones = [
   { id: 'friendly', name: 'Amical' },
   { id: 'formal', name: 'Formel' },
   { id: 'humorous', name: 'Humoristique' },
+  { id: 'inspirational', name: 'Inspirant' },
+  { id: 'informative', name: 'Informatif' },
+  { id: 'persuasive', name: 'Persuasif' },
+  { id: 'empathetic', name: 'Empathique' },
+  { id: 'authoritative', name: 'Autoritaire' },
+  { id: 'playful', name: 'Ludique' },
+  { id: 'urgent', name: 'Urgent' },
+  { id: 'confident', name: 'Confiant' },
+  { id: 'enthusiastic', name: 'Enthousiaste' },
+  { id: 'sarcastic', name: 'Sarcastique' },
+  { id: 'motivational', name: 'Motivant' },
+  { id: 'calm', name: 'Calme' },
+  { id: 'optimistic', name: 'Optimiste' },
+  { id: 'neutral', name: 'Neutre' }
 ];
 
 // Sample placeholders for generated content
@@ -119,7 +132,7 @@ const ContentGeneration = () => {
   // Image generation specific state
   const [imageQuality, setImageQuality] = useState<string>('hd');
   const [imageSize, setImageSize] = useState<string>('1024x1024');
-  const [imageStyle, setImageStyle] = useState<string>('vivid');
+  const [imageStyle, setImageStyle] = useState<string>('natural');
   
   // New state for template and tone management
   const [templates, setTemplates] = useState<Template[]>(initialTemplates);
@@ -134,7 +147,7 @@ const ContentGeneration = () => {
   // Content settings
   const [settings, setSettings] = useState<ContentSettings>({
     tone: 'professional',
-    length: 50,
+    length: 75,
     keywords: [],
     template: '',
     dynamicVariables: [
@@ -504,7 +517,7 @@ const ContentGeneration = () => {
             </TabsList>
             
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              <div className="lg:col-span-3 space-y-6">
+              <div className={`lg:col-span-2 space-y-6 ${activeTab !== 'text' ? 'lg:col-span-3' : ''}`}>
                 <TabsContent value="text" className="mt-0">
                   <Card>
                     <CardHeader>
@@ -1013,6 +1026,74 @@ const ContentGeneration = () => {
                   {renderGeneratedContent()}
                 </TabsContent>
               </div>
+              {activeTab === 'text' && (
+                <div className="lg:col-span-1 space-y-6">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Personnalisation</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="tone">Ton</Label>
+                        <Select 
+                          value={settings.tone} 
+                          onValueChange={(value) => setSettings({...settings, tone: value})}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Sélectionner un ton" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {tones.map(tone => (
+                              <SelectItem key={tone.id} value={tone.id}>
+                                {tone.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="length">Longueur</Label>
+                        <Select 
+                          value={settings.length.toString()} // Convertir en string pour le composant Select
+                          onValueChange={(value) => setSettings({...settings, length: Number(value)})} // Convertir en number
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Sélectionner une longueur" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="25">Très court</SelectItem>
+                            <SelectItem value="50">Court</SelectItem>
+                            <SelectItem value="75">Moyen</SelectItem>
+                            <SelectItem value="100">Long</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label>Variables dynamiques</Label>
+                        {settings.dynamicVariables.map(variable => (
+                          <div key={variable.id} className="flex gap-2 items-center">
+                            <Input 
+                              value={variable.value} 
+                              onChange={(e) => handleVariableChange(variable.id, e.target.value)}
+                            />
+                            <Button variant="outline" onClick={() => handleRemoveVariable(variable.id)}>Supprimer</Button>
+                          </div>
+                        ))}
+                        <div className="flex gap-2">
+                          <Input 
+                            placeholder="Ajouter une variable" 
+                            value={newVariableName}
+                            onChange={(e) => setNewVariableName(e.target.value)}
+                          />
+                          <Button onClick={handleAddVariable} disabled={!newVariableName}>Ajouter</Button>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+              )}
             </div>
           </Tabs>
         </main>
