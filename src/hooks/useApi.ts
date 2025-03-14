@@ -1,9 +1,7 @@
-
 import { useState, useCallback } from 'react';
 import { apiService } from '@/services/apiService';
-import { User, Content, Log, LoginCredentials, RegisterCredentials, AuthResponse, ContentGenerationParams, PublishParams, ContentGenerationResponse } from '@/services/apiService';
+import { User, Content, Log, LoginCredentials, RegisterCredentials, AuthResponse, ContentGenerationParams, PublishParams, ContentGenerationResponse, ImageGenerationParams, ImageGenerationResponse } from '@/services/apiService';
 
-// Hook générique pour les appels API
 export function useApi<T, P = any>(
   apiMethod: (params?: P) => Promise<T>,
   initialData?: T
@@ -39,7 +37,6 @@ export function useApi<T, P = any>(
   };
 }
 
-// Hooks spécifiques pour différentes fonctionnalités
 export function useAuth() {
   const { execute: executeLogin, loading: loginLoading, error: loginError } = 
     useApi<AuthResponse, LoginCredentials>(apiService.login.bind(apiService));
@@ -94,6 +91,12 @@ export function useContent() {
   } = useApi<ContentGenerationResponse, ContentGenerationParams>(apiService.generateContent.bind(apiService));
 
   const {
+    execute: executeGenerateImage,
+    loading: generateImageLoading,
+    error: generateImageError
+  } = useApi<ImageGenerationResponse, ImageGenerationParams>(apiService.generateImage.bind(apiService));
+
+  const {
     execute: executeUpdate,
     loading: updateLoading,
     error: updateError
@@ -105,7 +108,6 @@ export function useContent() {
     error: deleteError
   } = useApi<void, string>(apiService.deleteContent.bind(apiService));
 
-  // Wrapper qui met à jour la liste après suppression
   const deleteContent = useCallback(
     async (id: string) => {
       await executeDelete(id);
@@ -119,18 +121,21 @@ export function useContent() {
   return {
     contentList,
     generateContent: executeGenerate,
+    generateImage: executeGenerateImage,
     updateContent: executeUpdate,
     deleteContent,
     fetchContentList,
     loading: {
       list: listLoading,
       generate: generateLoading,
+      generateImage: generateImageLoading,
       update: updateLoading,
       delete: deleteLoading
     },
     error: {
       list: listError,
       generate: generateError,
+      generateImage: generateImageError,
       update: updateError,
       delete: deleteError
     }
@@ -178,7 +183,6 @@ export function useLogs() {
     error: exportError
   } = useApi<Blob, 'csv' | 'json'>(apiService.exportLogs.bind(apiService));
 
-  // Fonction utilitaire pour télécharger les logs exportés
   const downloadLogs = useCallback(
     async (format: 'csv' | 'json' = 'csv') => {
       try {
