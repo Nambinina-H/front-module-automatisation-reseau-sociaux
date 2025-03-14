@@ -434,7 +434,8 @@ const ContentGeneration = () => {
               ))}
             </div>
             <div className="flex justify-end space-x-2">
-              <Button variant="outline">Modifier</Button>
+              {/* TODO: Enable the "Modifier" button functionality in the future */}
+              <Button variant="outline" disabled>Modifier</Button>
               <Button onClick={() => {
                 // Créer un blob et télécharger le contenu
                 const blob = new Blob([content.content], { type: 'text/plain' });
@@ -466,7 +467,8 @@ const ContentGeneration = () => {
               />
             </div>
             <div className="flex justify-end space-x-2">
-              <Button variant="outline">Modifier</Button>
+              {/* TODO: Enable the "Modifier" button functionality in the future */}
+              <Button variant="outline" disabled>Modifier</Button>
               <Button onClick={() => {
                 fetch(content.content)
                   .then(response => response.blob())
@@ -508,7 +510,8 @@ const ContentGeneration = () => {
               </div>
             </div>
             <div className="flex justify-end space-x-2">
-              <Button variant="outline">Personnaliser</Button>
+              {/* TODO: Enable the "Modifier" button functionality in the future */}
+              <Button variant="outline" disabled>Personnaliser</Button>
               <Button>
                 <Download className="mr-2 h-4 w-4" />
                 Exporter
