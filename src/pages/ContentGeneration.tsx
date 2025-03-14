@@ -468,13 +468,20 @@ const ContentGeneration = () => {
             <div className="flex justify-end space-x-2">
               <Button variant="outline">Modifier</Button>
               <Button onClick={() => {
-                const link = document.createElement('a');
-                link.href = content.content;
-                link.download = `image-generee-${new Date().toISOString().slice(0, 10)}.png`;
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-                toast.success("Image téléchargée avec succès");
+                fetch(content.content)
+                  .then(response => response.blob())
+                  .then(blob => {
+                    const url = window.URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.download = `image-generee-${new Date().toISOString().slice(0, 10)}.png`;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    window.URL.revokeObjectURL(url);
+                    toast.success("Image téléchargée avec succès");
+                  })
+                  .catch(() => toast.error("Erreur lors du téléchargement de l'image"));
               }}>
                 <Download className="mr-2 h-4 w-4" />
                 Télécharger
