@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import Sidebar from '@/components/layout/Sidebar';
 import Navbar from '@/components/layout/Navbar';
@@ -7,20 +6,24 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import Badge from '@/components/common/Badge';
+import { Slider } from '@/components/ui/slider';
 import { toast } from 'sonner';
 import { 
   Image, 
   FileVideo, 
   FileText, 
   Wand2, 
+  Sliders, 
   Upload, 
   Download, 
   AlertCircle, 
   Plus,
+  Variable,
 } from 'lucide-react';
 import {
   Dialog,
@@ -93,19 +96,6 @@ interface ContentSettings {
   dynamicVariables: DynamicVariable[];
 }
 
-interface ImageGenerationParams {
-  prompt: string;
-  keywords: string[];
-  quality: string;
-  size: string;
-  style: string;
-}
-
-interface ImageGenerationResponse {
-  message: string;
-  imageUrl: string;
-}
-
 const ContentGeneration = () => {
   const [activeTab, setActiveTab] = useState('text');
   const [prompt, setPrompt] = useState('');
@@ -115,11 +105,6 @@ const ContentGeneration = () => {
   const [generatedContent, setGeneratedContent] = useState<any>(null);
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [filePreview, setFilePreview] = useState<string | null>(null);
-  
-  // Image generation specific state
-  const [imageQuality, setImageQuality] = useState<string>('hd');
-  const [imageSize, setImageSize] = useState<string>('1024x1024');
-  const [imageStyle, setImageStyle] = useState<string>('vivid');
   
   // New state for template and tone management
   const [templates, setTemplates] = useState<Template[]>(initialTemplates);
@@ -147,8 +132,7 @@ const ContentGeneration = () => {
   // Utiliser le hook useContent pour la génération de contenu
   const { 
     generateContent,
-    generateImage,
-    loading: { generate: isApiGenerating, generateImage: isApiImageGenerating }
+    loading: { generate: isApiGenerating }
   } = useContent();
   
   const addKeyword = () => {
@@ -258,69 +242,57 @@ const ContentGeneration = () => {
     
     setIsGenerating(true);
     
+    // Préparer les variables pour l'API
+    const variablesObject: Record<string, string> = {};
+    settings.dynamicVariables.forEach(variable => {
+      variablesObject[variable.name] = variable.value;
+    });
+    
+    // Préparer les paramètres pour l'API
+    const templateItem = templates.find(t => t.id === settings.template);
+    
+    const personalization: ContentPersonalization = {
+      ton: tones.find(t => t.id === settings.tone)?.name || 'professionnel',
+      longueur: `${settings.length}%`,
+      modelType: templateItem?.name || 'article de blog',
+      promptInstructions: prompt,
+      variables: variablesObject
+    };
+    
+    const params: ContentGenerationParams = {
+      type: activeTab as 'text' | 'image' | 'video',
+      keywords: keywords,
+      personalization: personalization
+    };
+    
     try {
-      if (activeTab === 'text') {
-        // Préparer les variables pour l'API texte
-        const variablesObject: Record<string, string> = {};
-        settings.dynamicVariables.forEach(variable => {
-          variablesObject[variable.name] = variable.value;
-        });
+      const response = await generateContent(params);
+      
+      if (response && response.content && response.content.length > 0) {
+        // Succès - afficher le contenu généré
+        const content = response.content[0];
         
-        // Préparer les paramètres pour l'API texte
-        const templateItem = templates.find(t => t.id === settings.template);
-        
-        const personalization: ContentPersonalization = {
-          ton: tones.find(t => t.id === settings.tone)?.name || 'professionnel',
-          longueur: `${settings.length}%`,
-          modelType: templateItem?.name || 'article de blog',
-          promptInstructions: prompt,
-          variables: variablesObject
-        };
-        
-        const params: ContentGenerationParams = {
-          type: 'text',
-          keywords: keywords,
-          personalization: personalization
-        };
-        
-        const response = await generateContent(params);
-        
-        if (response && response.content && response.content.length > 0) {
-          const content = response.content[0];
+        if (activeTab === 'text') {
           setGeneratedContent({
             type: 'text',
             content: content.content || ''
           });
           toast.success(response.message || "Texte généré avec succès");
-        } else {
-          toast.error("Aucun contenu n'a été généré");
-        }
-      } else if (activeTab === 'image') {
-        // Préparer les paramètres pour l'API d'image
-        const imageParams: ImageGenerationParams = {
-          prompt: prompt,
-          keywords: keywords,
-          quality: imageQuality,
-          size: imageSize,
-          style: imageStyle
-        };
-        
-        try {
-          const response = await generateImage(imageParams);
-          
+        } else if (activeTab === 'image') {
           setGeneratedContent({
             type: 'image',
-            content: response.imageUrl
+            content: content.content || placeholderImages[0]
           });
-          
           toast.success(response.message || "Image générée avec succès");
-        } catch (error) {
-          console.error("Erreur lors de la génération de l'image:", error);
-          toast.error("Erreur lors de la génération de l'image");
-          simulateImageGeneration();
+        } else if (activeTab === 'video') {
+          setGeneratedContent({
+            type: 'video',
+            content: content.content || placeholderVideo
+          });
+          toast.success(response.message || "Aperçu de la vidéo généré avec succès");
         }
-      } else if (activeTab === 'video') {
-        simulateGeneration();
+      } else {
+        toast.error("Aucun contenu n'a été généré");
       }
     } catch (error) {
       console.error("Erreur lors de la génération du contenu:", error);
@@ -331,17 +303,6 @@ const ContentGeneration = () => {
     } finally {
       setIsGenerating(false);
     }
-  };
-  
-  // Simulation spécifique pour les images
-  const simulateImageGeneration = () => {
-    setTimeout(() => {
-      setGeneratedContent({
-        type: 'image',
-        content: placeholderImages[Math.floor(Math.random() * placeholderImages.length)]
-      });
-      toast.success("Image générée avec succès (simulation)");
-    }, 2000);
   };
   
   // Fallback en cas d'échec de l'API
@@ -504,7 +465,7 @@ const ContentGeneration = () => {
             </TabsList>
             
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              <div className="lg:col-span-3 space-y-6">
+              <div className="lg:col-span-2 space-y-6">
                 <TabsContent value="text" className="mt-0">
                   <Card>
                     <CardHeader>
@@ -664,6 +625,81 @@ const ContentGeneration = () => {
                     </CardHeader>
                     <CardContent className="space-y-4">
                       <div className="space-y-2">
+                        <div className="flex justify-between items-center">
+                          <Label htmlFor="template">Modèle</Label>
+                          <Dialog>
+                            <DialogTrigger asChild>
+                              <Button variant="outline" size="sm" className="h-8">
+                                <Plus className="h-3.5 w-3.5 mr-1" />
+                                Ajouter
+                              </Button>
+                            </DialogTrigger>
+                            <DialogContent className="sm:max-w-[425px]">
+                              <DialogHeader>
+                                <DialogTitle>Ajouter un nouveau modèle</DialogTitle>
+                                <DialogDescription>
+                                  Créez un nouveau modèle pour la génération d'images.
+                                </DialogDescription>
+                              </DialogHeader>
+                              <div className="grid gap-4 py-4">
+                                <div className="grid grid-cols-4 items-center gap-4">
+                                  <Label htmlFor="templateName" className="text-right">
+                                    Nom
+                                  </Label>
+                                  <Input
+                                    id="templateName"
+                                    value={newTemplateName}
+                                    onChange={(e) => setNewTemplateName(e.target.value)}
+                                    className="col-span-3"
+                                  />
+                                </div>
+                                <div className="grid grid-cols-4 items-center gap-4">
+                                  <Label htmlFor="templateType" className="text-right">
+                                    Type
+                                  </Label>
+                                  <Select 
+                                    value={newTemplateType} 
+                                    onValueChange={setNewTemplateType}
+                                    defaultValue="image"
+                                  >
+                                    <SelectTrigger className="col-span-3">
+                                      <SelectValue placeholder="Sélectionner un type" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      <SelectItem value="text">Texte</SelectItem>
+                                      <SelectItem value="image">Image</SelectItem>
+                                      <SelectItem value="video">Vidéo</SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                </div>
+                              </div>
+                              <DialogFooter>
+                                <DialogClose asChild>
+                                  <Button variant="outline">Annuler</Button>
+                                </DialogClose>
+                                <Button onClick={handleAddTemplate}>Ajouter</Button>
+                              </DialogFooter>
+                            </DialogContent>
+                          </Dialog>
+                        </div>
+                        <Select 
+                          onValueChange={(value) => setSettings({...settings, template: value})}
+                          value={settings.template}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Sélectionner un modèle" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {filterTemplatesByType('image').map(template => (
+                              <SelectItem key={template.id} value={template.id}>
+                                {template.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      
+                      <div className="space-y-2">
                         <Label htmlFor="prompt">Description de l'image</Label>
                         <Textarea 
                           id="prompt"
@@ -672,57 +708,6 @@ const ContentGeneration = () => {
                           value={prompt}
                           onChange={(e) => setPrompt(e.target.value)}
                         />
-                      </div>
-                      
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div className="space-y-2">
-                          <Label htmlFor="quality">Qualité</Label>
-                          <Select 
-                            value={imageQuality} 
-                            onValueChange={setImageQuality}
-                          >
-                            <SelectTrigger>
-                              <SelectValue placeholder="Qualité" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="hd">HD</SelectItem>
-                              <SelectItem value="standard">Standard</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
-                        
-                        <div className="space-y-2">
-                          <Label htmlFor="size">Taille</Label>
-                          <Select 
-                            value={imageSize} 
-                            onValueChange={setImageSize}
-                          >
-                            <SelectTrigger>
-                              <SelectValue placeholder="Taille" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="1024x1024">1024x1024</SelectItem>
-                              <SelectItem value="1792x1024">1792x1024</SelectItem>
-                              <SelectItem value="1024x1792">1024x1792</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
-                        
-                        <div className="space-y-2">
-                          <Label htmlFor="style">Style</Label>
-                          <Select 
-                            value={imageStyle} 
-                            onValueChange={setImageStyle}
-                          >
-                            <SelectTrigger>
-                              <SelectValue placeholder="Style" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="vivid">Vivid</SelectItem>
-                              <SelectItem value="natural">Natural</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
                       </div>
                       
                       <Separator className="my-4" />
@@ -808,11 +793,11 @@ const ContentGeneration = () => {
                       
                       <div className="pt-4">
                         <Button 
-                          onClick={handleGeneration} 
-                          disabled={isGenerating || isApiImageGenerating}
+                          onClick={simulateGeneration} 
+                          disabled={isGenerating}
                           className="w-full"
                         >
-                          {isGenerating || isApiImageGenerating ? (
+                          {isGenerating ? (
                             <>Génération en cours...</>
                           ) : (
                             <>
@@ -930,95 +915,4 @@ const ContentGeneration = () => {
                         <div className="grid grid-cols-2 gap-4">
                           <div className="space-y-2">
                             <Label htmlFor="duration" className="text-sm">Durée</Label>
-                            <Select defaultValue="30">
-                              <SelectTrigger>
-                                <SelectValue placeholder="Durée" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="15">15 secondes</SelectItem>
-                                <SelectItem value="30">30 secondes</SelectItem>
-                                <SelectItem value="60">1 minute</SelectItem>
-                              </SelectContent>
-                            </Select>
-                          </div>
-                          
-                          <div className="space-y-2">
-                            <Label htmlFor="resolution" className="text-sm">Résolution</Label>
-                            <Select defaultValue="720p">
-                              <SelectTrigger>
-                                <SelectValue placeholder="Résolution" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="480p">480p</SelectItem>
-                                <SelectItem value="720p">720p (HD)</SelectItem>
-                                <SelectItem value="1080p">1080p (Full HD)</SelectItem>
-                              </SelectContent>
-                            </Select>
-                          </div>
-                        </div>
-                      </div>
-                      
-                      <div className="space-y-2">
-                        <Label>Mots-clés</Label>
-                        <div className="flex gap-2">
-                          <Input 
-                            placeholder="Ajouter un mot-clé" 
-                            value={newKeyword}
-                            onChange={(e) => setNewKeyword(e.target.value)}
-                            onKeyDown={(e) => {
-                              if (e.key === 'Enter') {
-                                e.preventDefault();
-                                addKeyword();
-                              }
-                            }}
-                          />
-                          <Button onClick={addKeyword} disabled={!newKeyword}>Ajouter</Button>
-                        </div>
-                        
-                        {keywords.length > 0 && (
-                          <div className="flex flex-wrap gap-1 mt-2">
-                            {keywords.map((keyword) => (
-                              <Badge
-                                key={keyword}
-                                variant="secondary"
-                                className="cursor-pointer hover:bg-gray-200"
-                                onClick={() => removeKeyword(keyword)}
-                              >
-                                {keyword} &times;
-                              </Badge>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                      
-                      <div className="pt-4">
-                        <Button 
-                          onClick={handleGeneration} 
-                          disabled={isGenerating}
-                          className="w-full"
-                        >
-                          {isGenerating ? (
-                            <>Génération en cours...</>
-                          ) : (
-                            <>
-                              <Wand2 className="mr-2 h-4 w-4" />
-                              Générer la vidéo
-                            </>
-                          )}
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
-                  
-                  {renderGeneratedContent()}
-                </TabsContent>
-              </div>
-            </div>
-          </Tabs>
-        </main>
-      </div>
-    </div>
-  );
-};
-
-export default ContentGeneration;
+                            <
