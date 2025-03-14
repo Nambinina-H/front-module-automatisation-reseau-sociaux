@@ -77,19 +77,6 @@ export interface Log {
   ip?: string;
 }
 
-export interface ImageGenerationParams {
-  prompt: string;
-  keywords: string[];
-  quality: string;
-  size: string;
-  style: string;
-}
-
-export interface ImageGenerationResponse {
-  message: string;
-  imageUrl: string;
-}
-
 // Classe principale du service API
 class ApiService {
   private api: AxiosInstance;
@@ -246,21 +233,6 @@ class ApiService {
       return response.data;
     } catch (error) {
       console.error('Error generating content:', error);
-      throw error;
-    }
-  }
-
-  // Générer une image
-  async generateImage(params: ImageGenerationParams): Promise<ImageGenerationResponse> {
-    try {
-      const response = await this.api.post<ImageGenerationResponse>('/image/generate', params);
-      toast({
-        title: 'Image générée',
-        description: 'L\'image a été générée avec succès!',
-      });
-      return response.data;
-    } catch (error) {
-      console.error('Error generating image:', error);
       throw error;
     }
   }
