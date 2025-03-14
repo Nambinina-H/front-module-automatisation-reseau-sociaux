@@ -13,6 +13,7 @@ import { cn } from '@/lib/utils';
 import { Separator } from '@/components/ui/separator';
 import Button from '@/components/common/Button';
 import { useAuth } from '@/hooks/useApi';
+import { toast } from '../ui/use-toast';
 
 interface NavItem {
   icon: React.ReactNode;
@@ -59,7 +60,7 @@ const Sidebar = () => {
 
   const handleLogout = () => {
     logout();
-    toast.success('Déconnexion réussie');
+    toast({ description: 'Déconnexion réussie' });
   };
 
   return (

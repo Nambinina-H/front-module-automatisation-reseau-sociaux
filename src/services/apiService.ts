@@ -219,8 +219,10 @@ class ApiService {
       title: 'Déconnexion',
       description: 'Vous avez été déconnecté avec succès.',
     });
-    // Rediriger vers la page de connexion
-    window.location.href = '/auth';
+    // Rediriger vers la racine du projet
+    window.location.href = '/';
+    // Rediriger auth la racine du projet
+    // window.location.href = '/auth';
   }
 
   // Récupérer le profil utilisateur
