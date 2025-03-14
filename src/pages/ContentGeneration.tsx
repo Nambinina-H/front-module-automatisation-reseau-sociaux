@@ -915,3 +915,4 @@ const ContentGeneration = () => {
                         <div className="grid grid-cols-2 gap-4">
                           <div className="space-y-2">
                             <Label htmlFor="duration" className="text-sm">Durée</Label>
+                            <
