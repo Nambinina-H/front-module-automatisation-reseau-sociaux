@@ -1,4 +1,3 @@
-
 import React from 'react';
 import {
   Home,
@@ -13,6 +12,7 @@ import { NavLink, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { Separator } from '@/components/ui/separator';
 import Button from '@/components/common/Button';
+import { useAuth } from '@/hooks/useApi';
 
 interface NavItem {
   icon: React.ReactNode;
@@ -55,11 +55,11 @@ const navigationItems: NavItem[] = [
 
 const Sidebar = () => {
   const location = useLocation();
+  const { logout } = useAuth();
 
   const handleLogout = () => {
-    // À implémenter: logique de déconnexion
-    console.log('Déconnexion...');
-    // Exemple de notification: vous pourriez ajouter une notification toast ici
+    logout();
+    toast.success('Déconnexion réussie');
   };
 
   return (
