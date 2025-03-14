@@ -1,4 +1,3 @@
-
 import axios, { AxiosError, AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
 import { toast } from '@/components/ui/use-toast';
 
@@ -11,16 +10,30 @@ export interface User {
 }
 
 export interface Content {
-  id: string;
-  title: string;
-  body: string;
+  id: string | number;
+  title?: string;
+  body?: string;
+  content?: string;
+  type?: 'text' | 'image' | 'video';
   keywords: string[];
-  platforms: string[];
-  status: 'draft' | 'scheduled' | 'published';
-  createdAt: string;
-  updatedAt: string;
+  platforms?: string[];
+  status: 'draft' | 'scheduled' | 'published' | 'generated';
+  createdAt?: string;
+  created_at?: string;
+  updatedAt?: string;
   scheduledDate?: string;
-  userId: string;
+  schedule_time?: string | null;
+  userId?: string;
+  user_id?: string;
+  personalization?: ContentPersonalization;
+}
+
+export interface ContentPersonalization {
+  ton?: string;
+  longueur?: string;
+  modelType?: string;
+  variables?: Record<string, string>;
+  promptInstructions?: string;
 }
 
 export interface LoginCredentials {
@@ -38,10 +51,15 @@ export interface AuthResponse {
 }
 
 export interface ContentGenerationParams {
+  type: 'text' | 'image' | 'video';
   keywords: string[];
-  platforms: string[];
-  tone?: string;
-  length?: 'short' | 'medium' | 'long';
+  personalization: ContentPersonalization;
+  platforms?: string[];
+}
+
+export interface ContentGenerationResponse {
+  message: string;
+  content: Content[];
 }
 
 export interface PublishParams {
@@ -57,6 +75,19 @@ export interface Log {
   details: string;
   createdAt: string;
   ip?: string;
+}
+
+export interface ImageGenerationParams {
+  prompt: string;
+  keywords: string[];
+  quality: string;
+  size: string;
+  style: string;
+}
+
+export interface ImageGenerationResponse {
+  message: string;
+  imageUrl: string;
 }
 
 // Classe principale du service API
@@ -205,15 +236,31 @@ class ApiService {
   // ==== CONTENT MANAGEMENT ====
   
   // Générer du contenu
-  async generateContent(params: ContentGenerationParams): Promise<Content> {
+  async generateContent(params: ContentGenerationParams): Promise<ContentGenerationResponse> {
     try {
-      const response = await this.api.post<Content>('/content/generate', params);
+      const response = await this.api.post<ContentGenerationResponse>('/content/generate', params);
       toast({
         title: 'Contenu généré',
         description: 'Le contenu a été généré avec succès!',
       });
       return response.data;
     } catch (error) {
+      console.error('Error generating content:', error);
+      throw error;
+    }
+  }
+
+  // Générer une image
+  async generateImage(params: ImageGenerationParams): Promise<ImageGenerationResponse> {
+    try {
+      const response = await this.api.post<ImageGenerationResponse>('/image/generate', params);
+      toast({
+        title: 'Image générée',
+        description: 'L\'image a été générée avec succès!',
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error generating image:', error);
       throw error;
     }
   }

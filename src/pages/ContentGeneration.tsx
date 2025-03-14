@@ -7,24 +7,20 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import Badge from '@/components/common/Badge';
-import { Slider } from '@/components/ui/slider';
 import { toast } from 'sonner';
 import { 
   Image, 
   FileVideo, 
   FileText, 
   Wand2, 
-  Sliders, 
   Upload, 
   Download, 
   AlertCircle, 
   Plus,
-  Variable,
 } from 'lucide-react';
 import {
   Dialog,
@@ -36,6 +32,8 @@ import {
   DialogFooter,
   DialogClose,
 } from "@/components/ui/dialog";
+import { useContent } from '@/hooks/useApi';
+import { ContentGenerationParams, ContentPersonalization } from '@/services/apiService';
 
 // Sample template data
 const initialTemplates = [
@@ -95,6 +93,19 @@ interface ContentSettings {
   dynamicVariables: DynamicVariable[];
 }
 
+interface ImageGenerationParams {
+  prompt: string;
+  keywords: string[];
+  quality: string;
+  size: string;
+  style: string;
+}
+
+interface ImageGenerationResponse {
+  message: string;
+  imageUrl: string;
+}
+
 const ContentGeneration = () => {
   const [activeTab, setActiveTab] = useState('text');
   const [prompt, setPrompt] = useState('');
@@ -104,6 +115,11 @@ const ContentGeneration = () => {
   const [generatedContent, setGeneratedContent] = useState<any>(null);
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [filePreview, setFilePreview] = useState<string | null>(null);
+  
+  // Image generation specific state
+  const [imageQuality, setImageQuality] = useState<string>('hd');
+  const [imageSize, setImageSize] = useState<string>('1024x1024');
+  const [imageStyle, setImageStyle] = useState<string>('vivid');
   
   // New state for template and tone management
   const [templates, setTemplates] = useState<Template[]>(initialTemplates);
@@ -127,6 +143,13 @@ const ContentGeneration = () => {
       { id: '3', name: 'Lieu', value: 'Paris' }
     ]
   });
+
+  // Utiliser le hook useContent pour la génération de contenu
+  const { 
+    generateContent,
+    generateImage,
+    loading: { generate: isApiGenerating, generateImage: isApiImageGenerating }
+  } = useContent();
   
   const addKeyword = () => {
     if (newKeyword && !keywords.includes(newKeyword)) {
@@ -227,6 +250,101 @@ const ContentGeneration = () => {
     toast.success('Variable supprimée');
   };
   
+  const handleGeneration = async () => {
+    if (!prompt && keywords.length === 0) {
+      toast.error("Veuillez ajouter un prompt ou des mots-clés");
+      return;
+    }
+    
+    setIsGenerating(true);
+    
+    try {
+      if (activeTab === 'text') {
+        // Préparer les variables pour l'API texte
+        const variablesObject: Record<string, string> = {};
+        settings.dynamicVariables.forEach(variable => {
+          variablesObject[variable.name] = variable.value;
+        });
+        
+        // Préparer les paramètres pour l'API texte
+        const templateItem = templates.find(t => t.id === settings.template);
+        
+        const personalization: ContentPersonalization = {
+          ton: tones.find(t => t.id === settings.tone)?.name || 'professionnel',
+          longueur: `${settings.length}%`,
+          modelType: templateItem?.name || 'article de blog',
+          promptInstructions: prompt,
+          variables: variablesObject
+        };
+        
+        const params: ContentGenerationParams = {
+          type: 'text',
+          keywords: keywords,
+          personalization: personalization
+        };
+        
+        const response = await generateContent(params);
+        
+        if (response && response.content && response.content.length > 0) {
+          const content = response.content[0];
+          setGeneratedContent({
+            type: 'text',
+            content: content.content || ''
+          });
+          toast.success(response.message || "Texte généré avec succès");
+        } else {
+          toast.error("Aucun contenu n'a été généré");
+        }
+      } else if (activeTab === 'image') {
+        // Préparer les paramètres pour l'API d'image
+        const imageParams: ImageGenerationParams = {
+          prompt: prompt,
+          keywords: keywords,
+          quality: imageQuality,
+          size: imageSize,
+          style: imageStyle
+        };
+        
+        try {
+          const response = await generateImage(imageParams);
+          
+          setGeneratedContent({
+            type: 'image',
+            content: response.imageUrl
+          });
+          
+          toast.success(response.message || "Image générée avec succès");
+        } catch (error) {
+          console.error("Erreur lors de la génération de l'image:", error);
+          toast.error("Erreur lors de la génération de l'image");
+          simulateImageGeneration();
+        }
+      } else if (activeTab === 'video') {
+        simulateGeneration();
+      }
+    } catch (error) {
+      console.error("Erreur lors de la génération du contenu:", error);
+      toast.error("Erreur lors de la génération du contenu");
+      
+      // En cas d'erreur, simuler une réponse pour la démo
+      simulateGeneration();
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+  
+  // Simulation spécifique pour les images
+  const simulateImageGeneration = () => {
+    setTimeout(() => {
+      setGeneratedContent({
+        type: 'image',
+        content: placeholderImages[Math.floor(Math.random() * placeholderImages.length)]
+      });
+      toast.success("Image générée avec succès (simulation)");
+    }, 2000);
+  };
+  
+  // Fallback en cas d'échec de l'API
   const simulateGeneration = () => {
     if (!prompt && keywords.length === 0) {
       toast.error("Veuillez ajouter un prompt ou des mots-clés");
@@ -274,14 +392,26 @@ const ContentGeneration = () => {
         return (
           <div className="mt-6 space-y-4">
             <h3 className="text-lg font-medium">Contenu généré</h3>
-            <div className="p-4 bg-white border rounded-md shadow-sm min-h-[200px]">
+            <div className="p-4 bg-white border rounded-md shadow-sm min-h-[200px] whitespace-pre-line">
               {generatedContent.content.split('\n').map((paragraph: string, i: number) => (
                 <p key={i} className="mb-4">{paragraph}</p>
               ))}
             </div>
             <div className="flex justify-end space-x-2">
               <Button variant="outline">Modifier</Button>
-              <Button>
+              <Button onClick={() => {
+                // Créer un blob et télécharger le contenu
+                const blob = new Blob([generatedContent.content], { type: 'text/plain' });
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `contenu-genere-${new Date().toISOString().slice(0, 10)}.txt`;
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+                toast.success("Contenu téléchargé avec succès");
+              }}>
                 <Download className="mr-2 h-4 w-4" />
                 Exporter
               </Button>
@@ -374,7 +504,7 @@ const ContentGeneration = () => {
             </TabsList>
             
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              <div className="lg:col-span-2 space-y-6">
+              <div className="lg:col-span-3 space-y-6">
                 <TabsContent value="text" className="mt-0">
                   <Card>
                     <CardHeader>
@@ -504,11 +634,11 @@ const ContentGeneration = () => {
                       
                       <div className="pt-4">
                         <Button 
-                          onClick={simulateGeneration} 
-                          disabled={isGenerating}
+                          onClick={handleGeneration} 
+                          disabled={isGenerating || isApiGenerating}
                           className="w-full"
                         >
-                          {isGenerating ? (
+                          {isGenerating || isApiGenerating ? (
                             <>Génération en cours...</>
                           ) : (
                             <>
@@ -534,81 +664,6 @@ const ContentGeneration = () => {
                     </CardHeader>
                     <CardContent className="space-y-4">
                       <div className="space-y-2">
-                        <div className="flex justify-between items-center">
-                          <Label htmlFor="template">Modèle</Label>
-                          <Dialog>
-                            <DialogTrigger asChild>
-                              <Button variant="outline" size="sm" className="h-8">
-                                <Plus className="h-3.5 w-3.5 mr-1" />
-                                Ajouter
-                              </Button>
-                            </DialogTrigger>
-                            <DialogContent className="sm:max-w-[425px]">
-                              <DialogHeader>
-                                <DialogTitle>Ajouter un nouveau modèle</DialogTitle>
-                                <DialogDescription>
-                                  Créez un nouveau modèle pour la génération d'images.
-                                </DialogDescription>
-                              </DialogHeader>
-                              <div className="grid gap-4 py-4">
-                                <div className="grid grid-cols-4 items-center gap-4">
-                                  <Label htmlFor="templateName" className="text-right">
-                                    Nom
-                                  </Label>
-                                  <Input
-                                    id="templateName"
-                                    value={newTemplateName}
-                                    onChange={(e) => setNewTemplateName(e.target.value)}
-                                    className="col-span-3"
-                                  />
-                                </div>
-                                <div className="grid grid-cols-4 items-center gap-4">
-                                  <Label htmlFor="templateType" className="text-right">
-                                    Type
-                                  </Label>
-                                  <Select 
-                                    value={newTemplateType} 
-                                    onValueChange={setNewTemplateType}
-                                    defaultValue="image"
-                                  >
-                                    <SelectTrigger className="col-span-3">
-                                      <SelectValue placeholder="Sélectionner un type" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                      <SelectItem value="text">Texte</SelectItem>
-                                      <SelectItem value="image">Image</SelectItem>
-                                      <SelectItem value="video">Vidéo</SelectItem>
-                                    </SelectContent>
-                                  </Select>
-                                </div>
-                              </div>
-                              <DialogFooter>
-                                <DialogClose asChild>
-                                  <Button variant="outline">Annuler</Button>
-                                </DialogClose>
-                                <Button onClick={handleAddTemplate}>Ajouter</Button>
-                              </DialogFooter>
-                            </DialogContent>
-                          </Dialog>
-                        </div>
-                        <Select 
-                          onValueChange={(value) => setSettings({...settings, template: value})}
-                          value={settings.template}
-                        >
-                          <SelectTrigger>
-                            <SelectValue placeholder="Sélectionner un modèle" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {filterTemplatesByType('image').map(template => (
-                              <SelectItem key={template.id} value={template.id}>
-                                {template.name}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      
-                      <div className="space-y-2">
                         <Label htmlFor="prompt">Description de l'image</Label>
                         <Textarea 
                           id="prompt"
@@ -617,6 +672,57 @@ const ContentGeneration = () => {
                           value={prompt}
                           onChange={(e) => setPrompt(e.target.value)}
                         />
+                      </div>
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="quality">Qualité</Label>
+                          <Select 
+                            value={imageQuality} 
+                            onValueChange={setImageQuality}
+                          >
+                            <SelectTrigger>
+                              <SelectValue placeholder="Qualité" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="hd">HD</SelectItem>
+                              <SelectItem value="standard">Standard</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        
+                        <div className="space-y-2">
+                          <Label htmlFor="size">Taille</Label>
+                          <Select 
+                            value={imageSize} 
+                            onValueChange={setImageSize}
+                          >
+                            <SelectTrigger>
+                              <SelectValue placeholder="Taille" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="1024x1024">1024x1024</SelectItem>
+                              <SelectItem value="1792x1024">1792x1024</SelectItem>
+                              <SelectItem value="1024x1792">1024x1792</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        
+                        <div className="space-y-2">
+                          <Label htmlFor="style">Style</Label>
+                          <Select 
+                            value={imageStyle} 
+                            onValueChange={setImageStyle}
+                          >
+                            <SelectTrigger>
+                              <SelectValue placeholder="Style" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="vivid">Vivid</SelectItem>
+                              <SelectItem value="natural">Natural</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
                       </div>
                       
                       <Separator className="my-4" />
@@ -702,11 +808,11 @@ const ContentGeneration = () => {
                       
                       <div className="pt-4">
                         <Button 
-                          onClick={simulateGeneration} 
-                          disabled={isGenerating}
+                          onClick={handleGeneration} 
+                          disabled={isGenerating || isApiImageGenerating}
                           className="w-full"
                         >
-                          {isGenerating ? (
+                          {isGenerating || isApiImageGenerating ? (
                             <>Génération en cours...</>
                           ) : (
                             <>
@@ -824,38 +930,32 @@ const ContentGeneration = () => {
                         <div className="grid grid-cols-2 gap-4">
                           <div className="space-y-2">
                             <Label htmlFor="duration" className="text-sm">Durée</Label>
-                            <Select defaultValue="15">
+                            <Select defaultValue="30">
                               <SelectTrigger>
                                 <SelectValue placeholder="Durée" />
                               </SelectTrigger>
                               <SelectContent>
                                 <SelectItem value="15">15 secondes</SelectItem>
                                 <SelectItem value="30">30 secondes</SelectItem>
-                                <SelectItem value="60">60 secondes</SelectItem>
+                                <SelectItem value="60">1 minute</SelectItem>
                               </SelectContent>
                             </Select>
                           </div>
+                          
                           <div className="space-y-2">
-                            <Label htmlFor="ratio" className="text-sm">Format</Label>
-                            <Select defaultValue="portrait">
+                            <Label htmlFor="resolution" className="text-sm">Résolution</Label>
+                            <Select defaultValue="720p">
                               <SelectTrigger>
-                                <SelectValue placeholder="Format" />
+                                <SelectValue placeholder="Résolution" />
                               </SelectTrigger>
                               <SelectContent>
-                                <SelectItem value="portrait">Portrait (9:16)</SelectItem>
-                                <SelectItem value="square">Carré (1:1)</SelectItem>
-                                <SelectItem value="landscape">Paysage (16:9)</SelectItem>
+                                <SelectItem value="480p">480p</SelectItem>
+                                <SelectItem value="720p">720p (HD)</SelectItem>
+                                <SelectItem value="1080p">1080p (Full HD)</SelectItem>
                               </SelectContent>
                             </Select>
                           </div>
                         </div>
-                      </div>
-                      
-                      <div className="space-y-2">
-                        <Label className="flex items-center gap-2">
-                          Ajouter de la musique
-                          <Switch />
-                        </Label>
                       </div>
                       
                       <div className="space-y-2">
@@ -893,7 +993,7 @@ const ContentGeneration = () => {
                       
                       <div className="pt-4">
                         <Button 
-                          onClick={simulateGeneration} 
+                          onClick={handleGeneration} 
                           disabled={isGenerating}
                           className="w-full"
                         >
@@ -912,176 +1012,6 @@ const ContentGeneration = () => {
                   
                   {renderGeneratedContent()}
                 </TabsContent>
-              </div>
-              
-              <div className="lg:col-span-1">
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <Sliders className="h-4 w-4" />
-                      Personnalisation
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-6">
-                    <div className="space-y-4">
-                      <div className="space-y-2">
-                        <div className="flex justify-between items-center">
-                          <Label htmlFor="tone">Ton</Label>
-                          <Dialog>
-                            <DialogTrigger asChild>
-                              <Button variant="outline" size="sm" className="h-8">
-                                <Plus className="h-3.5 w-3.5 mr-1" />
-                                Ajouter
-                              </Button>
-                            </DialogTrigger>
-                            <DialogContent className="sm:max-w-[425px]">
-                              <DialogHeader>
-                                <DialogTitle>Ajouter un nouveau ton</DialogTitle>
-                                <DialogDescription>
-                                  Créez un nouveau ton pour vos contenus.
-                                </DialogDescription>
-                              </DialogHeader>
-                              <div className="grid gap-4 py-4">
-                                <div className="grid grid-cols-4 items-center gap-4">
-                                  <Label htmlFor="toneName" className="text-right">
-                                    Nom
-                                  </Label>
-                                  <Input
-                                    id="toneName"
-                                    value={newToneName}
-                                    onChange={(e) => setNewToneName(e.target.value)}
-                                    className="col-span-3"
-                                  />
-                                </div>
-                              </div>
-                              <DialogFooter>
-                                <DialogClose asChild>
-                                  <Button variant="outline">Annuler</Button>
-                                </DialogClose>
-                                <Button onClick={handleAddTone}>Ajouter</Button>
-                              </DialogFooter>
-                            </DialogContent>
-                          </Dialog>
-                        </div>
-                        <Select 
-                          value={settings.tone}
-                          onValueChange={(value) => setSettings({...settings, tone: value})}
-                        >
-                          <SelectTrigger>
-                            <SelectValue placeholder="Choisir un ton" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {tones.map(tone => (
-                              <SelectItem key={tone.id} value={tone.id}>
-                                {tone.name}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      
-                      <div className="space-y-2">
-                        <div className="flex justify-between">
-                          <Label htmlFor="length">Longueur du contenu</Label>
-                          <span className="text-xs text-gray-500">
-                            {settings.length}%
-                          </span>
-                        </div>
-                        <Slider
-                          id="length"
-                          min={10}
-                          max={100}
-                          step={10}
-                          defaultValue={[settings.length]}
-                          onValueChange={(value) => setSettings({...settings, length: value[0]})}
-                        />
-                        <div className="flex justify-between text-xs text-gray-500">
-                          <span>Court</span>
-                          <span>Moyen</span>
-                          <span>Long</span>
-                        </div>
-                      </div>
-                    </div>
-                    
-                    <Separator />
-                    
-                    <div className="space-y-4">
-                      <div className="flex justify-between items-center">
-                        <h3 className="text-sm font-medium">Variables dynamiques</h3>
-                        <Dialog>
-                          <DialogTrigger asChild>
-                            <Button variant="outline" size="sm" className="h-8">
-                              <Variable className="h-3.5 w-3.5 mr-1" />
-                              Ajouter une variable
-                            </Button>
-                          </DialogTrigger>
-                          <DialogContent className="sm:max-w-[425px]">
-                            <DialogHeader>
-                              <DialogTitle>Ajouter une variable</DialogTitle>
-                              <DialogDescription>
-                                Créez une nouvelle variable pour votre contenu.
-                              </DialogDescription>
-                            </DialogHeader>
-                            <div className="grid gap-4 py-4">
-                              <div className="grid grid-cols-4 items-center gap-4">
-                                <Label htmlFor="variableName" className="text-right">
-                                  Nom
-                                </Label>
-                                <Input
-                                  id="variableName"
-                                  value={newVariableName}
-                                  onChange={(e) => setNewVariableName(e.target.value)}
-                                  className="col-span-3"
-                                  placeholder="ex: Entreprise, Produit..."
-                                />
-                              </div>
-                            </div>
-                            <DialogFooter>
-                              <DialogClose asChild>
-                                <Button variant="outline">Annuler</Button>
-                              </DialogClose>
-                              <Button onClick={handleAddVariable}>Ajouter</Button>
-                            </DialogFooter>
-                          </DialogContent>
-                        </Dialog>
-                      </div>
-                      
-                      <p className="text-xs text-gray-500">
-                        Ces variables seront remplacées dans le contenu généré.
-                      </p>
-                      
-                      {settings.dynamicVariables.map(variable => (
-                        <div key={variable.id} className="flex items-center gap-2">
-                          <Label htmlFor={`var-${variable.id}`} className="w-20 text-sm">
-                            {variable.name}
-                          </Label>
-                          <Input
-                            id={`var-${variable.id}`}
-                            value={variable.value}
-                            onChange={(e) => handleVariableChange(variable.id, e.target.value)}
-                            className="flex-1"
-                          />
-                          <Button 
-                            variant="ghost" 
-                            size="icon" 
-                            className="h-8 w-8 text-gray-500"
-                            onClick={() => handleRemoveVariable(variable.id)}
-                          >
-                            &times;
-                          </Button>
-                        </div>
-                      ))}
-                    </div>
-                    
-                    <Separator />
-                    
-                    <div className="pt-2">
-                      <Button variant="outline" className="w-full">
-                        Enregistrer comme préréglage
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
               </div>
             </div>
           </Tabs>
