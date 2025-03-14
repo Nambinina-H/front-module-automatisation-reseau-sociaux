@@ -297,7 +297,7 @@ const ContentGeneration = () => {
         }
       } else if (activeTab === 'image') {
         // Préparer les paramètres pour l'API d'image
-        const imageParams = {
+        const imageParams: ImageGenerationParams = {
           prompt: prompt,
           keywords: keywords,
           quality: imageQuality,
