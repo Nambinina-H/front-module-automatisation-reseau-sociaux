@@ -12,16 +12,16 @@ const Logs = () => {
   const [filter, setFilter] = useState('all');
 
   const logs = [
-    { id: 1, utilisateur: 'john.doe@example.com', action: 'create', type: 'article', keywords: 'react, javascript', scheduledTime: '2023-10-01 10:00', date: '2023-10-01' },
-    { id: 2, utilisateur: 'jane.smith@example.com', action: 'login', date: '2023-10-02' },
-    { id: 3, utilisateur: 'alice.johnson@example.com', action: 'update', date: '2023-10-03' },
-    { id: 4, utilisateur: 'bob.brown@example.com', action: 'delete', date: '2023-10-04' },
-    { id: 5, utilisateur: 'charlie.davis@example.com', action: 'generate_content', type: 'video', keywords: 'tutorial, react', date: '2023-10-05' },
-    { id: 6, utilisateur: 'diana.evans@example.com', action: 'schedule_content', type: 'post', scheduledTime: '2023-10-06 14:00', date: '2023-10-06' },
-    { id: 7, utilisateur: 'eve.foster@example.com', action: 'publish_content', type: 'post', date: '2023-10-07' },
-    { id: 8, utilisateur: 'frank.green@example.com', action: 'cancel_publication', type: 'post', date: '2023-10-08' },
-    { id: 9, utilisateur: 'grace.harris@example.com', action: 'login', date: '2023-10-09' },
-    { id: 10, utilisateur: 'henry.irving@example.com', action: 'create', date: '2023-10-10' },
+    { id: 1, utilisateur: 'john.doe@example.com', action: 'create', type: 'article', keywords: 'react, javascript', scheduledTime: '2025-3-01 10:00', date: '2025-3-14' },
+    { id: 2, utilisateur: 'jane.smith@example.com', action: 'login', date: '2025-3-14' },
+    { id: 3, utilisateur: 'alice.johnson@example.com', action: 'update', date: '2025-3-14' },
+    { id: 4, utilisateur: 'bob.brown@example.com', action: 'delete', date: '2025-3-14' },
+    { id: 5, utilisateur: 'charlie.davis@example.com', action: 'generate_content', type: 'video', keywords: 'tutorial, react', date: '2025-3-14' },
+    { id: 6, utilisateur: 'diana.evans@example.com', action: 'schedule_content', type: 'post', scheduledTime: '2025-3-14 14:00', date: '2025-3-14' },
+    { id: 7, utilisateur: 'eve.foster@example.com', action: 'publish_content', type: 'post', date: '2025-3-14' },
+    { id: 8, utilisateur: 'frank.green@example.com', action: 'cancel_publication', type: 'post', date: '2025-3-14' },
+    { id: 9, utilisateur: 'grace.harris@example.com', action: 'login', date: '2025-3-14' },
+    { id: 10, utilisateur: 'henry.irving@example.com', action: 'create', date: '2025-3-14' },
   ];
 
   const actionLabels = {
