@@ -12,16 +12,16 @@ const Logs = () => {
   const [filter, setFilter] = useState('all');
 
   const logs = [
-    { id: 1, utilisateur: 'john.doe@example.com', action: 'create', details: 'Création d\'un utilisateur', level: 'info', date: '2023-10-01' },
-    { id: 2, utilisateur: 'jane.smith@example.com', action: 'login', details: 'Connexion d\'un utilisateur', level: 'info', date: '2023-10-02' },
-    { id: 3, utilisateur: 'alice.johnson@example.com', action: 'update', details: 'Mise à jour du rôle d\'un utilisateur', level: 'info', date: '2023-10-03' },
-    { id: 4, utilisateur: 'bob.brown@example.com', action: 'delete', details: 'Suppression d\'un utilisateur', level: 'error', date: '2023-10-04' },
-    { id: 5, utilisateur: 'charlie.davis@example.com', action: 'generate_content', details: 'Génération de contenu', level: 'info', date: '2023-10-05' },
-    { id: 6, utilisateur: 'diana.evans@example.com', action: 'schedule_content', details: 'Planification de la publication de contenu', level: 'info', date: '2023-10-06' },
-    { id: 7, utilisateur: 'eve.foster@example.com', action: 'publish_content', details: 'Publication de contenu', level: 'info', date: '2023-10-07' },
-    { id: 8, utilisateur: 'frank.green@example.com', action: 'cancel_publication', details: 'Annulation de la publication planifiée', level: 'warning', date: '2023-10-08' },
-    { id: 9, utilisateur: 'grace.harris@example.com', action: 'login', details: 'Connexion d\'un utilisateur', level: 'info', date: '2023-10-09' },
-    { id: 10, utilisateur: 'henry.irving@example.com', action: 'create', details: 'Création d\'un utilisateur', level: 'info', date: '2023-10-10' },
+    { id: 1, utilisateur: 'john.doe@example.com', action: 'create', type: 'article', keywords: 'react, javascript', scheduledTime: '2023-10-01 10:00', date: '2023-10-01' },
+    { id: 2, utilisateur: 'jane.smith@example.com', action: 'login', date: '2023-10-02' },
+    { id: 3, utilisateur: 'alice.johnson@example.com', action: 'update', date: '2023-10-03' },
+    { id: 4, utilisateur: 'bob.brown@example.com', action: 'delete', date: '2023-10-04' },
+    { id: 5, utilisateur: 'charlie.davis@example.com', action: 'generate_content', type: 'video', keywords: 'tutorial, react', date: '2023-10-05' },
+    { id: 6, utilisateur: 'diana.evans@example.com', action: 'schedule_content', type: 'post', scheduledTime: '2023-10-06 14:00', date: '2023-10-06' },
+    { id: 7, utilisateur: 'eve.foster@example.com', action: 'publish_content', type: 'post', date: '2023-10-07' },
+    { id: 8, utilisateur: 'frank.green@example.com', action: 'cancel_publication', type: 'post', date: '2023-10-08' },
+    { id: 9, utilisateur: 'grace.harris@example.com', action: 'login', date: '2023-10-09' },
+    { id: 10, utilisateur: 'henry.irving@example.com', action: 'create', date: '2023-10-10' },
   ];
 
   const actionLabels = {
@@ -46,11 +46,34 @@ const Logs = () => {
     cancel_publication: 'bg-orange-100 text-orange-800'
   };
 
+  const getDetails = (log) => {
+    switch (log.action) {
+      case 'login':
+        return `Utilisateur ${log.utilisateur} connecté`;
+      case 'create':
+        return `Utilisateur ${log.utilisateur} créé`;
+      case 'update':
+        return `Utilisateur ${log.utilisateur} mis à jour`;
+      case 'delete':
+        return `Utilisateur ${log.utilisateur} supprimé`;
+      case 'generate_content':
+        return `Contenu de type '${log.type}' généré avec les mots-clés : ${log.keywords}`;
+      case 'schedule_content':
+        return `Contenu de type '${log.type}' planifié pour publication à ${log.scheduledTime}`;
+      case 'publish_content':
+        return `Contenu de type '${log.type}' publié`;
+      case 'cancel_publication':
+        return `Publication de contenu de type '${log.type}' annulée`;
+      default:
+        return log.details;
+    }
+  };
+
   const filteredLogs = logs.filter(log => 
     (filter === 'all' || log.action === filter) &&
     (log.utilisateur.toLowerCase().includes(searchTerm.toLowerCase()) ||
      log.action.toLowerCase().includes(searchTerm.toLowerCase()) ||
-     log.details.toLowerCase().includes(searchTerm.toLowerCase()))
+     getDetails(log).toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
   return (
@@ -106,7 +129,7 @@ const Logs = () => {
                           {actionLabels[log.action]}
                         </Badge>
                       </td>
-                      <td className="px-4 py-2 border-b">{log.details}</td>
+                      <td className="px-4 py-2 border-b">{getDetails(log)}</td>
                       <td className="px-4 py-2 border-b text-center">{log.date}</td>
                     </tr>
                   ))}
