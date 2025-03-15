@@ -14,6 +14,7 @@ import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 import ContentGeneration from "./pages/ContentGeneration";
 import Auth from "./pages/Auth";
+import Logs from "./pages/Logs";  // Import the Logs page
 import { apiService } from "./services/apiService";
 
 const queryClient = new QueryClient();
@@ -64,6 +65,7 @@ const App = () => {
             <Route path="/analytics" element={<PrivateRoute><Analytics /></PrivateRoute>} />
             <Route path="/settings" element={<PrivateRoute><Settings /></PrivateRoute>} />
             <Route path="/content-generation" element={<PrivateRoute><ContentGeneration /></PrivateRoute>} />
+            <Route path="/logs" element={<PrivateRoute><Logs /></PrivateRoute>} />  {/* Add the Logs route */}
             
             {/* Route 404 */}
             <Route path="*" element={<NotFound />} />
