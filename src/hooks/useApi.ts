@@ -1,4 +1,3 @@
-
 import { useState, useCallback } from 'react';
 import { apiService } from '@/services/apiService';
 import { User, Content, Log, LoginCredentials, RegisterCredentials, AuthResponse, ContentGenerationParams, PublishParams, ContentGenerationResponse, ImageGenerationParams, ImageGenerationResponse } from '@/services/apiService';
@@ -172,30 +171,17 @@ export function usePublish() {
 
 export function useLogs() {
   const {
-    data: logsResponse,
+    data: logs,
     loading: logsLoading,
     error: logsError,
-    execute: fetchLogsData
-  } = useApi<{ message: string, logs: Log[] }>(apiService.getLogs.bind(apiService), { message: '', logs: [] });
-
-  const logs = logsResponse?.logs || [];
+    execute: fetchLogs
+  } = useApi<Log[]>(apiService.getLogs.bind(apiService), []);
 
   const {
     execute: executeExport,
     loading: exportLoading,
     error: exportError
   } = useApi<Blob, 'csv' | 'json'>(apiService.exportLogs.bind(apiService));
-
-  const fetchLogs = useCallback(
-    async (params?: { user_id?: string; action?: string; page?: number; limit?: number }) => {
-      try {
-        return await fetchLogsData(params);
-      } catch (error) {
-        console.error('Error fetching logs:', error);
-      }
-    },
-    [fetchLogsData]
-  );
 
   const downloadLogs = useCallback(
     async (format: 'csv' | 'json' = 'csv') => {

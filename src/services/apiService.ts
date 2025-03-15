@@ -70,11 +70,11 @@ export interface PublishParams {
 
 export interface Log {
   id: string;
-  user_id: string;
   action: string;
+  userId: string;
   details: string;
-  created_at: string;
-  email?: string;
+  createdAt: string;
+  ip?: string;
 }
 
 export interface ImageGenerationParams {
@@ -346,26 +346,11 @@ class ApiService {
   // ==== LOGS ====
   
   // Récupérer les logs
-  async getLogs(params?: { user_id?: string; action?: string; page?: number; limit?: number }): Promise<{ message: string, logs: Log[] }> {
+  async getLogs(): Promise<Log[]> {
     try {
-      let url = '/logs';
-      
-      if (params) {
-        const queryParams = new URLSearchParams();
-        if (params.user_id) queryParams.append('user_id', params.user_id);
-        if (params.action) queryParams.append('action', params.action);
-        if (params.page) queryParams.append('page', params.page.toString());
-        if (params.limit) queryParams.append('limit', params.limit.toString());
-        
-        if (queryParams.toString()) {
-          url += `?${queryParams.toString()}`;
-        }
-      }
-      
-      const response = await this.api.get<{ message: string, logs: Log[] }>(url);
+      const response = await this.api.get<Log[]>('/logs');
       return response.data;
     } catch (error) {
-      console.error('Error fetching logs:', error);
       throw error;
     }
   }
@@ -378,7 +363,6 @@ class ApiService {
       });
       return response.data;
     } catch (error) {
-      console.error('Error exporting logs:', error);
       throw error;
     }
   }
