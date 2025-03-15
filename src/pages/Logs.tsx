@@ -36,7 +36,7 @@ const LogsPage = () => {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [searchTerm, setSearchTerm] = useState('');
-  const [actionFilter, setActionFilter] = useState<string>('');
+  const [actionFilter, setActionFilter] = useState<string>('all'); // Initialiser avec 'all' au lieu de ''
   const [page, setPage] = useState(1);
   const [limit] = useState(10);
 
@@ -169,7 +169,8 @@ const LogsPage = () => {
                   setActionFilter(value);
                   setColumnFilters(prev => {
                     const filtered = prev.filter(filter => filter.id !== 'action');
-                    if (value) {
+                    // N'ajouter le filtre que si ce n'est pas 'all'
+                    if (value && value !== 'all') {
                       return [...filtered, { id: 'action', value }];
                     }
                     return filtered;
@@ -179,11 +180,11 @@ const LogsPage = () => {
                 <SelectTrigger className="w-[180px]">
                   <div className="flex items-center gap-2">
                     <Filter className="h-4 w-4" />
-                    <span>{actionFilter ? `Action: ${actionFilter}` : 'Filtrer par action'}</span>
+                    <span>{actionFilter !== 'all' ? `Action: ${actionFilter}` : 'Filtrer par action'}</span>
                   </div>
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Tous</SelectItem>
+                  <SelectItem value="all">Tous</SelectItem>
                   {actions.map(action => (
                     <SelectItem key={action.value} value={action.value}>{action.label}</SelectItem>
                   ))}
@@ -259,7 +260,6 @@ const LogsPage = () => {
           <Pagination>
             <PaginationContent>
               <PaginationItem>
-                {/* Fix: Removed disabled prop and conditionally render based on whether we can go to previous page */}
                 {table.getCanPreviousPage() ? (
                   <PaginationPrevious onClick={() => table.previousPage()} />
                 ) : (
@@ -282,7 +282,6 @@ const LogsPage = () => {
               ))}
               
               <PaginationItem>
-                {/* Fix: Removed disabled prop and conditionally render based on whether we can go to next page */}
                 {table.getCanNextPage() ? (
                   <PaginationNext onClick={() => table.nextPage()} />
                 ) : (
