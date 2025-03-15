@@ -4,6 +4,7 @@ import Navbar from '@/components/layout/Navbar';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Filter } from 'lucide-react';
 
 const Logs = () => {
@@ -58,54 +59,61 @@ const Logs = () => {
       <div className="ml-16 md:ml-60 transition-all duration-300">
         <Navbar />
         <main className="p-6">
-          <div className="flex justify-between items-center mb-4">
-            <Input 
-              placeholder="Rechercher..." 
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="max-w-xs"
-            />
-            <Select value={filter} onValueChange={setFilter}>
-              <SelectTrigger className="w-10 flex items-center justify-center">
-                <Filter size={16} />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Tous</SelectItem>
-                <SelectItem value="create">Création d'un utilisateur</SelectItem>
-                <SelectItem value="login">Connexion d'un utilisateur</SelectItem>
-                <SelectItem value="update">Mise à jour du rôle d'un utilisateur</SelectItem>
-                <SelectItem value="delete">Suppression d'un utilisateur</SelectItem>
-                <SelectItem value="generate_content">Génération de contenu</SelectItem>
-                <SelectItem value="schedule_content">Planification de la publication de contenu</SelectItem>
-                <SelectItem value="publish_content">Publication de contenu</SelectItem>
-                <SelectItem value="cancel_publication">Annulation de la publication planifiée</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          <table className="min-w-full bg-white border border-gray-200">
-            <thead>
-              <tr>
-                <th className="w-1/6 px-4 py-2 border-b">Utilisateur</th>
-                <th className="w-1/6 px-4 py-2 border-b">Action</th>
-                <th className="w-1/2 px-4 py-2 border-b">Détails</th>
-                <th className="w-1/6 px-4 py-2 border-b">Date</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredLogs.map(log => (
-                <tr key={log.id}>
-                  <td className="px-4 py-2 border-b text-center">{log.utilisateur}</td>
-                  <td className="px-4 py-2 border-b text-center">
-                    <Badge className={`${actionColors[log.action]} whitespace-nowrap`}>
-                      {actionLabels[log.action]}
-                    </Badge>
-                  </td>
-                  <td className="px-4 py-2 border-b">{log.details}</td>
-                  <td className="px-4 py-2 border-b text-center">{log.date}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <Card>
+            <CardHeader>
+              <CardTitle>Logs</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex justify-between items-center mb-4">
+                <Input 
+                  placeholder="Rechercher..." 
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="max-w-xs"
+                />
+                <Select value={filter} onValueChange={setFilter}>
+                  <SelectTrigger className="w-10 flex items-center justify-center">
+                    <Filter size={16} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Tous</SelectItem>
+                    <SelectItem value="create">Création d'un utilisateur</SelectItem>
+                    <SelectItem value="login">Connexion d'un utilisateur</SelectItem>
+                    <SelectItem value="update">Mise à jour du rôle d'un utilisateur</SelectItem>
+                    <SelectItem value="delete">Suppression d'un utilisateur</SelectItem>
+                    <SelectItem value="generate_content">Génération de contenu</SelectItem>
+                    <SelectItem value="schedule_content">Planification de la publication de contenu</SelectItem>
+                    <SelectItem value="publish_content">Publication de contenu</SelectItem>
+                    <SelectItem value="cancel_publication">Annulation de la publication planifiée</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <table className="min-w-full bg-white border border-gray-200">
+                <thead>
+                  <tr>
+                    <th className="w-1/6 px-4 py-2 border-b">Utilisateur</th>
+                    <th className="w-1/6 px-4 py-2 border-b">Action</th>
+                    <th className="w-1/2 px-4 py-2 border-b">Détails</th>
+                    <th className="w-1/6 px-4 py-2 border-b">Date</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredLogs.map(log => (
+                    <tr key={log.id}>
+                      <td className="px-4 py-2 border-b text-center">{log.utilisateur}</td>
+                      <td className="px-4 py-2 border-b text-center">
+                        <Badge className={`${actionColors[log.action]} whitespace-nowrap`}>
+                          {actionLabels[log.action]}
+                        </Badge>
+                      </td>
+                      <td className="px-4 py-2 border-b">{log.details}</td>
+                      <td className="px-4 py-2 border-b text-center">{log.date}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </CardContent>
+          </Card>
         </main>
       </div>
     </div>
