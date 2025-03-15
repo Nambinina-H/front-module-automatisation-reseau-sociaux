@@ -69,7 +69,7 @@ const initialTones = [
 ];
 
 // Sample placeholders for generated content
-const placeholderText = `Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam euismod, nisl eget ultricies aliquam, nunc nisl aliquet nunc, vitae aliquam nisl nunc vitae nisl. Nullam euismod, nisl eget ultricies aliquam, nunc nisl aliquet nunc, vitae aliquam nisl nunc vitae nisl.
+const placeholderText = `Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam euismod, nisl eget ultricies aliquam, nunc nisl aliquet nunc, vitae aliquam nisl nunc vitae nisl.
 
 Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.`;
 
@@ -112,6 +112,7 @@ interface ImageGenerationParams {
   quality: string;
   size: string;
   style: string;
+  personalization: ContentPersonalization;
 }
 
 interface ImageGenerationResponse {
@@ -317,26 +318,33 @@ const ContentGeneration = () => {
         }
       } else if (activeTab === 'image') {
         // Préparer les paramètres pour l'API d'image
-        const imageParams: ImageGenerationParams = {
+        const imageParams = {
+          type: 'image',
           prompt: prompt,
           keywords: keywords,
           quality: imageQuality,
           size: imageSize,
-          style: imageStyle
+          style: imageStyle,
+          personalization: {} // Required by ContentGenerationParams type
         };
         
         try {
           const response = await generateImage(imageParams);
           
-          setGeneratedContent(prev => ({
-            ...prev,
-            image: {
-              type: 'image',
-              content: response.imageUrl
-            }
-          }));
-          
-          toast.success(response.message || "Image générée avec succès");
+          if (response && response.content && response.content.length > 0) {
+            setGeneratedContent(prev => ({
+              ...prev,
+              image: {
+                type: 'image',
+                content: response.content[0].imageUrl || response.content[0].content
+              }
+            }));
+            
+            toast.success(response.message || "Image générée avec succès");
+          } else {
+            toast.error("Aucune image n'a été générée");
+            simulateImageGeneration();
+          }
         } catch (error) {
           console.error("Erreur lors de la génération de l'image:", error);
           toast.error("Erreur lors de la génération de l'image");
@@ -1144,3 +1152,4 @@ const ContentGeneration = () => {
 };
 
 export default ContentGeneration;
+

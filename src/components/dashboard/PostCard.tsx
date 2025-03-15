@@ -18,7 +18,7 @@ interface PostCardProps {
   id: string;
   title: string;
   content: string;
-  platforms: Array<'linkedin' | 'instagram' | 'twitter' | 'facebook'>;
+  platforms: Array<'linkedin' | 'instagram' | 'twitter' | 'facebook' | 'wordpress'>;
   keywords: string[];
   scheduledDate: Date;
   status: 'scheduled' | 'published' | 'draft';
