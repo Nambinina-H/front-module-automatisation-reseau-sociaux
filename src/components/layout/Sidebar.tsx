@@ -1,3 +1,4 @@
+
 import React from 'react';
 import {
   Home,
@@ -6,7 +7,8 @@ import {
   Settings,
   LayoutDashboard,
   Wand2,
-  LogOut
+  LogOut,
+  ClipboardList
 } from 'lucide-react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
@@ -46,6 +48,11 @@ const navigationItems: NavItem[] = [
     icon: <Wand2 size={18} />,
     label: "Génération de contenu",
     href: "/content-generation",
+  },
+  {
+    icon: <ClipboardList size={18} />,
+    label: "Logs",
+    href: "/logs",
   },
   {
     icon: <Settings size={18} />,
