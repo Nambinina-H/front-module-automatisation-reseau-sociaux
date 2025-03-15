@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
@@ -20,7 +21,7 @@ interface PostCreatorProps {
 }
 
 const PostCreator: React.FC<PostCreatorProps> = ({ className }) => {
-  const [selectedPlatforms, setSelectedPlatforms] = useState<Array<'linkedin' | 'instagram' | 'twitter' | 'facebook' | 'wordpress'>>([]);
+  const [selectedPlatforms, setSelectedPlatforms] = useState<Array<'linkedin' | 'instagram' | 'twitter' | 'facebook'>>([]);
   const [keywords, setKeywords] = useState<string[]>([]);
   const [newKeyword, setNewKeyword] = useState('');
   const [date, setDate] = useState<Date | undefined>(undefined);
@@ -28,7 +29,7 @@ const PostCreator: React.FC<PostCreatorProps> = ({ className }) => {
   const [selectedMinute, setSelectedMinute] = useState<string>('00');
   const [selectedAmPm, setSelectedAmPm] = useState<string>('PM');
   
-  const togglePlatform = (platform: 'linkedin' | 'instagram' | 'twitter' | 'facebook' | 'wordpress') => {
+  const togglePlatform = (platform: 'linkedin' | 'instagram' | 'twitter' | 'facebook') => {
     if (selectedPlatforms.includes(platform)) {
       setSelectedPlatforms(selectedPlatforms.filter(p => p !== platform));
     } else {
@@ -79,7 +80,7 @@ const PostCreator: React.FC<PostCreatorProps> = ({ className }) => {
         <div className="space-y-3">
           <label className="text-sm font-medium">Plateformes</label>
           <div className="flex flex-wrap gap-2">
-            {(['linkedin', 'instagram', 'twitter', 'facebook', 'wordpress'] as const).map((platform) => (
+            {(['linkedin', 'instagram', 'twitter', 'facebook'] as const).map((platform) => (
               <Toggle
                 key={platform}
                 pressed={selectedPlatforms.includes(platform)}
@@ -94,8 +95,6 @@ const PostCreator: React.FC<PostCreatorProps> = ({ className }) => {
                   platform === 'twitter' && 'data-[state=on]:text-socialBlue-twitter',
                   selectedPlatforms.includes(platform) && 
                   platform === 'facebook' && 'data-[state=on]:text-socialBlue-facebook',
-                  selectedPlatforms.includes(platform) && 
-                  platform === 'wordpress' && 'data-[state=on]:text-blue-600',
                 )}
               >
                 <PlatformIcon platform={platform} className="mr-2" />
