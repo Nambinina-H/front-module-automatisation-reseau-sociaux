@@ -4,6 +4,7 @@ import Navbar from '@/components/layout/Navbar';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
+import { Filter } from 'lucide-react';
 
 const Logs = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -45,7 +46,7 @@ const Logs = () => {
   };
 
   const filteredLogs = logs.filter(log => 
-    (filter === 'all' || log.level === filter) &&
+    (filter === 'all' || log.action === filter) &&
     (log.utilisateur.toLowerCase().includes(searchTerm.toLowerCase()) ||
      log.action.toLowerCase().includes(searchTerm.toLowerCase()) ||
      log.details.toLowerCase().includes(searchTerm.toLowerCase()))
@@ -65,14 +66,19 @@ const Logs = () => {
               className="max-w-xs"
             />
             <Select value={filter} onValueChange={setFilter}>
-              <SelectTrigger className="w-32">
-                <SelectValue placeholder="Filtrer par niveau" />
+              <SelectTrigger className="w-10 flex items-center justify-center">
+                <Filter size={16} />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Tous</SelectItem>
-                <SelectItem value="info">Info</SelectItem>
-                <SelectItem value="error">Erreur</SelectItem>
-                <SelectItem value="warning">Avertissement</SelectItem>
+                <SelectItem value="create">Création d'un utilisateur</SelectItem>
+                <SelectItem value="login">Connexion d'un utilisateur</SelectItem>
+                <SelectItem value="update">Mise à jour du rôle d'un utilisateur</SelectItem>
+                <SelectItem value="delete">Suppression d'un utilisateur</SelectItem>
+                <SelectItem value="generate_content">Génération de contenu</SelectItem>
+                <SelectItem value="schedule_content">Planification de la publication de contenu</SelectItem>
+                <SelectItem value="publish_content">Publication de contenu</SelectItem>
+                <SelectItem value="cancel_publication">Annulation de la publication planifiée</SelectItem>
               </SelectContent>
             </Select>
           </div>
