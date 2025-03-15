@@ -245,7 +245,7 @@ const LogsPage = () => {
                   ))
                 ) : (
                   <tr>
-                    <td colSpan={columns.length} className="px-6 py-12 text-center text-gray-500">
+                    <td colSpan={4} className="px-6 py-12 text-center text-gray-500">
                       Aucun log trouvé
                     </td>
                   </tr>
@@ -259,10 +259,15 @@ const LogsPage = () => {
           <Pagination>
             <PaginationContent>
               <PaginationItem>
-                <PaginationPrevious 
-                  onClick={() => table.previousPage()} 
-                  disabled={!table.getCanPreviousPage()}
-                />
+                {/* Fix: Removed disabled prop and conditionally render based on whether we can go to previous page */}
+                {table.getCanPreviousPage() ? (
+                  <PaginationPrevious onClick={() => table.previousPage()} />
+                ) : (
+                  <span className="flex items-center gap-1 p-2 text-gray-400 cursor-not-allowed">
+                    <span className="h-4 w-4">◄</span>
+                    <span>Previous</span>
+                  </span>
+                )}
               </PaginationItem>
               
               {Array.from({ length: table.getPageCount() }, (_, i) => (
@@ -277,10 +282,15 @@ const LogsPage = () => {
               ))}
               
               <PaginationItem>
-                <PaginationNext 
-                  onClick={() => table.nextPage()} 
-                  disabled={!table.getCanNextPage()}
-                />
+                {/* Fix: Removed disabled prop and conditionally render based on whether we can go to next page */}
+                {table.getCanNextPage() ? (
+                  <PaginationNext onClick={() => table.nextPage()} />
+                ) : (
+                  <span className="flex items-center gap-1 p-2 text-gray-400 cursor-not-allowed">
+                    <span>Next</span>
+                    <span className="h-4 w-4">►</span>
+                  </span>
+                )}
               </PaginationItem>
             </PaginationContent>
           </Pagination>
