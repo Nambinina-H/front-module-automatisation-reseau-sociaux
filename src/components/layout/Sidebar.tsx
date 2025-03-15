@@ -7,7 +7,8 @@ import {
   LayoutDashboard,
   Wand2,
   LogOut,
-  FileText
+  FileText,
+  Users
 } from 'lucide-react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
@@ -47,6 +48,11 @@ const navigationItems: NavItem[] = [
     icon: <Wand2 size={18} />,
     label: "Génération de contenu",
     href: "/content-generation",
+  },
+  {
+    icon: <Users size={18} />,
+    label: 'Gestion utilisateurs',
+    href: '/user-management'
   },
   {
     icon: <FileText size={18} />,
