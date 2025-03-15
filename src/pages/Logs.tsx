@@ -95,8 +95,8 @@ const Logs = () => {
                   className="max-w-xs"
                 />
                 <Select value={filter} onValueChange={setFilter}>
-                  <SelectTrigger className="w-10 flex items-center justify-center">
-                    <Filter size={16} />
+                  <SelectTrigger className="w-24 flex items-center justify-center">
+                    Action
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">Tous</SelectItem>
