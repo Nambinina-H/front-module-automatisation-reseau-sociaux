@@ -19,11 +19,9 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { useAuth } from '@/hooks/useApi'; // Import useAuth hook
 
 const Settings = () => {
   const [email, setEmail] = useState('');
-  const { profile } = useAuth(); // Get the profile from useAuth
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -98,7 +96,7 @@ const Settings = () => {
                             </DialogDescription>
                           </DialogHeader>
                           <div className="space-y-4">
-                            <Label htmlFor="email">Tapez "{profile?.email}" pour confirmer </Label>
+                            <Label htmlFor="email">Tapez "email" pour confirmer </Label>
                             <Input 
                               id="email" 
                               type="email" 
