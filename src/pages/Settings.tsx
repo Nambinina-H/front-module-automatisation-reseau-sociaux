@@ -22,6 +22,32 @@ import {
 
 const Settings = () => {
   const [email, setEmail] = useState('');
+  const [connectingPlatform, setConnectingPlatform] = useState<string | null>(null);
+  const [disconnectingPlatform, setDisconnectingPlatform] = useState<string | null>(null);
+  const [apiKey, setApiKey] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
+
+  const handleConnect = (platform: string) => {
+    setConnectingPlatform(platform);
+    setErrorMessage('');
+  };
+
+  const handleDisconnect = (platform: string) => {
+    setDisconnectingPlatform(platform);
+  };
+
+  const handleSubmitConnection = () => {
+    // Implement the connection logic here
+    // On success:
+    setConnectingPlatform(null);
+    // On error:
+    // setErrorMessage('Connection failed. Please check your API key.');
+  };
+
+  const handleConfirmDisconnection = () => {
+    // Implement the disconnection logic here
+    setDisconnectingPlatform(null);
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -169,11 +195,11 @@ const Settings = () => {
                 </CardHeader>
                 <CardContent className="space-y-6">
                   {[
-                    { platform: 'linkedin', name: 'LinkedIn', connected: true },
-                    { platform: 'instagram', name: 'Instagram', connected: true },
+                    { platform: 'linkedin', name: 'LinkedIn', connected: false },
+                    { platform: 'instagram', name: 'Instagram', connected: false },
                     { platform: 'twitter', name: 'Twitter', connected: false },
-                    { platform: 'facebook', name: 'Facebook', connected: true },
-                    { platform: 'wordpress', name: 'WordPress', connected: false },
+                    { platform: 'facebook', name: 'Facebook', connected: false },
+                    { platform: 'wordpress', name: 'WordPress', connected: true },
                   ].map((connection) => (
                     <div key={connection.platform} className="flex items-center justify-between border-b border-gray-100 pb-4">
                       <div className="flex items-center space-x-3">
@@ -185,7 +211,10 @@ const Settings = () => {
                           </p>
                         </div>
                       </div>
-                      <Button variant={connection.connected ? 'outline' : 'default'}>
+                      <Button 
+                        variant={connection.connected ? 'outline' : 'default'}
+                        onClick={() => connection.connected ? handleDisconnect(connection.platform) : handleConnect(connection.platform)}
+                      >
                         {connection.connected ? 'Déconnecter' : 'Connecter'}
                       </Button>
                     </div>
@@ -196,6 +225,55 @@ const Settings = () => {
           </Tabs>
         </main>
       </div>
+
+      {connectingPlatform && (
+        <Dialog open={!!connectingPlatform} onOpenChange={() => setConnectingPlatform(null)}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Connecter à {connectingPlatform}</DialogTitle>
+              <DialogDescription>
+                Entrez les informations nécessaires pour connecter votre compte {connectingPlatform}.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4">
+              <Label htmlFor="apiKey">API Key</Label>
+              <Input 
+                id="apiKey" 
+                type="text" 
+                placeholder="Votre API Key" 
+                value={apiKey}
+                onChange={(e) => setApiKey(e.target.value)}
+              />
+              {errorMessage && <p className="text-red-500">{errorMessage}</p>}
+            </div>
+            <DialogFooter>
+              <DialogClose asChild>
+                <Button variant="outline">Annuler</Button>
+              </DialogClose>
+              <Button onClick={handleSubmitConnection}>Soumettre</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      )}
+
+      {disconnectingPlatform && (
+        <Dialog open={!!disconnectingPlatform} onOpenChange={() => setDisconnectingPlatform(null)}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Déconnecter de {disconnectingPlatform}</DialogTitle>
+              <DialogDescription>
+                Êtes-vous sûr de vouloir déconnecter votre compte {disconnectingPlatform} ?
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter>
+              <DialogClose asChild>
+                <Button variant="outline">Annuler</Button>
+              </DialogClose>
+              <Button variant="destructive" onClick={handleConfirmDisconnection}>Confirmer</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   );
 };
