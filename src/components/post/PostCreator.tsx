@@ -50,6 +50,15 @@ const PostCreator: React.FC<PostCreatorProps> = ({ className }) => {
     }
   }, [timePickerOpen]);
   
+  // Log when hour or minute changes to debug
+  useEffect(() => {
+    console.log("Hour changed to:", selectedHour);
+  }, [selectedHour]);
+
+  useEffect(() => {
+    console.log("Minute changed to:", selectedMinute);
+  }, [selectedMinute]);
+  
   const togglePlatform = (platform: 'linkedin' | 'instagram' | 'twitter' | 'facebook' | 'wordpress') => {
     if (selectedPlatforms.includes(platform)) {
       setSelectedPlatforms(selectedPlatforms.filter(p => p !== platform));
@@ -79,6 +88,18 @@ const PostCreator: React.FC<PostCreatorProps> = ({ className }) => {
   // Generate hours in 24-hour format (00-23)
   const hours = Array.from({ length: 24 }, (_, i) => i.toString().padStart(2, '0'));
   const minutes = Array.from({ length: 60 }, (_, i) => i.toString().padStart(2, '0'));
+
+  // Handler for hour selection
+  const handleHourChange = (value: string) => {
+    console.log("Setting hour to:", value);
+    setSelectedHour(value);
+  };
+
+  // Handler for minute selection
+  const handleMinuteChange = (value: string) => {
+    console.log("Setting minute to:", value);
+    setSelectedMinute(value);
+  };
 
   const handlePublish = () => {
     if (!title) {
@@ -205,8 +226,8 @@ const PostCreator: React.FC<PostCreatorProps> = ({ className }) => {
                     <Label>Heure (format 24h)</Label>
                     <div className="flex items-center gap-2">
                       <Select 
-                        value={selectedHour} 
-                        onValueChange={setSelectedHour}
+                        defaultValue={selectedHour}
+                        onValueChange={handleHourChange}
                       >
                         <SelectTrigger className="w-20">
                           <SelectValue placeholder="Heure">{selectedHour}</SelectValue>
@@ -221,8 +242,8 @@ const PostCreator: React.FC<PostCreatorProps> = ({ className }) => {
                       <span>:</span>
                       
                       <Select 
-                        value={selectedMinute} 
-                        onValueChange={setSelectedMinute}
+                        defaultValue={selectedMinute}
+                        onValueChange={handleMinuteChange}
                       >
                         <SelectTrigger className="w-20">
                           <SelectValue placeholder="Minute">{selectedMinute}</SelectValue>
