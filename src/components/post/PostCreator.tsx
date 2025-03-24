@@ -1,5 +1,4 @@
-
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
@@ -32,7 +31,23 @@ const PostCreator: React.FC<PostCreatorProps> = ({ className }) => {
   const [selectedAmPm, setSelectedAmPm] = useState<string>('PM');
   const [title, setTitle] = useState<string>('');
   const [content, setContent] = useState<string>('');
-  const [isTimePickerOpen, setIsTimePickerOpen] = useState(false);
+  const [timePickerOpen, setTimePickerOpen] = useState(false);
+  const timePickerRef = useRef<HTMLDivElement>(null);
+  
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (timePickerRef.current && !timePickerRef.current.contains(event.target as Node)) {
+        setTimePickerOpen(false);
+      }
+    }
+    
+    if (timePickerOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => {
+        document.removeEventListener('mousedown', handleClickOutside);
+      };
+    }
+  }, [timePickerOpen]);
   
   const togglePlatform = (platform: 'linkedin' | 'instagram' | 'twitter' | 'facebook' | 'wordpress') => {
     if (selectedPlatforms.includes(platform)) {
@@ -168,61 +183,78 @@ const PostCreator: React.FC<PostCreatorProps> = ({ className }) => {
             </Popover>
             
             {/* Time picker */}
-            <div className="flex items-center gap-2">
+            <div className="relative">
               <ShadcnButton
                 type="button"
                 variant="outline"
                 className="w-full justify-start text-left font-normal"
-                onClick={() => setIsTimePickerOpen(!isTimePickerOpen)}
+                onClick={() => setTimePickerOpen(!timePickerOpen)}
               >
                 <Clock className="mr-2 h-4 w-4" />
                 {date ? `${selectedHour}:${selectedMinute} ${selectedAmPm}` : "Sélectionner une heure"}
               </ShadcnButton>
               
-              {isTimePickerOpen && (
-                <div className="absolute mt-2 p-4 bg-white rounded-md shadow-lg border z-50 top-full">
-                  <div className="flex items-center gap-2">
-                    <Select value={selectedHour} onValueChange={setSelectedHour}>
-                      <SelectTrigger className="w-20">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent className="bg-white">
-                        {hours.map(hour => (
-                          <SelectItem key={hour} value={hour}>{hour}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+              {timePickerOpen && (
+                <div 
+                  ref={timePickerRef}
+                  className="absolute mt-1 p-4 bg-white rounded-md shadow-lg border z-50 left-0 right-0"
+                >
+                  <div className="flex flex-col space-y-4">
+                    <Label>Heure</Label>
+                    <div className="flex items-center gap-2">
+                      <Select 
+                        value={selectedHour} 
+                        onValueChange={setSelectedHour}
+                      >
+                        <SelectTrigger className="w-20">
+                          <SelectValue>{selectedHour}</SelectValue>
+                        </SelectTrigger>
+                        <SelectContent className="max-h-[200px] overflow-y-auto bg-white">
+                          {hours.map(hour => (
+                            <SelectItem key={hour} value={hour}>{hour}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      
+                      <span>:</span>
+                      
+                      <Select 
+                        value={selectedMinute} 
+                        onValueChange={setSelectedMinute}
+                      >
+                        <SelectTrigger className="w-20">
+                          <SelectValue>{selectedMinute}</SelectValue>
+                        </SelectTrigger>
+                        <SelectContent className="max-h-[200px] overflow-y-auto bg-white">
+                          {minutes.map(minute => (
+                            <SelectItem key={minute} value={minute}>{minute}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      
+                      <Select 
+                        value={selectedAmPm} 
+                        onValueChange={setSelectedAmPm}
+                      >
+                        <SelectTrigger className="w-20">
+                          <SelectValue>{selectedAmPm}</SelectValue>
+                        </SelectTrigger>
+                        <SelectContent className="bg-white">
+                          <SelectItem value="AM">AM</SelectItem>
+                          <SelectItem value="PM">PM</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
                     
-                    <span>:</span>
-                    
-                    <Select value={selectedMinute} onValueChange={setSelectedMinute}>
-                      <SelectTrigger className="w-20">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent className="bg-white">
-                        {minutes.map(minute => (
-                          <SelectItem key={minute} value={minute}>{minute}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    
-                    <Select value={selectedAmPm} onValueChange={setSelectedAmPm}>
-                      <SelectTrigger className="w-20">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent className="bg-white">
-                        <SelectItem value="AM">AM</SelectItem>
-                        <SelectItem value="PM">PM</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    
-                    <ShadcnButton 
-                      type="button" 
-                      onClick={() => setIsTimePickerOpen(false)}
-                      size="sm"
-                    >
-                      OK
-                    </ShadcnButton>
+                    <div className="flex justify-end">
+                      <ShadcnButton 
+                        type="button" 
+                        onClick={() => setTimePickerOpen(false)}
+                        size="sm"
+                      >
+                        OK
+                      </ShadcnButton>
+                    </div>
                   </div>
                 </div>
               )}
