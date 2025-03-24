@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
@@ -21,7 +20,7 @@ interface PostCreatorProps {
 }
 
 const PostCreator: React.FC<PostCreatorProps> = ({ className }) => {
-  const [selectedPlatforms, setSelectedPlatforms] = useState<Array<'linkedin' | 'instagram' | 'twitter' | 'facebook'>>([]);
+  const [selectedPlatforms, setSelectedPlatforms] = useState<Array<'linkedin' | 'instagram' | 'twitter' | 'facebook' | 'wordpress'>>([]);
   const [keywords, setKeywords] = useState<string[]>([]);
   const [newKeyword, setNewKeyword] = useState('');
   const [date, setDate] = useState<Date | undefined>(undefined);
@@ -29,7 +28,7 @@ const PostCreator: React.FC<PostCreatorProps> = ({ className }) => {
   const [selectedMinute, setSelectedMinute] = useState<string>('00');
   const [selectedAmPm, setSelectedAmPm] = useState<string>('PM');
   
-  const togglePlatform = (platform: 'linkedin' | 'instagram' | 'twitter' | 'facebook') => {
+  const togglePlatform = (platform: 'linkedin' | 'instagram' | 'twitter' | 'facebook' | 'wordpress') => {
     if (selectedPlatforms.includes(platform)) {
       setSelectedPlatforms(selectedPlatforms.filter(p => p !== platform));
     } else {
@@ -80,7 +79,7 @@ const PostCreator: React.FC<PostCreatorProps> = ({ className }) => {
         <div className="space-y-3">
           <label className="text-sm font-medium">Plateformes</label>
           <div className="flex flex-wrap gap-2">
-            {(['linkedin', 'instagram', 'twitter', 'facebook'] as const).map((platform) => (
+            {(['linkedin', 'instagram', 'twitter', 'facebook', 'wordpress'] as const).map((platform) => (
               <Toggle
                 key={platform}
                 pressed={selectedPlatforms.includes(platform)}
@@ -95,6 +94,8 @@ const PostCreator: React.FC<PostCreatorProps> = ({ className }) => {
                   platform === 'twitter' && 'data-[state=on]:text-socialBlue-twitter',
                   selectedPlatforms.includes(platform) && 
                   platform === 'facebook' && 'data-[state=on]:text-socialBlue-facebook',
+                  selectedPlatforms.includes(platform) && 
+                  platform === 'wordpress' && 'data-[state=on]:text-socialBlue-wordpress',
                 )}
               >
                 <PlatformIcon platform={platform} className="mr-2" />
@@ -102,46 +103,6 @@ const PostCreator: React.FC<PostCreatorProps> = ({ className }) => {
               </Toggle>
             ))}
           </div>
-        </div>
-        
-        <div className="space-y-3">
-          <label className="text-sm font-medium">Mots-clés</label>
-          <div className="flex gap-2">
-            <Input 
-              placeholder="Ajouter un mot-clé" 
-              value={newKeyword}
-              onChange={(e) => setNewKeyword(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') {
-                  e.preventDefault();
-                  addKeyword();
-                }
-              }}
-              className="flex-1"
-            />
-            <Button 
-              onClick={addKeyword}
-              iconLeft={<Plus size={16} />}
-              disabled={!newKeyword}
-            >
-              Ajouter
-            </Button>
-          </div>
-          
-          {keywords.length > 0 && (
-            <div className="flex flex-wrap gap-1 mt-2">
-              {keywords.map((keyword) => (
-                <Badge
-                  key={keyword}
-                  variant="secondary"
-                  className="cursor-pointer hover:bg-gray-200"
-                  onClick={() => removeKeyword(keyword)}
-                >
-                  {keyword} &times;
-                </Badge>
-              ))}
-            </div>
-          )}
         </div>
         
         <div className="space-y-3">
