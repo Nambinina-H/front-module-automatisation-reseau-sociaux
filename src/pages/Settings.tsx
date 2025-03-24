@@ -24,7 +24,7 @@ const Settings = () => {
   const [email, setEmail] = useState('');
   const [connectingPlatform, setConnectingPlatform] = useState<string | null>(null);
   const [disconnectingPlatform, setDisconnectingPlatform] = useState<string | null>(null);
-  const [apiKey, setApiKey] = useState('');
+  const [urlWebhook, setUrlWebhook] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
 
   const handleConnect = (platform: string) => {
@@ -41,7 +41,7 @@ const Settings = () => {
     // On success:
     setConnectingPlatform(null);
     // On error:
-    // setErrorMessage('Connection failed. Please check your API key.');
+    // setErrorMessage('Connection failed. Please check your URL webhook.');
   };
 
   const handleConfirmDisconnection = () => {
@@ -190,7 +190,7 @@ const Settings = () => {
                 <CardHeader>
                   <CardTitle>Connexions aux réseaux sociaux</CardTitle>
                   <CardDescription>
-                    Connectez vos comptes de réseaux sociaux pour automatiser vos publications
+                    Connectez vos réseaux sociaux via Make.com pour automatiser vos publications
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
@@ -236,13 +236,13 @@ const Settings = () => {
               </DialogDescription>
             </DialogHeader>
             <div className="space-y-4">
-              <Label htmlFor="apiKey">API Key</Label>
+              <Label htmlFor="urlWebhook">URL Webhook</Label>
               <Input 
-                id="apiKey" 
+                id="urlWebhook" 
                 type="text" 
-                placeholder="Votre API Key" 
-                value={apiKey}
-                onChange={(e) => setApiKey(e.target.value)}
+                placeholder="Votre URL Webhook" 
+                value={urlWebhook}
+                onChange={(e) => setUrlWebhook(e.target.value)}
               />
               {errorMessage && <p className="text-red-500">{errorMessage}</p>}
             </div>
