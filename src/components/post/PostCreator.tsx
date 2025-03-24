@@ -25,7 +25,7 @@ const PostCreator: React.FC<PostCreatorProps> = ({ className }) => {
   const [selectedPlatforms, setSelectedPlatforms] = useState<Array<'linkedin' | 'instagram' | 'twitter' | 'facebook' | 'wordpress'>>([]);
   const [keywords, setKeywords] = useState<string[]>([]);
   const [newKeyword, setNewKeyword] = useState('');
-  const [date, setDate] = useState<Date | undefined>(undefined);
+  const [date, setDate] = useState<Date | undefined>(new Date()); // Initialize with today's date
   const [selectedHour, setSelectedHour] = useState<string>('12');
   const [selectedMinute, setSelectedMinute] = useState<string>('00');
   const [timePickerOpen, setTimePickerOpen] = useState(false);
@@ -204,6 +204,8 @@ const PostCreator: React.FC<PostCreatorProps> = ({ className }) => {
                   onSelect={setDate}
                   initialFocus
                   locale={fr}
+                  fromDate={new Date()} // Disable past dates
+                  disabled={(date) => date < new Date()} // Additional check to disable past dates
                 />
               </PopoverContent>
             </Popover>
