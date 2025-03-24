@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
@@ -91,14 +90,18 @@ const PostCreator: React.FC<PostCreatorProps> = ({ className }) => {
 
   // Handler for hour selection
   const handleHourChange = (value: string) => {
-    console.log("Setting hour to:", value);
-    setSelectedHour(value);
+    const numValue = parseInt(value);
+    if (numValue >= 0 && numValue <= 23) {
+      setSelectedHour(numValue.toString().padStart(2, '0'));
+    }
   };
 
   // Handler for minute selection
   const handleMinuteChange = (value: string) => {
-    console.log("Setting minute to:", value);
-    setSelectedMinute(value);
+    const numValue = parseInt(value);
+    if (numValue >= 0 && numValue <= 59) {
+      setSelectedMinute(numValue.toString().padStart(2, '0'));
+    }
   };
 
   const handlePublish = () => {
@@ -182,13 +185,13 @@ const PostCreator: React.FC<PostCreatorProps> = ({ className }) => {
         
         <div className="space-y-3">
           <label className="text-sm font-medium">Planification</label>
-          <div className="flex flex-col space-y-2">
+          <div className="flex gap-4">
             {/* Date picker */}
             <Popover>
               <PopoverTrigger asChild>
                 <ShadcnButton
                   variant="outline"
-                  className="w-full justify-start text-left font-normal"
+                  className="w-[200px] h-10 justify-start text-left font-normal"
                 >
                   <CalendarIcon className="mr-2 h-4 w-4" />
                   {date ? format(date, "dd MMMM yyyy", { locale: fr }) : "Sélectionner une date"}
@@ -206,68 +209,27 @@ const PostCreator: React.FC<PostCreatorProps> = ({ className }) => {
             </Popover>
             
             {/* Time picker */}
-            <div className="relative">
-              <ShadcnButton
-                type="button"
-                variant="outline"
-                className="w-full justify-start text-left font-normal"
-                onClick={() => setTimePickerOpen(!timePickerOpen)}
-              >
-                <Clock className="mr-2 h-4 w-4" />
-                {`${selectedHour}:${selectedMinute}`}
-              </ShadcnButton>
-              
-              {timePickerOpen && (
-                <div 
-                  ref={timePickerRef}
-                  className="absolute mt-1 p-4 bg-white rounded-md shadow-lg border z-50 left-0 right-0"
-                >
-                  <div className="flex flex-col space-y-4">
-                    <Label>Heure (format 24h)</Label>
-                    <div className="flex items-center gap-2">
-                      <Select 
-                        defaultValue={selectedHour}
-                        onValueChange={handleHourChange}
-                      >
-                        <SelectTrigger className="w-20">
-                          <SelectValue placeholder="Heure">{selectedHour}</SelectValue>
-                        </SelectTrigger>
-                        <SelectContent className="max-h-[200px] overflow-y-auto bg-white">
-                          {hours.map(hour => (
-                            <SelectItem key={hour} value={hour}>{hour}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      
-                      <span>:</span>
-                      
-                      <Select 
-                        defaultValue={selectedMinute}
-                        onValueChange={handleMinuteChange}
-                      >
-                        <SelectTrigger className="w-20">
-                          <SelectValue placeholder="Minute">{selectedMinute}</SelectValue>
-                        </SelectTrigger>
-                        <SelectContent className="max-h-[200px] overflow-y-auto bg-white">
-                          {minutes.map(minute => (
-                            <SelectItem key={minute} value={minute}>{minute}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    
-                    <div className="flex justify-end">
-                      <ShadcnButton 
-                        type="button" 
-                        onClick={() => setTimePickerOpen(false)}
-                        size="sm"
-                      >
-                        OK
-                      </ShadcnButton>
-                    </div>
-                  </div>
-                </div>
-              )}
+            <div className="flex items-center gap-2 border rounded-md px-3 h-10 min-w-[150px]">
+              <Clock className="h-4 w-4 text-muted-foreground" />
+              <div className="flex items-center">
+                <Input
+                  type="number"
+                  min={0}
+                  max={23}
+                  value={selectedHour}
+                  onChange={(e) => handleHourChange(e.target.value)}
+                  className="w-12 h-8 text-center p-0 border-0 focus-visible:ring-0"
+                />
+                <span className="mx-1">:</span>
+                <Input
+                  type="number"
+                  min={0}
+                  max={59}
+                  value={selectedMinute}
+                  onChange={(e) => handleMinuteChange(e.target.value)}
+                  className="w-12 h-8 text-center p-0 border-0 focus-visible:ring-0"
+                />
+              </div>
             </div>
           </div>
         </div>
