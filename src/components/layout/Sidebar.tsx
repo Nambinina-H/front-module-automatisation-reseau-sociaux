@@ -54,11 +54,11 @@ const navigationItems: NavItem[] = [
   //   label: 'Gestion utilisateurs',
   //   href: '/user-management'
   // },
-  {
-    icon: <FileText size={18} />,
-    label: 'Logs',
-    href: '/logs'
-  },
+  // {
+  //   icon: <FileText size={18} />,
+  //   label: 'Logs',
+  //   href: '/logs'
+  // },
   {
     icon: <Settings size={18} />,
     label: 'Paramètres',
