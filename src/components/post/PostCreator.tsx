@@ -26,7 +26,7 @@ interface PostCreatorProps {
 }
 
 const PostCreator: React.FC<PostCreatorProps> = ({ className }) => {
-  const [selectedPlatforms, setSelectedPlatforms] = useState<Array<'linkedin' | 'instagram' | 'twitter' | 'facebook' | 'wordpress'>>([]);
+  const [selectedPlatform, setSelectedPlatform] = useState<'linkedin' | 'instagram' | 'twitter' | 'facebook' | 'wordpress' | null>(null);
   const [keywords, setKeywords] = useState<string[]>([]);
   const [newKeyword, setNewKeyword] = useState('');
   const [date, setDate] = useState<Date | undefined>(undefined); // Remove default date
@@ -43,7 +43,7 @@ const PostCreator: React.FC<PostCreatorProps> = ({ className }) => {
   const { publishNow, loading } = usePublishNow();
   
   interface ImmediatePublishParams {
-    platforms: Array<'linkedin' | 'instagram' | 'twitter' | 'facebook' | 'wordpress'>;
+    platforms: string[];  // On garde le tableau pour la compatibilité avec l'API
     type: ContentType;
     content?: string;
     image?: File;
@@ -76,10 +76,14 @@ const PostCreator: React.FC<PostCreatorProps> = ({ className }) => {
   }, [selectedMinute]);
   
   const togglePlatform = (platform: 'linkedin' | 'instagram' | 'twitter' | 'facebook' | 'wordpress') => {
-    if (selectedPlatforms.includes(platform)) {
-      setSelectedPlatforms(selectedPlatforms.filter(p => p !== platform));
+    if (selectedPlatform === platform) {
+      setSelectedPlatform(null);
     } else {
-      setSelectedPlatforms([...selectedPlatforms, platform]);
+      setSelectedPlatform(platform);
+      // Réinitialiser le type de contenu si on sélectionne Instagram
+      if (platform === 'instagram' && !['text-image', 'text-video'].includes(contentType)) {
+        setContentType('text-image');
+      }
     }
   };
   
@@ -138,10 +142,10 @@ const PostCreator: React.FC<PostCreatorProps> = ({ className }) => {
   };
 
   const handlePublish = async () => {
-    if (selectedPlatforms.length === 0) {
+    if (!selectedPlatform) {
       toast({
         title: "Erreur",
-        description: "Veuillez sélectionner au moins une plateforme",
+        description: "Veuillez sélectionner une plateforme",
         variant: "destructive"
       });
       return;
@@ -160,7 +164,7 @@ const PostCreator: React.FC<PostCreatorProps> = ({ className }) => {
     try {
       if (!isScheduled) {
         const publishParams: ImmediatePublishParams = {
-          platforms: selectedPlatforms,
+          platforms: [selectedPlatform], // On envoie un tableau avec une seule plateforme
           type: contentType
         };
 
@@ -219,6 +223,32 @@ const PostCreator: React.FC<PostCreatorProps> = ({ className }) => {
     }
   };
 
+  const getAvailableContentTypes = () => {
+    // Si Instagram est sélectionné et est la seule plateforme
+    if (selectedPlatform === 'instagram') {
+      return [
+        { value: 'text-image', label: 'Texte et image' },
+        { value: 'text-video', label: 'Texte et vidéo' }
+      ];
+    }
+
+    // Configuration par défaut pour les autres cas
+    return [
+      { value: 'text', label: 'Texte uniquement' },
+      { value: 'text-image', label: 'Texte et image' },
+      { value: 'text-video', label: 'Texte et vidéo' },
+      { value: 'image', label: 'Image uniquement' },
+      { value: 'video', label: 'Vidéo uniquement' }
+    ];
+  };
+
+  // Effet pour réinitialiser le type de contenu si nécessaire
+  useEffect(() => {
+    if (selectedPlatform === 'instagram' && !['text-image', 'text-video'].includes(contentType)) {
+      setContentType('text-image');
+    }
+  }, [selectedPlatform]);
+
   return (
     <Card className={cn('w-full fancy-border', className)}>
       <CardHeader>
@@ -241,11 +271,11 @@ const PostCreator: React.FC<PostCreatorProps> = ({ className }) => {
               <SelectValue placeholder="Sélectionner le type de contenu" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="text">Texte uniquement</SelectItem>
-              <SelectItem value="text-image">Texte et image</SelectItem>
-              <SelectItem value="text-video">Texte et vidéo</SelectItem>
-              <SelectItem value="image">Image uniquement</SelectItem>
-              <SelectItem value="video">Vidéo uniquement</SelectItem>
+              {getAvailableContentTypes().map(type => (
+                <SelectItem key={type.value} value={type.value}>
+                  {type.label}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
         </div>
@@ -329,19 +359,19 @@ const PostCreator: React.FC<PostCreatorProps> = ({ className }) => {
             {(['facebook', 'twitter', 'linkedin', 'instagram', 'wordpress'] as const).map((platform) => (
               <Toggle
                 key={platform}
-                pressed={selectedPlatforms.includes(platform)}
+                pressed={selectedPlatform === platform}
                 onPressedChange={() => togglePlatform(platform)}
                 className={cn(
                   'data-[state=on]:bg-gray-100 h-10 px-3',
-                  selectedPlatforms.includes(platform) && 
+                  selectedPlatform === platform && 
                   platform === 'linkedin' && 'data-[state=on]:text-socialBlue',
-                  selectedPlatforms.includes(platform) && 
+                  selectedPlatform === platform && 
                   platform === 'instagram' && 'data-[state=on]:text-socialBlue-instagram',
-                  selectedPlatforms.includes(platform) && 
+                  selectedPlatform === platform && 
                   platform === 'twitter' && 'data-[state=on]:text-socialBlue-twitter',
-                  selectedPlatforms.includes(platform) && 
+                  selectedPlatform === platform && 
                   platform === 'facebook' && 'data-[state=on]:text-socialBlue-facebook',
-                  selectedPlatforms.includes(platform) && 
+                  selectedPlatform === platform && 
                   platform === 'wordpress' && 'data-[state=on]:text-socialBlue-wordpress',
                 )}
               >
