@@ -12,6 +12,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import Button from '@/components/common/Button';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { toast } from '@/hooks/use-toast';
 
 const Schedule = () => {
   const [date, setDate] = useState<Date | undefined>(new Date());
@@ -64,6 +65,10 @@ const Schedule = () => {
   const handleAddNewSchedule = () => {
     // Cette fonction serait implémentée pour ajouter une nouvelle planification
     console.log("Nouvelle planification:", getFormattedDateTime());
+    toast({
+      title: "Planification ajoutée",
+      description: `La planification pour ${getFormattedDateTime()} a été ajoutée avec succès.`,
+    });
     setShowDateTimePicker(false);
   };
 
@@ -99,7 +104,7 @@ const Schedule = () => {
                         {date ? getFormattedDateTime() : "Sélectionner date et heure"}
                       </Button>
                     </PopoverTrigger>
-                    <PopoverContent className="w-auto p-4" align="start">
+                    <PopoverContent className="w-auto p-4 bg-white z-50" align="start">
                       <div className="space-y-4">
                         <Calendar
                           mode="single"
@@ -107,6 +112,7 @@ const Schedule = () => {
                           onSelect={setDate}
                           initialFocus
                           locale={fr}
+                          className="border-0"
                         />
                         
                         <div className="flex flex-col space-y-2 pt-4 border-t">
@@ -116,7 +122,7 @@ const Schedule = () => {
                               <SelectTrigger className="w-20">
                                 <SelectValue placeholder="Heure" />
                               </SelectTrigger>
-                              <SelectContent>
+                              <SelectContent className="bg-white">
                                 {hours.map(hour => (
                                   <SelectItem key={hour} value={hour}>{hour}</SelectItem>
                                 ))}
@@ -129,7 +135,7 @@ const Schedule = () => {
                               <SelectTrigger className="w-20">
                                 <SelectValue placeholder="Min" />
                               </SelectTrigger>
-                              <SelectContent>
+                              <SelectContent className="bg-white">
                                 {minutes.map(minute => (
                                   <SelectItem key={minute} value={minute}>{minute}</SelectItem>
                                 ))}
@@ -140,7 +146,7 @@ const Schedule = () => {
                               <SelectTrigger className="w-20">
                                 <SelectValue />
                               </SelectTrigger>
-                              <SelectContent>
+                              <SelectContent className="bg-white">
                                 <SelectItem value="AM">AM</SelectItem>
                                 <SelectItem value="PM">PM</SelectItem>
                               </SelectContent>

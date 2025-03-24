@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
@@ -14,6 +15,7 @@ import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { toast } from '@/hooks/use-toast';
 
 interface PostCreatorProps {
   className?: string;
@@ -27,6 +29,8 @@ const PostCreator: React.FC<PostCreatorProps> = ({ className }) => {
   const [selectedHour, setSelectedHour] = useState<string>('12');
   const [selectedMinute, setSelectedMinute] = useState<string>('00');
   const [selectedAmPm, setSelectedAmPm] = useState<string>('PM');
+  const [title, setTitle] = useState<string>('');
+  const [content, setContent] = useState<string>('');
   
   const togglePlatform = (platform: 'linkedin' | 'instagram' | 'twitter' | 'facebook' | 'wordpress') => {
     if (selectedPlatforms.includes(platform)) {
@@ -57,6 +61,31 @@ const PostCreator: React.FC<PostCreatorProps> = ({ className }) => {
   const hours = Array.from({ length: 12 }, (_, i) => (i + 1).toString().padStart(2, '0'));
   const minutes = Array.from({ length: 60 }, (_, i) => i.toString().padStart(2, '0'));
 
+  const handlePublish = () => {
+    if (!title) {
+      toast({
+        title: "Erreur",
+        description: "Veuillez ajouter un titre à votre post",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (selectedPlatforms.length === 0) {
+      toast({
+        title: "Erreur",
+        description: "Veuillez sélectionner au moins une plateforme",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    toast({
+      title: "Post créé avec succès",
+      description: date ? `Votre post sera publié le ${getFormattedDateTime()}` : "Votre post a été publié",
+    });
+  };
+
   return (
     <Card className={cn('w-full fancy-border', className)}>
       <CardHeader>
@@ -65,7 +94,11 @@ const PostCreator: React.FC<PostCreatorProps> = ({ className }) => {
       <CardContent className="space-y-6">
         <div className="space-y-3">
           <label className="text-sm font-medium">Titre</label>
-          <Input placeholder="Titre de votre post" />
+          <Input 
+            placeholder="Titre de votre post" 
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+          />
         </div>
         
         <div className="space-y-3">
@@ -73,6 +106,8 @@ const PostCreator: React.FC<PostCreatorProps> = ({ className }) => {
           <Textarea 
             placeholder="Que souhaitez-vous partager ?" 
             className="min-h-32 resize-none"
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
           />
         </div>
         
@@ -117,7 +152,7 @@ const PostCreator: React.FC<PostCreatorProps> = ({ className }) => {
                 {date ? getFormattedDateTime() : "Sélectionner date et heure"}
               </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-auto p-4" align="start">
+            <PopoverContent className="w-auto p-4 bg-white z-50" align="start">
               <div className="space-y-4">
                 <Calendar
                   mode="single"
@@ -125,6 +160,7 @@ const PostCreator: React.FC<PostCreatorProps> = ({ className }) => {
                   onSelect={setDate}
                   initialFocus
                   locale={fr}
+                  className="border-0"
                 />
                 
                 <div className="flex flex-col space-y-2 pt-4 border-t">
@@ -134,7 +170,7 @@ const PostCreator: React.FC<PostCreatorProps> = ({ className }) => {
                       <SelectTrigger className="w-20">
                         <SelectValue placeholder="Heure" />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent className="bg-white">
                         {hours.map(hour => (
                           <SelectItem key={hour} value={hour}>{hour}</SelectItem>
                         ))}
@@ -147,7 +183,7 @@ const PostCreator: React.FC<PostCreatorProps> = ({ className }) => {
                       <SelectTrigger className="w-20">
                         <SelectValue placeholder="Min" />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent className="bg-white">
                         {minutes.map(minute => (
                           <SelectItem key={minute} value={minute}>{minute}</SelectItem>
                         ))}
@@ -158,7 +194,7 @@ const PostCreator: React.FC<PostCreatorProps> = ({ className }) => {
                       <SelectTrigger className="w-20">
                         <SelectValue />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent className="bg-white">
                         <SelectItem value="AM">AM</SelectItem>
                         <SelectItem value="PM">PM</SelectItem>
                       </SelectContent>
@@ -171,7 +207,7 @@ const PostCreator: React.FC<PostCreatorProps> = ({ className }) => {
         </div>
       </CardContent>
       <CardFooter className="flex justify-end space-x-2 pt-6">
-        <Button>Publier</Button>
+        <Button onClick={handlePublish}>Publier</Button>
       </CardFooter>
     </Card>
   );
