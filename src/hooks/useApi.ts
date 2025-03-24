@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 import { apiService } from '@/services/apiService';
-import { User, Content, Log, LoginCredentials, RegisterCredentials, AuthResponse, ContentGenerationParams, PublishParams, ContentGenerationResponse, ImageGenerationParams, ImageGenerationResponse, ImmediatePublishParams } from '@/services/apiService';
+import { User, Content, Log, LoginCredentials, RegisterCredentials, AuthResponse, ContentGenerationParams, PublishParams, ContentGenerationResponse, ImageGenerationParams, ImageGenerationResponse, ImmediatePublishParams, MediaUploadResponse } from '@/services/apiService';
 
 export function useApi<T, P = any>(
   apiMethod: (params?: P) => Promise<T>,
@@ -227,5 +227,17 @@ export function useLogs() {
       fetch: logsError,
       export: exportError
     }
+  };
+}
+
+export function useUploadMedia() {
+  const { execute, loading, error } = useApi<MediaUploadResponse, File>(
+    apiService.uploadMedia.bind(apiService)
+  );
+
+  return {
+    uploadMedia: execute,
+    loading,
+    error
   };
 }

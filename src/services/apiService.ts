@@ -92,10 +92,16 @@ export interface ImageGenerationResponse {
 
 export interface ImmediatePublishParams {
   content?: string;
+  mediaUrl?: string; // URL du média après upload
   image?: File;
   video?: File;
   platforms: string[];
   type: 'text' | 'image' | 'video' | 'text-image' | 'text-video';
+}
+
+export interface MediaUploadResponse {
+  url: string;
+  type: 'image' | 'video';
 }
 
 // Classe principale du service API
@@ -104,7 +110,7 @@ class ApiService {
   private token: string | null = null;
 
   constructor() {
-    const baseURL = import.meta.env.VITE_REACT_APP_BACKEND_URL || 'https://backend-module-generation-contenu.up.railway.app';
+    const baseURL = import.meta.env.VITE_REACT_APP_BACKEND_URL || 'https://backend-module-generation-contenu.up.railway.app/';
     
     this.api = axios.create({
       baseURL,
@@ -369,6 +375,23 @@ class ApiService {
 
       // Pour le type texte, envoyer en JSON
       const response = await this.api.post('/publish/now', params);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  // Upload média
+  async uploadMedia(file: File): Promise<MediaUploadResponse> {
+    try {
+      const formData = new FormData();
+      formData.append('media', file);
+
+      const response = await this.api.post<MediaUploadResponse>('/api/media/upload', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
       return response.data;
     } catch (error) {
       throw error;

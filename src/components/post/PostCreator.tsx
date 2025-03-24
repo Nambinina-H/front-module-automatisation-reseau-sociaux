@@ -17,7 +17,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { toast } from '@/hooks/use-toast';
 import { Button as ShadcnButton } from '@/components/ui/button';
 import { Checkbox } from "@/components/ui/checkbox";
-import { usePublishNow } from '@/hooks/useApi';
+import { usePublishNow, useUploadMedia } from '@/hooks/useApi';
 
 type ContentType = 'text' | 'text-image' | 'text-video' | 'image' | 'video';
 
@@ -41,6 +41,7 @@ const PostCreator: React.FC<PostCreatorProps> = ({ className }) => {
   const [videoFile, setVideoFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const { publishNow, loading } = usePublishNow();
+  const { uploadMedia } = useUploadMedia();
   
   interface ImmediatePublishParams {
     platforms: string[];  // On garde le tableau pour la compatibilité avec l'API
@@ -48,6 +49,7 @@ const PostCreator: React.FC<PostCreatorProps> = ({ className }) => {
     content?: string;
     image?: File;
     video?: File;
+    mediaUrl?: string;
   }
   
   // Handle clicks outside the time picker
@@ -162,58 +164,33 @@ const PostCreator: React.FC<PostCreatorProps> = ({ className }) => {
     }
 
     try {
-      if (!isScheduled) {
-        const publishParams: ImmediatePublishParams = {
-          platforms: [selectedPlatform], // On envoie un tableau avec une seule plateforme
-          type: contentType
-        };
+      let mediaUrl = '';
 
-        // Ajouter les données selon le type
-        if (contentType.includes('text')) {
-          publishParams.content = content;
-        }
-        if (contentType.includes('image') && imageFile) {
-          publishParams.image = imageFile;
-        }
-        if (contentType.includes('video') && videoFile) {
-          publishParams.video = videoFile;
-        }
-
-        await publishNow(publishParams);
-
-        toast({
-          title: "Publication réussie",
-          description: "Votre contenu a été publié avec succès",
-        });
-      } else {
-        // Garder la logique existante pour la planification
-        if (isScheduled && !date) {
-          toast({
-            title: "Erreur",
-            description: "Veuillez sélectionner une date de publication",
-            variant: "destructive"
-          });
-          return;
-        }
-    
-        if ((contentType.includes('text') && !content) || 
-            (contentType.includes('image') && !imageFile) || 
-            (contentType.includes('video') && !videoFile)) {
-          toast({
-            title: "Erreur",
-            description: "Veuillez remplir tous les champs requis",
-            variant: "destructive"
-          });
-          return;
-        }
-    
-        toast({
-          title: "Post créé avec succès",
-          description: isScheduled 
-            ? `Votre post sera publié le ${getFormattedDateTime()}` 
-            : "Votre post a été publié immédiatement",
-        });
+      // Upload de l'image ou de la vidéo si nécessaire
+      if (contentType.includes('image') && imageFile) {
+        const response = await uploadMedia(imageFile);
+        mediaUrl = response.url;
+      } else if (contentType.includes('video') && videoFile) {
+        const response = await uploadMedia(videoFile);
+        mediaUrl = response.url;
       }
+
+      const publishParams: ImmediatePublishParams = {
+        platforms: [selectedPlatform], // On envoie un tableau avec une seule plateforme
+        type: contentType,
+        content,
+        mediaUrl
+      };
+
+      // Log the content to be sent
+      console.log("Publishing content:", publishParams);
+
+      await publishNow(publishParams);
+
+      toast({
+        title: "Publication réussie",
+        description: "Votre contenu a été publié avec succès",
+      });
     } catch (error) {
       toast({
         title: "Erreur de publication",
