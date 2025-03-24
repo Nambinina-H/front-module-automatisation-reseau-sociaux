@@ -16,6 +16,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from '@/hooks/use-toast';
 import { Button as ShadcnButton } from '@/components/ui/button';
+import { Checkbox } from "@/components/ui/checkbox";
 
 interface PostCreatorProps {
   className?: string;
@@ -25,13 +26,14 @@ const PostCreator: React.FC<PostCreatorProps> = ({ className }) => {
   const [selectedPlatforms, setSelectedPlatforms] = useState<Array<'linkedin' | 'instagram' | 'twitter' | 'facebook' | 'wordpress'>>([]);
   const [keywords, setKeywords] = useState<string[]>([]);
   const [newKeyword, setNewKeyword] = useState('');
-  const [date, setDate] = useState<Date | undefined>(new Date()); // Initialize with today's date
+  const [date, setDate] = useState<Date | undefined>(undefined); // Remove default date
   const [selectedHour, setSelectedHour] = useState<string>('12');
   const [selectedMinute, setSelectedMinute] = useState<string>('00');
   const [timePickerOpen, setTimePickerOpen] = useState(false);
   const timePickerRef = useRef<HTMLDivElement>(null);
   const [title, setTitle] = useState<string>('');
   const [content, setContent] = useState<string>('');
+  const [isScheduled, setIsScheduled] = useState(false);
   
   // Handle clicks outside the time picker
   useEffect(() => {
@@ -125,7 +127,7 @@ const PostCreator: React.FC<PostCreatorProps> = ({ className }) => {
 
     toast({
       title: "Post créé avec succès",
-      description: date ? `Votre post sera publié le ${getFormattedDateTime()}` : "Votre post a été publié",
+      description: isScheduled ? `Votre post sera publié le ${getFormattedDateTime()}` : "Votre post a été publié",
     });
   };
 
@@ -184,56 +186,78 @@ const PostCreator: React.FC<PostCreatorProps> = ({ className }) => {
         </div>
         
         <div className="space-y-3">
-          <label className="text-sm font-medium">Planification</label>
-          <div className="flex gap-4">
-            {/* Date picker */}
-            <Popover>
-              <PopoverTrigger asChild>
-                <ShadcnButton
-                  variant="outline"
-                  className="w-[200px] h-10 justify-start text-left font-normal"
-                >
-                  <CalendarIcon className="mr-2 h-4 w-4" />
-                  {date ? format(date, "dd MMMM yyyy", { locale: fr }) : "Sélectionner une date"}
-                </ShadcnButton>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0 bg-white z-50" align="start">
-                <Calendar
-                  mode="single"
-                  selected={date}
-                  onSelect={setDate}
-                  initialFocus
-                  locale={fr}
-                  fromDate={new Date()} // Disable past dates
-                  disabled={(date) => date < new Date()} // Additional check to disable past dates
-                />
-              </PopoverContent>
-            </Popover>
-            
-            {/* Time picker */}
-            <div className="flex items-center gap-2 border rounded-md px-3 h-10 min-w-[150px]">
-              <Clock className="h-4 w-4 text-muted-foreground" />
-              <div className="flex items-center">
-                <Input
-                  type="number"
-                  min={0}
-                  max={23}
-                  value={selectedHour}
-                  onChange={(e) => handleHourChange(e.target.value)}
-                  className="w-12 h-8 text-center p-0 border-0 focus-visible:ring-0"
-                />
-                <span className="mx-1">:</span>
-                <Input
-                  type="number"
-                  min={0}
-                  max={59}
-                  value={selectedMinute}
-                  onChange={(e) => handleMinuteChange(e.target.value)}
-                  className="w-12 h-8 text-center p-0 border-0 focus-visible:ring-0"
-                />
+          <div className="flex items-center space-x-2">
+            <Checkbox 
+              id="scheduled"
+              checked={isScheduled}
+              onCheckedChange={(checked) => {
+                setIsScheduled(checked as boolean);
+                if (!checked) {
+                  setDate(undefined);
+                  setSelectedHour('12');
+                  setSelectedMinute('00');
+                }
+              }}
+            />
+            <label 
+              htmlFor="scheduled" 
+              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+            >
+              Planifier la publication
+            </label>
+          </div>
+
+          {isScheduled && (
+            <div className="flex gap-4 mt-2">
+              {/* Date picker */}
+              <Popover>
+                <PopoverTrigger asChild>
+                  <ShadcnButton
+                    variant="outline"
+                    className="w-[200px] h-10 justify-start text-left font-normal"
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {date ? format(date, "dd MMMM yyyy", { locale: fr }) : "Sélectionner une date"}
+                  </ShadcnButton>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0 bg-white z-50" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={date}
+                    onSelect={setDate}
+                    initialFocus
+                    locale={fr}
+                    fromDate={new Date()}
+                    disabled={(date) => date < new Date()}
+                  />
+                </PopoverContent>
+              </Popover>
+              
+              {/* Time picker */}
+              <div className="flex items-center gap-2 border rounded-md px-3 h-10 min-w-[150px]">
+                <Clock className="h-4 w-4 text-muted-foreground" />
+                <div className="flex items-center">
+                  <Input
+                    type="number"
+                    min={0}
+                    max={23}
+                    value={selectedHour}
+                    onChange={(e) => handleHourChange(e.target.value)}
+                    className="w-12 h-8 text-center p-0 border-0 focus-visible:ring-0"
+                  />
+                  <span className="mx-1">:</span>
+                  <Input
+                    type="number"
+                    min={0}
+                    max={59}
+                    value={selectedMinute}
+                    onChange={(e) => handleMinuteChange(e.target.value)}
+                    className="w-12 h-8 text-center p-0 border-0 focus-visible:ring-0"
+                  />
+                </div>
               </div>
             </div>
-          </div>
+          )}
         </div>
       </CardContent>
       <CardFooter className="flex justify-end space-x-2 pt-6">
