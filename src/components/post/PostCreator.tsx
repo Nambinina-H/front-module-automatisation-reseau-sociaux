@@ -80,7 +80,7 @@ const PostCreator: React.FC<PostCreatorProps> = ({ className }) => {
   };
 
   const getFormattedDateTime = () => {
-    if (!date) return "Aucune date sélectionnée";
+    if (!isScheduled || !date) return "Publication immédiate";
     
     const formattedDate = format(date, 'dd MMMM yyyy', { locale: fr });
     return `${formattedDate} à ${selectedHour}:${selectedMinute}`;
@@ -125,9 +125,21 @@ const PostCreator: React.FC<PostCreatorProps> = ({ className }) => {
       return;
     }
 
+    // Validation pour la planification
+    if (isScheduled && !date) {
+      toast({
+        title: "Erreur",
+        description: "Veuillez sélectionner une date de publication",
+        variant: "destructive"
+      });
+      return;
+    }
+
     toast({
       title: "Post créé avec succès",
-      description: isScheduled ? `Votre post sera publié le ${getFormattedDateTime()}` : "Votre post a été publié",
+      description: isScheduled 
+        ? `Votre post sera publié le ${getFormattedDateTime()}` 
+        : "Votre post a été publié immédiatement",
     });
   };
 
