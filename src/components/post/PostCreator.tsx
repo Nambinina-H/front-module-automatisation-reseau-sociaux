@@ -16,6 +16,7 @@ import { fr } from 'date-fns/locale';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from '@/hooks/use-toast';
+import { Button as ShadcnButton } from '@/components/ui/button';
 
 interface PostCreatorProps {
   className?: string;
@@ -31,6 +32,7 @@ const PostCreator: React.FC<PostCreatorProps> = ({ className }) => {
   const [selectedAmPm, setSelectedAmPm] = useState<string>('PM');
   const [title, setTitle] = useState<string>('');
   const [content, setContent] = useState<string>('');
+  const [isTimePickerOpen, setIsTimePickerOpen] = useState(false);
   
   const togglePlatform = (platform: 'linkedin' | 'instagram' | 'twitter' | 'facebook' | 'wordpress') => {
     if (selectedPlatforms.includes(platform)) {
@@ -142,33 +144,47 @@ const PostCreator: React.FC<PostCreatorProps> = ({ className }) => {
         
         <div className="space-y-3">
           <label className="text-sm font-medium">Planification</label>
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button
-                variant="outline"
-                className="w-full justify-start text-left font-normal"
-                iconLeft={<CalendarIcon size={16} />}
-              >
-                {date ? getFormattedDateTime() : "Sélectionner date et heure"}
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-auto p-4 bg-white z-50" align="start">
-              <div className="space-y-4">
+          <div className="flex flex-col space-y-2">
+            {/* Date picker */}
+            <Popover>
+              <PopoverTrigger asChild>
+                <ShadcnButton
+                  variant="outline"
+                  className="w-full justify-start text-left font-normal"
+                >
+                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  {date ? format(date, "dd MMMM yyyy", { locale: fr }) : "Sélectionner une date"}
+                </ShadcnButton>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto bg-white z-50" align="start">
                 <Calendar
                   mode="single"
                   selected={date}
                   onSelect={setDate}
                   initialFocus
                   locale={fr}
-                  className="border-0"
                 />
-                
-                <div className="flex flex-col space-y-2 pt-4 border-t">
-                  <Label className="text-sm font-medium">Heure</Label>
+              </PopoverContent>
+            </Popover>
+            
+            {/* Time picker */}
+            <div className="flex items-center gap-2">
+              <ShadcnButton
+                type="button"
+                variant="outline"
+                className="w-full justify-start text-left font-normal"
+                onClick={() => setIsTimePickerOpen(!isTimePickerOpen)}
+              >
+                <Clock className="mr-2 h-4 w-4" />
+                {date ? `${selectedHour}:${selectedMinute} ${selectedAmPm}` : "Sélectionner une heure"}
+              </ShadcnButton>
+              
+              {isTimePickerOpen && (
+                <div className="absolute mt-2 p-4 bg-white rounded-md shadow-lg border z-50 top-full">
                   <div className="flex items-center gap-2">
                     <Select value={selectedHour} onValueChange={setSelectedHour}>
                       <SelectTrigger className="w-20">
-                        <SelectValue placeholder="Heure" />
+                        <SelectValue />
                       </SelectTrigger>
                       <SelectContent className="bg-white">
                         {hours.map(hour => (
@@ -181,7 +197,7 @@ const PostCreator: React.FC<PostCreatorProps> = ({ className }) => {
                     
                     <Select value={selectedMinute} onValueChange={setSelectedMinute}>
                       <SelectTrigger className="w-20">
-                        <SelectValue placeholder="Min" />
+                        <SelectValue />
                       </SelectTrigger>
                       <SelectContent className="bg-white">
                         {minutes.map(minute => (
@@ -199,11 +215,19 @@ const PostCreator: React.FC<PostCreatorProps> = ({ className }) => {
                         <SelectItem value="PM">PM</SelectItem>
                       </SelectContent>
                     </Select>
+                    
+                    <ShadcnButton 
+                      type="button" 
+                      onClick={() => setIsTimePickerOpen(false)}
+                      size="sm"
+                    >
+                      OK
+                    </ShadcnButton>
                   </div>
                 </div>
-              </div>
-            </PopoverContent>
-          </Popover>
+              )}
+            </div>
+          </div>
         </div>
       </CardContent>
       <CardFooter className="flex justify-end space-x-2 pt-6">
