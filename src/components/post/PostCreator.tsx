@@ -4,7 +4,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 import Button from '@/components/common/Button';
-import { Calendar as CalendarIcon, Clock, Plus } from 'lucide-react';
+import { Calendar as CalendarIcon, Clock, Plus, UploadCloud } from 'lucide-react';
 import { Toggle } from '@/components/ui/toggle';
 import PlatformIcon from '@/components/common/PlatformIcon';
 import Badge from '@/components/common/Badge';
@@ -17,6 +17,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { toast } from '@/hooks/use-toast';
 import { Button as ShadcnButton } from '@/components/ui/button';
 import { Checkbox } from "@/components/ui/checkbox";
+
+type ContentType = 'text' | 'text-image' | 'text-video' | 'image' | 'video';
 
 interface PostCreatorProps {
   className?: string;
@@ -33,6 +35,10 @@ const PostCreator: React.FC<PostCreatorProps> = ({ className }) => {
   const timePickerRef = useRef<HTMLDivElement>(null);
   const [content, setContent] = useState<string>('');
   const [isScheduled, setIsScheduled] = useState(false);
+  const [contentType, setContentType] = useState<ContentType>('text');
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [videoFile, setVideoFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
   
   // Handle clicks outside the time picker
   useEffect(() => {
@@ -105,6 +111,22 @@ const PostCreator: React.FC<PostCreatorProps> = ({ className }) => {
     }
   };
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, type: 'image' | 'video') => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (type === 'image') {
+      setImageFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    } else {
+      setVideoFile(file);
+    }
+  };
+
   const handlePublish = () => {
     if (selectedPlatforms.length === 0) {
       toast({
@@ -125,6 +147,17 @@ const PostCreator: React.FC<PostCreatorProps> = ({ className }) => {
       return;
     }
 
+    if ((contentType.includes('text') && !content) || 
+        (contentType.includes('image') && !imageFile) || 
+        (contentType.includes('video') && !videoFile)) {
+      toast({
+        title: "Erreur",
+        description: "Veuillez remplir tous les champs requis",
+        variant: "destructive"
+      });
+      return;
+    }
+
     toast({
       title: "Post créé avec succès",
       description: isScheduled 
@@ -140,15 +173,103 @@ const PostCreator: React.FC<PostCreatorProps> = ({ className }) => {
       </CardHeader>
       <CardContent className="space-y-6">
         <div className="space-y-3">
-          <label className="text-sm font-medium">Contenu</label>
-          <Textarea 
-            placeholder="Que souhaitez-vous partager ?" 
-            className="min-h-32 resize-none"
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-          />
+          <label className="text-sm font-medium">Type de contenu</label>
+          <Select
+            value={contentType}
+            onValueChange={(value: ContentType) => {
+              setContentType(value);
+              setImageFile(null);
+              setVideoFile(null);
+              setImagePreview(null);
+              setContent('');
+            }}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Sélectionner le type de contenu" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="text">Texte uniquement</SelectItem>
+              <SelectItem value="text-image">Texte et image</SelectItem>
+              <SelectItem value="text-video">Texte et vidéo</SelectItem>
+              <SelectItem value="image">Image uniquement</SelectItem>
+              <SelectItem value="video">Vidéo uniquement</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
-        
+
+        {contentType.includes('text') && (
+          <div className="space-y-3">
+            <label className="text-sm font-medium">Contenu</label>
+            <Textarea 
+              placeholder="Que souhaitez-vous partager ?" 
+              className="min-h-32 resize-none"
+              value={content}
+              onChange={(e) => setContent(e.target.value)}
+            />
+          </div>
+        )}
+
+        {contentType.includes('image') && (
+          <div className="space-y-3">
+            <label className="text-sm font-medium">Image</label>
+            <div className="border-2 border-dashed rounded-lg p-4 text-center">
+              <input
+                type="file"
+                accept="image/*"
+                className="hidden"
+                id="image-upload"
+                onChange={(e) => handleFileChange(e, 'image')}
+              />
+              {imagePreview ? (
+                <div className="relative">
+                  <img src={imagePreview} alt="Preview" className="max-h-64 mx-auto rounded-lg" />
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="absolute top-2 right-2"
+                    onClick={() => {
+                      setImageFile(null);
+                      setImagePreview(null);
+                    }}
+                  >
+                    Supprimer
+                  </Button>
+                </div>
+              ) : (
+                <label htmlFor="image-upload" className="cursor-pointer">
+                  <div className="flex flex-col items-center">
+                    <UploadCloud className="h-8 w-8 mb-2 text-gray-400" />
+                    <span className="text-sm text-gray-500">Cliquez pour télécharger une image</span>
+                  </div>
+                </label>
+              )}
+            </div>
+          </div>
+        )}
+
+        {contentType.includes('video') && (
+          <div className="space-y-3">
+            <label className="text-sm font-medium">Vidéo</label>
+            <div className="border-2 border-dashed rounded-lg p-4 text-center">
+              <input
+                type="file"
+                accept="video/*"
+                className="hidden"
+                id="video-upload"
+                onChange={(e) => handleFileChange(e, 'video')}
+              />
+              <label htmlFor="video-upload" className="cursor-pointer">
+                <div className="flex flex-col items-center">
+                  <UploadCloud className="h-8 w-8 mb-2 text-gray-400" />
+                  <span className="text-sm text-gray-500">
+                    {videoFile ? videoFile.name : "Cliquez pour télécharger une vidéo"}
+                  </span>
+                </div>
+              </label>
+            </div>
+          </div>
+        )}
+
         <div className="space-y-3">
           <label className="text-sm font-medium">Plateformes</label>
           <div className="flex flex-wrap gap-2">
