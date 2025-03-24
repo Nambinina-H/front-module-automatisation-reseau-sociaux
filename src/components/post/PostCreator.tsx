@@ -171,8 +171,7 @@ const PostCreator: React.FC<PostCreatorProps> = ({ className }) => {
         </div>
       </CardContent>
       <CardFooter className="flex justify-end space-x-2 pt-6">
-        <Button variant="outline">Enregistrer comme brouillon</Button>
-        <Button>Planifier</Button>
+        <Button>Publier</Button>
       </CardFooter>
     </Card>
   );
