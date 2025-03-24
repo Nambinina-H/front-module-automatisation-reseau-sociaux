@@ -347,34 +347,11 @@ class ApiService {
   // Publier immédiatement du contenu
   async publishNow(params: ImmediatePublishParams): Promise<any> {
     try {
-      // Créer un FormData si on a un fichier à envoyer
-      if (params.type.includes('image') || params.type.includes('video')) {
-        const formData = new FormData();
-        formData.append('type', params.type);
-        formData.append('platforms', JSON.stringify(params.platforms));
-        
-        if (params.content) {
-          formData.append('content', params.content);
-        }
-        
-        if (params.image) {
-          formData.append('image', params.image);
-        }
-        
-        if (params.video) {
-          formData.append('video', params.video);
-        }
-
-        const response = await this.api.post('/publish/now', formData, {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
-        });
-        return response.data;
-      }
-
-      // Pour le type texte, envoyer en JSON
-      const response = await this.api.post('/publish/now', params);
+      const response = await this.api.post('/publish/now', params, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
       return response.data;
     } catch (error) {
       throw error;
