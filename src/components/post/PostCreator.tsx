@@ -4,7 +4,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 import Button from '@/components/common/Button';
-import { Calendar as CalendarIcon, Clock, Plus, UploadCloud } from 'lucide-react';
+import { Calendar as CalendarIcon, Clock, Plus, UploadCloud, X } from 'lucide-react';
 import { Toggle } from '@/components/ui/toggle';
 import PlatformIcon from '@/components/common/PlatformIcon';
 import Badge from '@/components/common/Badge';
@@ -308,14 +308,14 @@ const PostCreator: React.FC<PostCreatorProps> = ({ className }) => {
                   <img src={imagePreview} alt="Preview" className="max-h-64 mx-auto rounded-lg" />
                   <Button
                     variant="outline"
-                    size="sm"
-                    className="absolute top-2 right-2"
+                    size="icon"
+                    className="absolute -top-2 -right-2 h-6 w-6 rounded-full bg-gray-800 hover:bg-gray-700 border-0 shadow-lg"
                     onClick={() => {
                       setImageFile(null);
                       setImagePreview(null);
                     }}
                   >
-                    Supprimer
+                    <X className="h-4 w-4 text-white" />
                   </Button>
                 </div>
               ) : (
