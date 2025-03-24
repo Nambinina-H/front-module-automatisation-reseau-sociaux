@@ -49,11 +49,11 @@ const navigationItems: NavItem[] = [
     label: "Génération de contenu",
     href: "/content-generation",
   },
-  {
-    icon: <Users size={18} />,
-    label: 'Gestion utilisateurs',
-    href: '/user-management'
-  },
+  // {
+  //   icon: <Users size={18} />,
+  //   label: 'Gestion utilisateurs',
+  //   href: '/user-management'
+  // },
   {
     icon: <FileText size={18} />,
     label: 'Logs',
