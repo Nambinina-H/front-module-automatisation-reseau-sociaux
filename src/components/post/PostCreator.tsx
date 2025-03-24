@@ -31,7 +31,6 @@ const PostCreator: React.FC<PostCreatorProps> = ({ className }) => {
   const [selectedMinute, setSelectedMinute] = useState<string>('00');
   const [timePickerOpen, setTimePickerOpen] = useState(false);
   const timePickerRef = useRef<HTMLDivElement>(null);
-  const [title, setTitle] = useState<string>('');
   const [content, setContent] = useState<string>('');
   const [isScheduled, setIsScheduled] = useState(false);
   
@@ -107,15 +106,6 @@ const PostCreator: React.FC<PostCreatorProps> = ({ className }) => {
   };
 
   const handlePublish = () => {
-    if (!title) {
-      toast({
-        title: "Erreur",
-        description: "Veuillez ajouter un titre à votre post",
-        variant: "destructive"
-      });
-      return;
-    }
-
     if (selectedPlatforms.length === 0) {
       toast({
         title: "Erreur",
@@ -146,18 +136,9 @@ const PostCreator: React.FC<PostCreatorProps> = ({ className }) => {
   return (
     <Card className={cn('w-full fancy-border', className)}>
       <CardHeader>
-        <CardTitle className="text-xl font-medium">Créer un nouveau post</CardTitle>
+        <CardTitle className="text-xl font-medium">Publier un nouveau contenu</CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
-        <div className="space-y-3">
-          <label className="text-sm font-medium">Titre</label>
-          <Input 
-            placeholder="Titre de votre post" 
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-          />
-        </div>
-        
         <div className="space-y-3">
           <label className="text-sm font-medium">Contenu</label>
           <Textarea 
