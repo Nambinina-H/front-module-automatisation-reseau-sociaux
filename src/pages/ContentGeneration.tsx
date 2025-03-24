@@ -33,6 +33,7 @@ import {
 } from "@/components/ui/dialog";
 import { useContent } from '@/hooks/useApi';
 import { ContentGenerationParams, ContentPersonalization } from '@/services/apiService';
+import Maintenance from '@/components/ui/Maintenance';
 
 // Sample template data
 const initialTemplates = [
@@ -883,6 +884,8 @@ const ContentGeneration = () => {
                 </TabsContent>
                 
                 <TabsContent value="video" className="mt-0">
+                  <Maintenance />
+                  {/* 
                   <Card>
                     <CardHeader>
                       <CardTitle>Génération de vidéos</CardTitle>
@@ -1063,8 +1066,7 @@ const ContentGeneration = () => {
                       </div>
                     </CardContent>
                   </Card>
-                  
-                  {renderGeneratedContent()}
+                  */}
                 </TabsContent>
               </div>
               {activeTab === 'text' && (
