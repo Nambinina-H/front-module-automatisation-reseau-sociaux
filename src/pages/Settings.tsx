@@ -164,7 +164,7 @@ const Settings = () => {
                         <p className="font-medium">{notification.label}</p>
                         <p className="text-sm text-gray-500">{notification.description}</p>
                       </div>
-                      <Switch defaultChecked={['post-published', 'post-scheduled'].includes(notification.id)} />
+                      <Switch />
                     </div>
                   ))}
                   
@@ -173,11 +173,11 @@ const Settings = () => {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="flex items-center justify-between">
                         <p>Email</p>
-                        <Switch defaultChecked />
+                        <Switch />
                       </div>
                       <div className="flex items-center justify-between">
                         <p>Notifications dans l'application</p>
-                        <Switch defaultChecked />
+                        <Switch />
                       </div>
                     </div>
                   </div>
