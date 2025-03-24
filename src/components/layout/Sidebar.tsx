@@ -34,11 +34,11 @@ const navigationItems: NavItem[] = [
     label: 'Posts',
     href: '/create'
   },
-  {
-    icon: <Calendar size={18} />,
-    label: 'Calendrier',
-    href: '/schedule'
-  },
+  // {
+  //   icon: <Calendar size={18} />,
+  //   label: 'Calendrier',
+  //   href: '/schedule'
+  // },
   {
     icon: <BarChart2 size={18} />,
     label: 'Analytique',

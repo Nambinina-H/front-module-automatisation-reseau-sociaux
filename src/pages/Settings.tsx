@@ -197,9 +197,9 @@ const Settings = () => {
                   {[
                     { platform: 'linkedin', name: 'LinkedIn', connected: false },
                     { platform: 'instagram', name: 'Instagram', connected: false },
-                    { platform: 'twitter', name: 'Twitter', connected: false },
-                    { platform: 'facebook', name: 'Facebook', connected: false },
-                    { platform: 'wordpress', name: 'WordPress', connected: true },
+                    { platform: 'twitter', name: 'Twitter', connected: true },
+                    { platform: 'facebook', name: 'Facebook', connected: true },
+                    { platform: 'wordpress', name: 'WordPress', connected: false },
                   ].map((connection) => (
                     <div key={connection.platform} className="flex items-center justify-between border-b border-gray-100 pb-4">
                       <div className="flex items-center space-x-3">
