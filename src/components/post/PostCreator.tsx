@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect } from 'react';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
@@ -28,12 +29,12 @@ const PostCreator: React.FC<PostCreatorProps> = ({ className }) => {
   const [date, setDate] = useState<Date | undefined>(undefined);
   const [selectedHour, setSelectedHour] = useState<string>('12');
   const [selectedMinute, setSelectedMinute] = useState<string>('00');
-  const [selectedAmPm, setSelectedAmPm] = useState<string>('PM');
-  const [title, setTitle] = useState<string>('');
-  const [content, setContent] = useState<string>('');
   const [timePickerOpen, setTimePickerOpen] = useState(false);
   const timePickerRef = useRef<HTMLDivElement>(null);
+  const [title, setTitle] = useState<string>('');
+  const [content, setContent] = useState<string>('');
   
+  // Handle clicks outside the time picker
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (timePickerRef.current && !timePickerRef.current.contains(event.target as Node)) {
@@ -72,10 +73,11 @@ const PostCreator: React.FC<PostCreatorProps> = ({ className }) => {
     if (!date) return "Aucune date sélectionnée";
     
     const formattedDate = format(date, 'dd MMMM yyyy', { locale: fr });
-    return `${formattedDate} à ${selectedHour}:${selectedMinute} ${selectedAmPm}`;
+    return `${formattedDate} à ${selectedHour}:${selectedMinute}`;
   };
 
-  const hours = Array.from({ length: 12 }, (_, i) => (i + 1).toString().padStart(2, '0'));
+  // Generate hours in 24-hour format (00-23)
+  const hours = Array.from({ length: 24 }, (_, i) => i.toString().padStart(2, '0'));
   const minutes = Array.from({ length: 60 }, (_, i) => i.toString().padStart(2, '0'));
 
   const handlePublish = () => {
@@ -171,7 +173,7 @@ const PostCreator: React.FC<PostCreatorProps> = ({ className }) => {
                   {date ? format(date, "dd MMMM yyyy", { locale: fr }) : "Sélectionner une date"}
                 </ShadcnButton>
               </PopoverTrigger>
-              <PopoverContent className="w-auto bg-white z-50" align="start">
+              <PopoverContent className="w-auto p-0 bg-white z-50" align="start">
                 <Calendar
                   mode="single"
                   selected={date}
@@ -191,7 +193,7 @@ const PostCreator: React.FC<PostCreatorProps> = ({ className }) => {
                 onClick={() => setTimePickerOpen(!timePickerOpen)}
               >
                 <Clock className="mr-2 h-4 w-4" />
-                {date ? `${selectedHour}:${selectedMinute} ${selectedAmPm}` : "Sélectionner une heure"}
+                {`${selectedHour}:${selectedMinute}`}
               </ShadcnButton>
               
               {timePickerOpen && (
@@ -200,14 +202,14 @@ const PostCreator: React.FC<PostCreatorProps> = ({ className }) => {
                   className="absolute mt-1 p-4 bg-white rounded-md shadow-lg border z-50 left-0 right-0"
                 >
                   <div className="flex flex-col space-y-4">
-                    <Label>Heure</Label>
+                    <Label>Heure (format 24h)</Label>
                     <div className="flex items-center gap-2">
                       <Select 
                         value={selectedHour} 
                         onValueChange={setSelectedHour}
                       >
                         <SelectTrigger className="w-20">
-                          <SelectValue>{selectedHour}</SelectValue>
+                          <SelectValue placeholder="Heure">{selectedHour}</SelectValue>
                         </SelectTrigger>
                         <SelectContent className="max-h-[200px] overflow-y-auto bg-white">
                           {hours.map(hour => (
@@ -223,25 +225,12 @@ const PostCreator: React.FC<PostCreatorProps> = ({ className }) => {
                         onValueChange={setSelectedMinute}
                       >
                         <SelectTrigger className="w-20">
-                          <SelectValue>{selectedMinute}</SelectValue>
+                          <SelectValue placeholder="Minute">{selectedMinute}</SelectValue>
                         </SelectTrigger>
                         <SelectContent className="max-h-[200px] overflow-y-auto bg-white">
                           {minutes.map(minute => (
                             <SelectItem key={minute} value={minute}>{minute}</SelectItem>
                           ))}
-                        </SelectContent>
-                      </Select>
-                      
-                      <Select 
-                        value={selectedAmPm} 
-                        onValueChange={setSelectedAmPm}
-                      >
-                        <SelectTrigger className="w-20">
-                          <SelectValue>{selectedAmPm}</SelectValue>
-                        </SelectTrigger>
-                        <SelectContent className="bg-white">
-                          <SelectItem value="AM">AM</SelectItem>
-                          <SelectItem value="PM">PM</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
