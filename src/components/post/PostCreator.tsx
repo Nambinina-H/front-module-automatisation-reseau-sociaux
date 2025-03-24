@@ -17,6 +17,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { toast } from '@/hooks/use-toast';
 import { Button as ShadcnButton } from '@/components/ui/button';
 import { Checkbox } from "@/components/ui/checkbox";
+import { usePublishNow } from '@/hooks/useApi';
 
 type ContentType = 'text' | 'text-image' | 'text-video' | 'image' | 'video';
 
@@ -39,6 +40,15 @@ const PostCreator: React.FC<PostCreatorProps> = ({ className }) => {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [videoFile, setVideoFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const { publishNow, loading } = usePublishNow();
+  
+  interface ImmediatePublishParams {
+    platforms: Array<'linkedin' | 'instagram' | 'twitter' | 'facebook' | 'wordpress'>;
+    type: ContentType;
+    content?: string;
+    image?: File;
+    video?: File;
+  }
   
   // Handle clicks outside the time picker
   useEffect(() => {
@@ -127,7 +137,7 @@ const PostCreator: React.FC<PostCreatorProps> = ({ className }) => {
     }
   };
 
-  const handlePublish = () => {
+  const handlePublish = async () => {
     if (selectedPlatforms.length === 0) {
       toast({
         title: "Erreur",
@@ -137,33 +147,76 @@ const PostCreator: React.FC<PostCreatorProps> = ({ className }) => {
       return;
     }
 
-    // Validation pour la planification
-    if (isScheduled && !date) {
+    // Validation du contenu pour le type "text"
+    if (contentType === 'text' && !content) {
       toast({
         title: "Erreur",
-        description: "Veuillez sélectionner une date de publication",
+        description: "Veuillez ajouter du contenu",
         variant: "destructive"
       });
       return;
     }
 
-    if ((contentType.includes('text') && !content) || 
-        (contentType.includes('image') && !imageFile) || 
-        (contentType.includes('video') && !videoFile)) {
+    try {
+      if (!isScheduled) {
+        const publishParams: ImmediatePublishParams = {
+          platforms: selectedPlatforms,
+          type: contentType
+        };
+
+        // Ajouter les données selon le type
+        if (contentType.includes('text')) {
+          publishParams.content = content;
+        }
+        if (contentType.includes('image') && imageFile) {
+          publishParams.image = imageFile;
+        }
+        if (contentType.includes('video') && videoFile) {
+          publishParams.video = videoFile;
+        }
+
+        await publishNow(publishParams);
+
+        toast({
+          title: "Publication réussie",
+          description: "Votre contenu a été publié avec succès",
+        });
+      } else {
+        // Garder la logique existante pour la planification
+        if (isScheduled && !date) {
+          toast({
+            title: "Erreur",
+            description: "Veuillez sélectionner une date de publication",
+            variant: "destructive"
+          });
+          return;
+        }
+    
+        if ((contentType.includes('text') && !content) || 
+            (contentType.includes('image') && !imageFile) || 
+            (contentType.includes('video') && !videoFile)) {
+          toast({
+            title: "Erreur",
+            description: "Veuillez remplir tous les champs requis",
+            variant: "destructive"
+          });
+          return;
+        }
+    
+        toast({
+          title: "Post créé avec succès",
+          description: isScheduled 
+            ? `Votre post sera publié le ${getFormattedDateTime()}` 
+            : "Votre post a été publié immédiatement",
+        });
+      }
+    } catch (error) {
       toast({
-        title: "Erreur",
-        description: "Veuillez remplir tous les champs requis",
+        title: "Erreur de publication",
+        description: error.message || "Une erreur est survenue lors de la publication",
         variant: "destructive"
       });
-      return;
     }
-
-    toast({
-      title: "Post créé avec succès",
-      description: isScheduled 
-        ? `Votre post sera publié le ${getFormattedDateTime()}` 
-        : "Votre post a été publié immédiatement",
-    });
   };
 
   return (
@@ -375,7 +428,9 @@ const PostCreator: React.FC<PostCreatorProps> = ({ className }) => {
         </div>
       </CardContent>
       <CardFooter className="flex justify-end space-x-2 pt-6">
-        <Button onClick={handlePublish}>Publier</Button>
+        <Button onClick={handlePublish} disabled={loading}>
+          {loading ? "Publication en cours..." : "Publier"}
+        </Button>
       </CardFooter>
     </Card>
   );

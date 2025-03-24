@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 import { apiService } from '@/services/apiService';
-import { User, Content, Log, LoginCredentials, RegisterCredentials, AuthResponse, ContentGenerationParams, PublishParams, ContentGenerationResponse, ImageGenerationParams, ImageGenerationResponse } from '@/services/apiService';
+import { User, Content, Log, LoginCredentials, RegisterCredentials, AuthResponse, ContentGenerationParams, PublishParams, ContentGenerationResponse, ImageGenerationParams, ImageGenerationResponse, ImmediatePublishParams } from '@/services/apiService';
 
 export function useApi<T, P = any>(
   apiMethod: (params?: P) => Promise<T>,
@@ -166,6 +166,18 @@ export function usePublish() {
       publish: publishError,
       cancel: cancelError
     }
+  };
+}
+
+export function usePublishNow() {
+  const { execute, loading, error } = useApi<any, ImmediatePublishParams>(
+    apiService.publishNow.bind(apiService)
+  );
+
+  return {
+    publishNow: execute,
+    loading,
+    error
   };
 }
 
