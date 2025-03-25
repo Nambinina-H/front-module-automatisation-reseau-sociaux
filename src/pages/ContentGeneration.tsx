@@ -780,9 +780,9 @@ const ContentGeneration = () => {
                         </div>
                       </div>
                       
-                      <Separator className="my-4" />
+                      {/* <Separator className="my-4" /> */}
                       
-                      <div className="space-y-2">
+                      {/* <div className="space-y-2">
                         <Label className="flex items-center gap-2">
                           Image personnalisée
                           <AlertCircle className="h-4 w-4 text-gray-400" />
@@ -826,7 +826,7 @@ const ContentGeneration = () => {
                             </>
                           )}
                         </div>
-                      </div>
+                      </div> */}
                       
                       <div className="space-y-2">
                         <Label>Mots-clés</Label>
