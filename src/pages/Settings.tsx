@@ -190,13 +190,13 @@ const Settings = () => {
                 <CardHeader>
                   <CardTitle>Connexions aux réseaux sociaux</CardTitle>
                   <CardDescription>
-                    Connectez vos réseaux sociaux via Make.com pour automatiser vos publications
+                    Connection webhook via Make.com pour automatiser vos publications
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
                   {[
-                    { platform: 'linkedin', name: 'LinkedIn', connected: false },
-                    { platform: 'instagram', name: 'Instagram', connected: false },
+                    { platform: 'linkedin', name: 'LinkedIn', connected: true },
+                    { platform: 'instagram', name: 'Instagram', connected: true },
                     { platform: 'twitter', name: 'Twitter', connected: true },
                     { platform: 'facebook', name: 'Facebook', connected: true },
                     { platform: 'wordpress', name: 'WordPress', connected: false },
