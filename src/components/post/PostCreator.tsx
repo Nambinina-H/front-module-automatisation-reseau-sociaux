@@ -155,6 +155,34 @@ const PostCreator: React.FC<PostCreatorProps> = ({ className }) => {
       }
     }
 
+    // Vérification de la durée de la vidéo pour Twitter
+    if (type === 'video' && selectedPlatform === 'twitter') {
+      const video = document.createElement('video');
+      video.preload = 'metadata';
+
+      video.onloadedmetadata = () => {
+        window.URL.revokeObjectURL(video.src);
+        const duration = video.duration;
+        const maxDuration = 140; // 2 minutes et 20 secondes en secondes
+
+        if (duration > maxDuration) {
+          toast({
+            title: "Erreur",
+            description: "La vidéo dépasse la durée maximale de 2 minutes et 20 secondes autorisée pour Twitter",
+            variant: "destructive"
+          });
+          return;
+        }
+
+        // Si la durée est valide, on continue avec le traitement normal
+        setVideoFile(file);
+      };
+
+      video.src = URL.createObjectURL(file);
+      return;
+    }
+
+    // Traitement normal pour les autres cas
     if (type === 'image') {
       setImageFile(file);
       const reader = new FileReader();
