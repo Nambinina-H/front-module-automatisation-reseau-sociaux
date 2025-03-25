@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Sidebar from '@/components/layout/Sidebar';
 import Navbar from '@/components/layout/Navbar';
 import { Input } from '@/components/ui/input';
@@ -6,23 +6,16 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Filter } from 'lucide-react';
+import { useLogs } from '@/hooks/useApi';
 
 const Logs = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filter, setFilter] = useState('all');
+  const { logs, fetchLogs, loading } = useLogs();
 
-  const logs = [
-    { id: 1, utilisateur: 'john.doe@example.com', action: 'create', type: 'article', keywords: 'react, javascript', scheduledTime: '2025-3-01 10:00', date: '2025-3-14' },
-    { id: 2, utilisateur: 'jane.smith@example.com', action: 'login', date: '2025-3-14' },
-    { id: 3, utilisateur: 'alice.johnson@example.com', action: 'update', date: '2025-3-14' },
-    { id: 4, utilisateur: 'bob.brown@example.com', action: 'delete', date: '2025-3-14' },
-    { id: 5, utilisateur: 'charlie.davis@example.com', action: 'generate_content', type: 'video', keywords: 'tutorial, react', date: '2025-3-14' },
-    { id: 6, utilisateur: 'diana.evans@example.com', action: 'schedule_content', type: 'post', scheduledTime: '2025-3-14 14:00', date: '2025-3-14' },
-    { id: 7, utilisateur: 'eve.foster@example.com', action: 'publish_content', type: 'post', date: '2025-3-14' },
-    { id: 8, utilisateur: 'frank.green@example.com', action: 'cancel_publication', type: 'post', date: '2025-3-14' },
-    { id: 9, utilisateur: 'grace.harris@example.com', action: 'login', date: '2025-3-14' },
-    { id: 10, utilisateur: 'henry.irving@example.com', action: 'create', date: '2025-3-14' },
-  ];
+  useEffect(() => {
+    fetchLogs();
+  }, [fetchLogs]);
 
   const actionLabels = {
     create: 'Création d\'un utilisateur',
@@ -49,13 +42,13 @@ const Logs = () => {
   const getDetails = (log) => {
     switch (log.action) {
       case 'login':
-        return `Utilisateur ${log.utilisateur} connecté`;
+        return `Utilisateur ${log.email} connecté`;
       case 'create':
-        return `Utilisateur ${log.utilisateur} créé`;
+        return `Utilisateur ${log.email} créé`;
       case 'update':
-        return `Utilisateur ${log.utilisateur} mis à jour`;
+        return `Utilisateur ${log.email} mis à jour`;
       case 'delete':
-        return `Utilisateur ${log.utilisateur} supprimé`;
+        return `Utilisateur ${log.email} supprimé`;
       case 'generate_content':
         return `Contenu de type '${log.type}' généré avec les mots-clés : ${log.keywords}`;
       case 'schedule_content':
@@ -71,7 +64,7 @@ const Logs = () => {
 
   const filteredLogs = logs.filter(log => 
     (filter === 'all' || log.action === filter) &&
-    (log.utilisateur.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (log.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
      log.action.toLowerCase().includes(searchTerm.toLowerCase()) ||
      getDetails(log).toLowerCase().includes(searchTerm.toLowerCase()))
   );
@@ -123,14 +116,14 @@ const Logs = () => {
                 <tbody>
                   {filteredLogs.map(log => (
                     <tr key={log.id}>
-                      <td className="px-4 py-2 border-b text-center">{log.utilisateur}</td>
+                      <td className="px-4 py-2 border-b text-center">{log.email}</td>
                       <td className="px-4 py-2 border-b text-center">
                         <Badge className={`${actionColors[log.action]} whitespace-nowrap`}>
                           {actionLabels[log.action]}
                         </Badge>
                       </td>
                       <td className="px-4 py-2 border-b">{getDetails(log)}</td>
-                      <td className="px-4 py-2 border-b text-center">{log.date}</td>
+                      <td className="px-4 py-2 border-b text-center">{new Date(log.created_at).toLocaleString()}</td>
                     </tr>
                   ))}
                 </tbody>

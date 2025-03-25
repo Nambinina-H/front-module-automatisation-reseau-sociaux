@@ -393,8 +393,8 @@ class ApiService {
   // Récupérer les logs
   async getLogs(): Promise<Log[]> {
     try {
-      const response = await this.api.get<Log[]>('/logs');
-      return response.data;
+      const response = await this.api.get<{ message: string; logs: Log[] }>('/logs');
+      return response.data.logs;
     } catch (error) {
       throw error;
     }
