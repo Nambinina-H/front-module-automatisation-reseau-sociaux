@@ -5,7 +5,8 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import { Filter } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { RefreshCw } from 'lucide-react';
 import { useLogs } from '@/hooks/useApi';
 
 const Logs = () => {
@@ -68,22 +69,27 @@ const Logs = () => {
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="max-w-xs"
                 />
-                <Select value={filter} onValueChange={setFilter}>
-                  <SelectTrigger className="w-24 flex items-center justify-center">
-                    Action
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">Tous</SelectItem>
-                    <SelectItem value="create">Création d'un utilisateur</SelectItem>
-                    <SelectItem value="login">Connexion d'un utilisateur</SelectItem>
-                    <SelectItem value="update">Mise à jour du rôle d'un utilisateur</SelectItem>
-                    <SelectItem value="delete">Suppression d'un utilisateur</SelectItem>
-                    <SelectItem value="generate_content">Génération de contenu</SelectItem>
-                    <SelectItem value="schedule_content">Planification de la publication de contenu</SelectItem>
-                    <SelectItem value="publish_content">Publication de contenu</SelectItem>
-                    <SelectItem value="cancel_publication">Annulation de la publication planifiée</SelectItem>
-                  </SelectContent>
-                </Select>
+                <div className="flex items-center gap-2">
+                  <Button className="flex items-center gap-2">
+                    <RefreshCw className="h-4 w-4" />
+                  </Button>
+                  <Select value={filter} onValueChange={setFilter}>
+                    <SelectTrigger className="w-24 flex items-center justify-center">
+                      Action
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">Tous</SelectItem>
+                      <SelectItem value="create">Création d'un utilisateur</SelectItem>
+                      <SelectItem value="login">Connexion d'un utilisateur</SelectItem>
+                      <SelectItem value="update">Mise à jour du rôle d'un utilisateur</SelectItem>
+                      <SelectItem value="delete">Suppression d'un utilisateur</SelectItem>
+                      <SelectItem value="generate_content">Génération de contenu</SelectItem>
+                      <SelectItem value="schedule_content">Planification de la publication de contenu</SelectItem>
+                      <SelectItem value="publish_content">Publication de contenu</SelectItem>
+                      <SelectItem value="cancel_publication">Annulation de la publication planifiée</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
               <table className="min-w-full bg-white border border-gray-200">
                 <thead>
