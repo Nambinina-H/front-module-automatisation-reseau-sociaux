@@ -16,7 +16,7 @@ const Logs = () => {
 
   useEffect(() => {
     fetchLogs();
-  }, [fetchLogs]);
+  }, []); // Fetch logs only once when the component mounts
 
   const actionLabels = {
     create: 'Création d\'un utilisateur',
@@ -70,7 +70,10 @@ const Logs = () => {
                   className="max-w-xs"
                 />
                 <div className="flex items-center gap-2">
-                  <Button className="flex items-center gap-2">
+                  <Button 
+                    className="flex items-center gap-2"
+                    onClick={fetchLogs} // Add onClick handler to refresh logs
+                  >
                     <RefreshCw className="h-4 w-4" />
                   </Button>
                   <Select value={filter} onValueChange={setFilter}>
