@@ -440,7 +440,7 @@ const PostCreator: React.FC<PostCreatorProps> = ({ className }) => {
         
         <div className="space-y-3">
           <div className="flex items-center space-x-2">
-            <Checkbox 
+            {/* <Checkbox 
               id="scheduled"
               checked={isScheduled}
               onCheckedChange={(checked) => {
@@ -457,7 +457,7 @@ const PostCreator: React.FC<PostCreatorProps> = ({ className }) => {
               className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
             >
               Planifier la publication
-            </label>
+            </label> */}
           </div>
 
           {isScheduled && (
