@@ -153,11 +153,13 @@ const PostCreator: React.FC<PostCreatorProps> = ({ className }) => {
       return;
     }
 
-    // Validation du contenu pour le type "text"
-    if (contentType === 'text' && !content) {
+    // Validation du contenu selon le type
+    if ((contentType.includes('text') && !content) ||
+        (contentType.includes('image') && !imageFile) ||
+        (contentType.includes('video') && !videoFile)) {
       toast({
         title: "Erreur",
-        description: "Veuillez ajouter du contenu",
+        description: "Veuillez remplir tous les champs requis",
         variant: "destructive"
       });
       return;
