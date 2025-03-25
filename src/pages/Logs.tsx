@@ -26,7 +26,8 @@ const Logs = () => {
     generate_content: 'Génération de contenu',
     schedule_content: 'Planification de la publication de contenu',
     publish_content: 'Publication de contenu',
-    cancel_publication: 'Annulation de la publication planifiée'
+    cancel_publication: 'Annulation de la publication planifiée',
+    generate_image: 'Génération d\'image'
   };
 
   const actionColors = {
@@ -37,7 +38,8 @@ const Logs = () => {
     generate_content: 'bg-purple-100 text-purple-800',
     schedule_content: 'bg-indigo-100 text-indigo-800',
     publish_content: 'bg-teal-100 text-teal-800',
-    cancel_publication: 'bg-orange-100 text-orange-800'
+    cancel_publication: 'bg-orange-100 text-orange-800',
+    generate_image: 'bg-pink-100 text-pink-800'
   };
 
   const getDetails = (log) => {
@@ -90,6 +92,7 @@ const Logs = () => {
                       <SelectItem value="schedule_content">Planification de la publication de contenu</SelectItem>
                       <SelectItem value="publish_content">Publication de contenu</SelectItem>
                       <SelectItem value="cancel_publication">Annulation de la publication planifiée</SelectItem>
+                      <SelectItem value="generate_image">Génération d'image</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
