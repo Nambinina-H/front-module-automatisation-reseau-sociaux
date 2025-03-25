@@ -110,7 +110,7 @@ class ApiService {
   private token: string | null = null;
 
   constructor() {
-    const baseURL = import.meta.env.VITE_REACT_APP_BACKEND_URL || 'https://backend-module-generation-contenu.up.railway.app/';
+    const baseURL = import.meta.env.VITE_REACT_APP_BACKEND_URL || 'http://localhost:3001/';
     
     this.api = axios.create({
       baseURL,
