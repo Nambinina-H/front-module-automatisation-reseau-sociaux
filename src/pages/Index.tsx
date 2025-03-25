@@ -53,10 +53,6 @@ const Index = () => {
         <main className="p-6">
           <div className="flex justify-between items-center mb-6">
             <h1 className="text-2xl font-semibold">Tableau de bord</h1>
-            <Button className="button-effect">
-              <Plus size={16} className="mr-2" />
-              Nouveau post
-            </Button>
           </div>
           
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
