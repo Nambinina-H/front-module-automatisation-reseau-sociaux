@@ -142,6 +142,19 @@ const PostCreator: React.FC<PostCreatorProps> = ({ className }) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    // Vérification de la taille de l'image pour Twitter
+    if (type === 'image' && selectedPlatform === 'twitter') {
+      const maxSize = 5 * 1024 * 1024; // 5 MB en octets
+      if (file.size > maxSize) {
+        toast({
+          title: "Erreur",
+          description: "L'image dépasse la taille maximale de 5 MB autorisée pour Twitter",
+          variant: "destructive"
+        });
+        return;
+      }
+    }
+
     if (type === 'image') {
       setImageFile(file);
       const reader = new FileReader();
