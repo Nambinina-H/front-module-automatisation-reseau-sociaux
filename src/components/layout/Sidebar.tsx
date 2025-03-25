@@ -39,11 +39,11 @@ const navigationItems: NavItem[] = [
   //   label: 'Calendrier',
   //   href: '/schedule'
   // },
-  {
-    icon: <BarChart2 size={18} />,
-    label: 'Analytique',
-    href: '/analytics'
-  },
+  // {
+  //   icon: <BarChart2 size={18} />,
+  //   label: 'Analytique',
+  //   href: '/analytics'
+  // },
   {
     icon: <Wand2 size={18} />,
     label: "Génération de contenu",
