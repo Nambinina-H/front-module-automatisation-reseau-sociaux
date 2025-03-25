@@ -25,6 +25,14 @@ interface PostCreatorProps {
   className?: string;
 }
 
+const platformConstraints = {
+  facebook: { maxLength: 63000 },
+  linkedin: { maxLength: 1300 },
+  twitter: { maxLength: 280 },
+  instagram: { maxLength: 2200 },
+  wordpress: { maxLength: null }  // Pas de limite stricte
+};
+
 const PostCreator: React.FC<PostCreatorProps> = ({ className }) => {
   const [selectedPlatform, setSelectedPlatform] = useState<'linkedin' | 'instagram' | 'twitter' | 'facebook' | 'wordpress' | null>(null);
   const [keywords, setKeywords] = useState<string[]>([]);
@@ -52,6 +60,9 @@ const PostCreator: React.FC<PostCreatorProps> = ({ className }) => {
     mediaUrl?: string;
   }
   
+  const maxLength = platformConstraints[selectedPlatform]?.maxLength || null;
+  const remainingCharacters = maxLength ? maxLength - content.length : null;
+
   // Handle clicks outside the time picker
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -165,6 +176,16 @@ const PostCreator: React.FC<PostCreatorProps> = ({ className }) => {
       return;
     }
 
+    // Validation de la longueur du contenu textuel
+    if (contentType.includes('text') && maxLength !== null && content.length > maxLength) {
+      toast({
+        title: "Erreur",
+        description: `Le contenu dépasse la longueur maximale autorisée pour ${selectedPlatform} (${maxLength} caractères)`,
+        variant: "destructive"
+      });
+      return;
+    }
+
     try {
       let mediaUrl = '';
 
@@ -267,7 +288,13 @@ const PostCreator: React.FC<PostCreatorProps> = ({ className }) => {
               className="min-h-32 resize-none"
               value={content}
               onChange={(e) => setContent(e.target.value)}
+              maxLength={maxLength || undefined}
             />
+            {maxLength !== null && (
+              <div className="text-right text-sm text-gray-500">
+                {remainingCharacters} caractères restants
+              </div>
+            )}
           </div>
         )}
 
