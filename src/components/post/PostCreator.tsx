@@ -224,9 +224,18 @@ const PostCreator: React.FC<PostCreatorProps> = ({ className }) => {
   };
 
   const getAvailableContentTypes = () => {
-    // Si Instagram est sélectionné et est la seule plateforme
+    // Si Instagram est sélectionné
     if (selectedPlatform === 'instagram') {
       return [
+        { value: 'text-image', label: 'Texte et image' },
+        { value: 'text-video', label: 'Texte et vidéo' }
+      ];
+    }
+
+    // Si Twitter est sélectionné
+    if (selectedPlatform === 'twitter') {
+      return [
+        { value: 'text', label: 'Texte uniquement' },
         { value: 'text-image', label: 'Texte et image' },
         { value: 'text-video', label: 'Texte et vidéo' }
       ];
@@ -244,7 +253,7 @@ const PostCreator: React.FC<PostCreatorProps> = ({ className }) => {
 
   // Effet pour réinitialiser le type de contenu si nécessaire
   useEffect(() => {
-    if (selectedPlatform === 'instagram' && !['text-image', 'text-video'].includes(contentType)) {
+    if ((selectedPlatform === 'instagram') && !['text-image', 'text-video'].includes(contentType)) {
       setContentType('text-image');
     }
   }, [selectedPlatform]);
