@@ -40,26 +40,7 @@ const Logs = () => {
   };
 
   const getDetails = (log) => {
-    switch (log.action) {
-      case 'login':
-        return `Utilisateur ${log.email} connecté`;
-      case 'create':
-        return `Utilisateur ${log.email} créé`;
-      case 'update':
-        return `Utilisateur ${log.email} mis à jour`;
-      case 'delete':
-        return `Utilisateur ${log.email} supprimé`;
-      case 'generate_content':
-        return `Contenu de type '${log.type}' généré avec les mots-clés : ${log.keywords}`;
-      case 'schedule_content':
-        return `Contenu de type '${log.type}' planifié pour publication à ${log.scheduledTime}`;
-      case 'publish_content':
-        return `Contenu de type '${log.type}' publié`;
-      case 'cancel_publication':
-        return `Publication de contenu de type '${log.type}' annulée`;
-      default:
-        return log.details;
-    }
+    return log.details;
   };
 
   const filteredLogs = logs.filter(log => 
