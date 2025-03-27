@@ -116,7 +116,9 @@ const Logs = () => {
                         </Badge>
                       </td>
                       <td className="px-4 py-2 border-b">{getDetails(log)}</td>
-                      <td className="px-4 py-2 border-b text-center">{new Date(log.created_at).toLocaleString()}</td>
+                      <td className="px-4 py-2 border-b text-center">
+                        {new Date(log.created_at).toLocaleString()}
+                      </td>
                     </tr>
                   ))}
                 </tbody>
