@@ -25,6 +25,8 @@ const Settings = () => {
   const [connectingPlatform, setConnectingPlatform] = useState<string | null>(null);
   const [disconnectingPlatform, setDisconnectingPlatform] = useState<string | null>(null);
   const [urlWebhook, setUrlWebhook] = useState('');
+  const [clientId, setClientId] = useState('');
+  const [clientSecret, setClientSecret] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
 
   const handleConnect = (platform: string) => {
@@ -236,13 +238,22 @@ const Settings = () => {
               </DialogDescription>
             </DialogHeader>
             <div className="space-y-4">
-              <Label htmlFor="urlWebhook">URL Webhook</Label>
+              <Label htmlFor="clientId">Client ID</Label>
               <Input 
-                id="urlWebhook" 
+                id="clientId" 
                 type="text" 
-                placeholder="Votre URL Webhook" 
-                value={urlWebhook}
-                onChange={(e) => setUrlWebhook(e.target.value)}
+                placeholder="Votre Client ID" 
+                value={clientId}
+                onChange={(e) => setClientId(e.target.value)}
+              />
+              <br />
+              <Label htmlFor="clientSecret">Client Secret</Label>
+              <Input 
+                id="clientSecret" 
+                type="text" 
+                placeholder="Votre Client Secret" 
+                value={clientSecret}
+                onChange={(e) => setClientSecret(e.target.value)}
               />
               {errorMessage && <p className="text-red-500">{errorMessage}</p>}
             </div>
