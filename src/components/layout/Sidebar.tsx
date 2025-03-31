@@ -31,28 +31,28 @@ const navigationItems: NavItem[] = [
   },
   {
     icon: <Home size={18} />,
-    label: 'Posts',
-    href: '/create'
+    label: 'Créer un post',
+    href: '/creer-post'
   },
   // {
   //   icon: <Calendar size={18} />,
-  //   label: 'Calendrier',
-  //   href: '/schedule'
+  //   label: 'Planification',
+  //   href: '/planification'
   // },
   // {
   //   icon: <BarChart2 size={18} />,
   //   label: 'Analytique',
-  //   href: '/analytics'
+  //   href: '/analytique'
   // },
   {
     icon: <Wand2 size={18} />,
     label: "Génération de contenu",
-    href: "/content-generation",
+    href: "/generation-contenu",
   },
   // {
   //   icon: <Users size={18} />,
   //   label: 'Gestion utilisateurs',
-  //   href: '/user-management'
+  //   href: '/gestion-utilisateurs'
   // },
   {
     icon: <FileText size={18} />,
@@ -62,7 +62,7 @@ const navigationItems: NavItem[] = [
   {
     icon: <Settings size={18} />,
     label: 'Paramètres',
-    href: '/settings'
+    href: '/parametres'
   }
 ];
 

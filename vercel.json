@@ -5,10 +5,5 @@
       "dest": "/",
       "status": 200
     }
-  ],
-  "rewrites": [
-    { "source": "/generation-contenu", "destination": "/content-generation" },
-    { "source": "/parametres", "destination": "/settings" },
-    { "source": "/creer-post", "destination": "/create" }
   ]
 }

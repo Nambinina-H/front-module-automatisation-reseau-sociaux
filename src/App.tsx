@@ -59,13 +59,13 @@ const App = () => {
             
             {/* Routes protégées */}
             <Route path="/" element={<PrivateRoute><Index /></PrivateRoute>} />
-            <Route path="/create" element={<PrivateRoute><CreatePost /></PrivateRoute>} />
-            <Route path="/schedule" element={<PrivateRoute><Schedule /></PrivateRoute>} />
-            <Route path="/keywords" element={<PrivateRoute><Keywords /></PrivateRoute>} />
-            <Route path="/analytics" element={<PrivateRoute><Analytics /></PrivateRoute>} />
-            <Route path="/settings" element={<PrivateRoute><Settings /></PrivateRoute>} />
-            <Route path="/content-generation" element={<PrivateRoute><ContentGeneration /></PrivateRoute>} />
-            <Route path="/user-management" element={<PrivateRoute><UserManagement /></PrivateRoute>} />
+            <Route path="/creer-post" element={<PrivateRoute><CreatePost /></PrivateRoute>} />
+            <Route path="/planification" element={<PrivateRoute><Schedule /></PrivateRoute>} />
+            <Route path="/mots-cles" element={<PrivateRoute><Keywords /></PrivateRoute>} />
+            <Route path="/analytique" element={<PrivateRoute><Analytics /></PrivateRoute>} />
+            <Route path="/parametres" element={<PrivateRoute><Settings /></PrivateRoute>} />
+            <Route path="/generation-contenu" element={<PrivateRoute><ContentGeneration /></PrivateRoute>} />
+            <Route path="/gestion-utilisateurs" element={<PrivateRoute><UserManagement /></PrivateRoute>} />
             <Route path="/logs" element={<PrivateRoute><Logs /></PrivateRoute>} />
             
             {/* Route 404 */}
