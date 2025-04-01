@@ -28,6 +28,7 @@ const Settings = () => {
   const [clientId, setClientId] = useState('');
   const [clientSecret, setClientSecret] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
+  const isAdmin = true; // Assuming isAdmin is determined elsewhere
 
   const handleConnect = (platform: string) => {
     setConnectingPlatform(platform);
@@ -64,7 +65,7 @@ const Settings = () => {
           </div>
           
           <Tabs defaultValue="account" className="space-y-6">
-            <TabsList className="grid w-full max-w-3xl mx-auto grid-cols-2 lg:grid-cols-3">
+            <TabsList className="grid w-full max-w-3xl mx-auto grid-cols-2 lg:grid-cols-4">
               <TabsTrigger value="account" className="flex items-center gap-2">
                 <Lock className="h-4 w-4" />
                 <span className="hidden md:inline">Compte</span>
@@ -73,10 +74,16 @@ const Settings = () => {
                 <Bell className="h-4 w-4" />
                 <span className="hidden md:inline">Notifications</span>
               </TabsTrigger>
-              <TabsTrigger value="connections" className="flex items-center gap-2">
+              <TabsTrigger value="integrations" className="flex items-center gap-2">
                 <Globe className="h-4 w-4" />
-                <span className="hidden md:inline">Connexions</span>
+                <span className="hidden md:inline">Intégrations</span>
               </TabsTrigger>
+              {isAdmin && (
+                <TabsTrigger value="developer" className="flex items-center gap-2">
+                  <FileCode className="h-4 w-4" />
+                  <span className="hidden md:inline">Développeur</span>
+                </TabsTrigger>
+              )}
             </TabsList>
             
             <TabsContent value="account">
@@ -187,43 +194,121 @@ const Settings = () => {
               </Card>
             </TabsContent>
             
-            <TabsContent value="connections">
+            <TabsContent value="integrations">
               <Card>
                 <CardHeader>
-                  <CardTitle>Connexions aux réseaux sociaux</CardTitle>
+                  <CardTitle>Intégrations avec les réseaux sociaux</CardTitle>
                   <CardDescription>
-                    Connection webhook via Make.com pour automatiser vos publications
+                    Connectez vos comptes de réseaux sociaux pour automatiser vos publications.
                   </CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-6">
-                  {[
-                    { platform: 'linkedin', name: 'LinkedIn', connected: true },
-                    { platform: 'instagram', name: 'Instagram', connected: true },
-                    { platform: 'twitter', name: 'Twitter', connected: true },
-                    { platform: 'facebook', name: 'Facebook', connected: true },
-                    { platform: 'wordpress', name: 'WordPress', connected: false },
-                  ].map((connection) => (
-                    <div key={connection.platform} className="flex items-center justify-between border-b border-gray-100 pb-4">
-                      <div className="flex items-center space-x-3">
-                        <PlatformIcon platform={connection.platform as any} size={24} />
-                        <div>
-                          <p className="font-medium">{connection.name}</p>
-                          <p className="text-sm text-gray-500">
-                            {connection.connected ? 'Connecté' : 'Non connecté'}
-                          </p>
+                <CardContent>
+                  <div className="space-y-6">
+                    <div className="grid gap-6">
+                      <div className="border rounded-lg p-4">
+                        <h3 className="text-lg font-medium mb-2">WordPress</h3>
+                        <p className="text-sm text-muted-foreground mb-4">
+                          Connectez-vous avec votre compte WordPress pour publier automatiquement.
+                        </p>
+                        <Button variant="outline">
+                          <PlatformIcon platform="wordpress" size={24} className="mr-2" />
+                          Se connecter avec WordPress
+                        </Button>
+                      </div>
+                      <div className="border rounded-lg p-4">
+                        <h3 className="text-lg font-medium mb-2">Autres plateformes via Make.com</h3>
+                        <p className="text-sm text-muted-foreground mb-4">
+                          Intégrez vos réseaux sociaux via des webhooks Make.com.
+                        </p>
+                        <div className="space-y-4">
+                          {[
+                            { platform: 'linkedin', name: 'LinkedIn', connected: true },
+                            { platform: 'instagram', name: 'Instagram', connected: true },
+                            { platform: 'twitter', name: 'Twitter', connected: true },
+                            { platform: 'facebook', name: 'Facebook', connected: true },
+                          ].map((connection) => (
+                            <div key={connection.platform} className="flex items-center justify-between">
+                              <div className="flex items-center space-x-3">
+                                <PlatformIcon platform={connection.platform} size={24} />
+                                <div>
+                                  <p className="font-medium">{connection.name}</p>
+                                  <p className="text-sm text-muted-foreground">
+                                    {connection.connected ? 'Webhook configuré' : 'Non configuré'}
+                                  </p>
+                                </div>
+                              </div>
+                              <Button 
+                                variant={connection.connected ? "outline" : "default"}
+                              >
+                                {connection.connected ? 'Supprimer' : 'Configurer'}
+                              </Button>
+                            </div>
+                          ))}
                         </div>
                       </div>
-                      <Button 
-                        variant={connection.connected ? 'outline' : 'default'}
-                        onClick={() => connection.connected ? handleDisconnect(connection.platform) : handleConnect(connection.platform)}
-                      >
-                        {connection.connected ? 'Déconnecter' : 'Connecter'}
-                      </Button>
                     </div>
-                  ))}
+                  </div>
                 </CardContent>
               </Card>
             </TabsContent>
+
+            {isAdmin && (
+              <TabsContent value="developer">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Configuration des API</CardTitle>
+                    <CardDescription>
+                      Gérez les identifiants OAuth2 et les clés API pour les différentes plateformes.
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-6">
+                      {[
+                        { id: 'wordpress', name: 'WordPress', clientId: '', clientSecret: '', redirectUri: 'https://example.com/callback' },
+                        { id: 'linkedin', name: 'LinkedIn', clientId: '', clientSecret: '', redirectUri: 'https://example.com/callback' },
+                      ].map((platform) => (
+                        <div key={platform.id} className="border rounded-lg p-4">
+                          <h3 className="text-lg font-medium mb-4">{platform.name}</h3>
+                          <div className="space-y-4">
+                            <div className="space-y-2">
+                              <Label>Client ID</Label>
+                              <Input
+                                type="text"
+                                placeholder={`${platform.name} Client ID`}
+                              />
+                            </div>
+                            <div className="space-y-2">
+                              <Label>Client Secret</Label>
+                              <Input
+                                type="password"
+                                placeholder={`${platform.name} Client Secret`}
+                              />
+                            </div>
+                            <div className="space-y-2">
+                              <Label>Redirect URI</Label>
+                              <div className="flex items-center space-x-2">
+                                <Input
+                                  type="text"
+                                  value={platform.redirectUri}
+                                  readOnly
+                                />
+                                <Button
+                                  variant="outline"
+                                  size="icon"
+                                >
+                                  <FileCode className="h-4 w-4" />
+                                </Button>
+                              </div>
+                            </div>
+                            <Button>Enregistrer</Button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+            )}
           </Tabs>
         </main>
       </div>
