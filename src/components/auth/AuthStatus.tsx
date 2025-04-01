@@ -2,7 +2,7 @@
 import React, { useEffect } from 'react';
 import { useAuth } from '@/hooks/useApi';
 import { Button } from '@/components/ui/button';
-import { LogOut, User, ShieldCheck } from 'lucide-react';
+import { LogOut, User } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import {
   DropdownMenu,
@@ -12,7 +12,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Badge } from '@/components/ui/badge';
 
 const AuthStatus = () => {
   const { isAuthenticated, profile, fetchProfile, logout } = useAuth();
@@ -36,8 +35,6 @@ const AuthStatus = () => {
     );
   }
 
-  const isAdmin = profile?.app_role === 'admin';
-
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -46,14 +43,8 @@ const AuthStatus = () => {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        <DropdownMenuLabel className="flex items-center gap-2">
+        <DropdownMenuLabel>
           {profile?.email || 'Utilisateur'}
-          {isAdmin && (
-            <Badge variant="outline" className="bg-primary/10 text-primary flex items-center gap-1">
-              <ShieldCheck size={12} />
-              Admin
-            </Badge>
-          )}
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={() => navigate('/settings')}>

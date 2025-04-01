@@ -1,4 +1,3 @@
-
 import axios, { AxiosError, AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
 import { toast } from '@/components/ui/use-toast';
 
@@ -7,7 +6,6 @@ export interface User {
   id: string;
   email: string;
   role: 'user' | 'admin';
-  app_role?: 'admin' | 'user';  // Add the app_role field
   createdAt?: string;
 }
 
