@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+
+import React, { useState, useEffect } from 'react';
 import Sidebar from '@/components/layout/Sidebar';
 import Navbar from '@/components/layout/Navbar';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -9,6 +10,7 @@ import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Bell, Lock, Globe, FileCode } from 'lucide-react';
 import PlatformIcon from '@/components/common/PlatformIcon';
+import { useAuth } from '@/hooks/useApi';
 import {
   Dialog,
   DialogClose,
@@ -28,7 +30,10 @@ const Settings = () => {
   const [clientId, setClientId] = useState('');
   const [clientSecret, setClientSecret] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
-  const isAdmin = true; // Assuming isAdmin is determined elsewhere
+  
+  // Use the user profile from useAuth hook to check if user is admin
+  const { profile } = useAuth();
+  const isAdmin = profile?.app_role === 'admin';
 
   const handleConnect = (platform: string) => {
     setConnectingPlatform(platform);

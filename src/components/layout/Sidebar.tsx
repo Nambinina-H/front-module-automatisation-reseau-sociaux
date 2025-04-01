@@ -1,3 +1,4 @@
+
 import React from 'react';
 import {
   Home,
@@ -21,59 +22,68 @@ interface NavItem {
   icon: React.ReactNode;
   label: string;
   href: string;
+  adminOnly?: boolean;
 }
-
-const navigationItems: NavItem[] = [
-  {
-    icon: <LayoutDashboard size={18} />,
-    label: 'Tableau de bord',
-    href: '/'
-  },
-  {
-    icon: <Home size={18} />,
-    label: 'Créer un post',
-    href: '/creer-post'
-  },
-  // {
-  //   icon: <Calendar size={18} />,
-  //   label: 'Planification',
-  //   href: '/planification'
-  // },
-  // {
-  //   icon: <BarChart2 size={18} />,
-  //   label: 'Analytique',
-  //   href: '/analytique'
-  // },
-  {
-    icon: <Wand2 size={18} />,
-    label: "Génération de contenu",
-    href: "/generation-contenu",
-  },
-  // {
-  //   icon: <Users size={18} />,
-  //   label: 'Gestion utilisateurs',
-  //   href: '/gestion-utilisateurs'
-  // },
-  {
-    icon: <FileText size={18} />,
-    label: 'Logs',
-    href: '/logs'
-  },
-  {
-    icon: <Settings size={18} />,
-    label: 'Paramètres',
-    href: '/parametres'
-  }
-];
 
 const Sidebar = () => {
   const location = useLocation();
-  const { logout } = useAuth();
+  const { logout, profile } = useAuth();
+  const isAdmin = profile?.app_role === 'admin';
+
+  const navigationItems: NavItem[] = [
+    {
+      icon: <LayoutDashboard size={18} />,
+      label: 'Tableau de bord',
+      href: '/'
+    },
+    {
+      icon: <Home size={18} />,
+      label: 'Créer un post',
+      href: '/creer-post'
+    },
+    // {
+    //   icon: <Calendar size={18} />,
+    //   label: 'Planification',
+    //   href: '/planification'
+    // },
+    // {
+    //   icon: <BarChart2 size={18} />,
+    //   label: 'Analytique',
+    //   href: '/analytique'
+    // },
+    {
+      icon: <Wand2 size={18} />,
+      label: "Génération de contenu",
+      href: "/generation-contenu",
+    },
+    // {
+    //   icon: <Users size={18} />,
+    //   label: 'Gestion utilisateurs',
+    //   href: '/gestion-utilisateurs',
+    //   adminOnly: true
+    // },
+    {
+      icon: <FileText size={18} />,
+      label: 'Logs',
+      href: '/logs',
+      adminOnly: true
+    },
+    {
+      icon: <Settings size={18} />,
+      label: 'Paramètres',
+      href: '/parametres'
+    }
+  ];
 
   const handleLogout = () => {
     logout();
     toast({ description: 'Déconnexion réussie' });
   };
+
+  // Filter navigation items based on user role
+  const filteredNavigationItems = navigationItems.filter(
+    item => !item.adminOnly || isAdmin
+  );
 
   return (
     <aside className="fixed left-0 top-0 z-50 h-full w-16 flex-none bg-[#1A1F2C] shadow-sm transition-all duration-300 md:w-60">
@@ -82,7 +92,7 @@ const Sidebar = () => {
           &lt;Votre Logo&gt;
         </div>
         <ul className="space-y-2 font-medium flex-grow">
-          {navigationItems.map((item) => (
+          {filteredNavigationItems.map((item) => (
             <li key={item.label}>
               <NavLink
                 to={item.href}
