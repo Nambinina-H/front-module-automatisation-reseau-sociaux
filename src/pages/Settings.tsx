@@ -19,7 +19,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { useConfig } from '@/hooks/useApi';
+import { useConfig, useAuth } from '@/hooks/useApi';
 
 const Settings = () => {
   const [email, setEmail] = useState('');
@@ -34,7 +34,8 @@ const Settings = () => {
   const [showOpenAIKey, setShowOpenAIKey] = useState(false);
   const [showSupabaseKey, setShowSupabaseKey] = useState(false);
   const [showSupabaseServiceRoleKey, setShowSupabaseServiceRoleKey] = useState(false);
-  const isAdmin = true; // Assuming isAdmin is determined elsewhere
+  const { appRole } = useAuth(); // Récupérer le rôle de l'utilisateur
+  const isAdmin = appRole === 'admin'; // Vérifier si l'utilisateur est admin
 
   const [wordpressFields, setWordpressFields] = useState({ 
     clientId: '', 
@@ -201,8 +202,8 @@ const Settings = () => {
             <h1 className="text-2xl font-semibold">Paramètres</h1>
           </div>
           
-          <Tabs defaultValue="account" className="space-y-6">
-            <TabsList className="grid w-full max-w-3xl mx-auto grid-cols-2 lg:grid-cols-4">
+          <Tabs defaultValue={isAdmin ? "account" : "account"} className="space-y-6">
+            <TabsList className={`grid w-full max-w-3xl mx-auto grid-cols-${isAdmin ? 4 : 3}`}>
               <TabsTrigger value="account" className="flex items-center gap-2">
                 <Lock className="h-4 w-4" />
                 <span className="hidden md:inline">Compte</span>
@@ -457,7 +458,7 @@ const Settings = () => {
                               />
                             </div>
                             <div className="flex justify-end">
-                              <Button type="submit">Enregistrer</Button>
+                              <Button type="submit">Modifier</Button>
                             </div>
                           </form>
                         </div>
@@ -495,7 +496,7 @@ const Settings = () => {
                             </div>
                           </div>
                           <div className="flex justify-end">
-                            <Button type="submit">Enregistrer</Button>
+                            <Button type="submit">Modifier</Button>
                           </div>
                         </form>
                       </div>
@@ -569,7 +570,7 @@ const Settings = () => {
                             </div>
                           </div>
                           <div className="flex justify-end">
-                            <Button type="submit">Enregistrer</Button>
+                            <Button type="submit">Modifier</Button>
                           </div>
                         </form>
                       </div>
@@ -644,7 +645,7 @@ const Settings = () => {
                             />
                           </div>
                           <div className="flex justify-end">
-                            <Button type="submit">Enregistrer</Button>
+                            <Button type="submit">Modifier</Button>
                           </div>
                         </form>
                       </div>
