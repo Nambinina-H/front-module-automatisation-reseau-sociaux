@@ -324,19 +324,14 @@ const Settings = () => {
                             </div>
                             <div className="space-y-2">
                               <Label>Redirect URI</Label>
-                              <div className="flex items-center space-x-2">
-                                <Input
-                                  type="text"
-                                  value={platform.redirectUri}
-                                  readOnly
-                                />
-                                <Button
-                                  variant="outline"
-                                  size="icon"
-                                >
-                                  <FileCode className="h-4 w-4" />
-                                </Button>
-                              </div>
+                              <Input
+                                type="text"
+                                placeholder="Votre Redirect URI"
+                                value={platform.redirectUri}
+                                onChange={(e) =>
+                                  setWordpressFields({ ...wordpressFields, redirectUri: e.target.value }) // Adjust logic if needed
+                                }
+                              />
                             </div>
                             <div className="flex justify-end">
                               <Button type="submit">Enregistrer</Button>
