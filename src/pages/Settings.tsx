@@ -85,7 +85,7 @@ const Settings = () => {
   const [showConfirmation, setShowConfirmation] = useState(false); // State to toggle confirmation dialog
   const [currentForm, setCurrentForm] = useState<string | null>(null); // Track which form is being submitted
 
-  const { configs, updateConfig, loading: configLoading } = useConfig();
+  const { configs, updateConfig, loading: configLoading, fetchConfigs } = useConfig();
 
   // Effet pour remplir les champs avec les données récupérées
   useEffect(() => {
@@ -126,11 +126,16 @@ const Settings = () => {
     }
   }, [configs]);
 
-  const handleFormSubmit = async (formName: string) => {
+  const handleFormSubmit = (formName: string) => {
     setCurrentForm(formName);
+    setShowConfirmation(true);
+  };
+
+  const handleConfirmSubmit = async () => {
+    if (!currentForm) return;
     
     const config = configs.find(c => {
-      switch (formName) {
+      switch (currentForm) {
         case 'WordPress': return c.platform === 'wordPress';
         case 'OpenAI API': return c.platform === 'openai';
         case 'Supabase': return c.platform === 'supabase';
@@ -142,12 +147,12 @@ const Settings = () => {
     if (!config) return;
 
     let keys: ConfigKeys = {};
-    switch (formName) {
+    switch (currentForm) {
       case 'WordPress':
         keys = {
           clientId: wordpressFields.clientId,
           clientSecret: wordpressFields.clientSecret,
-          redirectUri: wordpressFields.redirectUri  // Inclusion de redirectUri dans les données à sauvegarder
+          redirectUri: wordpressFields.redirectUri
         };
         break;
       case 'OpenAI API':
@@ -172,22 +177,30 @@ const Settings = () => {
         break;
     }
 
-    console.log('Submitting form:', formName, 'with keys:', keys);
-    await updateConfig(config.id, keys);
-    setShowConfirmation(false);
-    setCurrentForm(null);
-  };
-
-  const handleConfirmSubmit = () => {
-    // Logic to handle form submission
-    console.log(`Submitting form: ${currentForm}`);
-    setShowConfirmation(false);
-    setCurrentForm(null);
+    try {
+      await updateConfig(config.id, keys);
+      setShowConfirmation(false);
+      setCurrentForm(null);
+      
+      // Forcer un rechargement des configurations après la mise à jour
+      if (fetchConfigs) {
+        await fetchConfigs();
+      }
+    } catch (error) {
+      console.error('Error updating config:', error);
+    }
   };
 
   const handleCancelSubmit = () => {
     setShowConfirmation(false);
     setCurrentForm(null);
+  };
+
+  // Event handler for Dialog onOpenChange
+  const handleDialogOpenChange = (open: boolean) => {
+    if (!open) {
+      handleCancelSubmit();
+    }
   };
 
   return (
@@ -718,7 +731,10 @@ const Settings = () => {
 
       {/* Confirmation Dialog */}
       {showConfirmation && (
-        <Dialog open={showConfirmation} onOpenChange={setShowConfirmation}>
+        <Dialog 
+          open={showConfirmation} 
+          onOpenChange={handleDialogOpenChange}
+        >
           <DialogContent>
             <DialogHeader>
               <DialogTitle>Confirmation</DialogTitle>

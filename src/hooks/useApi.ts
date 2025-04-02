@@ -298,5 +298,6 @@ export function useConfig() {
     updateConfig,
     loading,
     error,
+    fetchConfigs  // Ajout de l'exposition de fetchConfigs
   };
 }
