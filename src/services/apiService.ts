@@ -105,6 +105,34 @@ export interface MediaUploadResponse {
   type: 'image' | 'video';
 }
 
+export interface ConfigKeys {
+  apiKey?: string;
+  clientId?: string;
+  clientSecret?: string;
+  redirectUri?: string;
+  url?: string;
+  key?: string;
+  serviceRoleKey?: string;
+  facebook?: string;
+  linkedin?: string;
+  instagram?: string;
+  twitter?: string;
+}
+
+export interface ApiConfig {
+  id: string;
+  user_id: string;
+  platform: string;
+  keys: ConfigKeys;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ApiConfigResponse {
+  message: string;
+  data: ApiConfig[];
+}
+
 // Classe principale du service API
 class ApiService {
   private api: AxiosInstance;
@@ -422,6 +450,26 @@ class ApiService {
         responseType: 'blob',
       });
       return response.data;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  // ==== CONFIGURATION ====
+
+  async getConfigs(): Promise<ApiConfig[]> {
+    try {
+      const response = await this.api.get<ApiConfigResponse>('/api/config/list');
+      return response.data.data;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async updateConfig(id: string, keys: ConfigKeys): Promise<ApiConfig> {
+    try {
+      const response = await this.api.put<{message: string; data: ApiConfig}>(`/api/config/update/${id}`, { keys });
+      return response.data.data;
     } catch (error) {
       throw error;
     }

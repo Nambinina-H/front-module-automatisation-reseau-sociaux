@@ -1,6 +1,6 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { apiService } from '@/services/apiService';
-import { User, Content, Log, LoginCredentials, RegisterCredentials, AuthResponse, ContentGenerationParams, PublishParams, ContentGenerationResponse, ImageGenerationParams, ImageGenerationResponse, ImmediatePublishParams, MediaUploadResponse } from '@/services/apiService';
+import { User, Content, Log, LoginCredentials, RegisterCredentials, AuthResponse, ContentGenerationParams, PublishParams, ContentGenerationResponse, ImageGenerationParams, ImageGenerationResponse, ImmediatePublishParams, MediaUploadResponse, ApiConfig, ConfigKeys } from '@/services/apiService';
 
 export function useApi<T, P = any>(
   apiMethod: (params?: P) => Promise<T>,
@@ -243,5 +243,60 @@ export function useUploadMedia() {
     uploadMedia: execute,
     loading,
     error
+  };
+}
+
+export function useConfig() {
+  const [configs, setConfigs] = useState<ApiConfig[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
+
+  const fetchConfigs = useCallback(async () => {
+    try {
+      setLoading(true);
+      const data = await apiService.getConfigs();
+      setConfigs(data);
+    } catch (err) {
+      setError(err instanceof Error ? err : new Error(String(err)));
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const updateConfig = useCallback(async (id: string, keys: ConfigKeys) => {
+    try {
+      console.log('Updating config:', { id, keys }); // Debug log
+      setLoading(true);
+      const updatedConfig = await apiService.updateConfig(id, keys);
+      setConfigs(prevConfigs => 
+        prevConfigs.map(config => 
+          config.id === id ? updatedConfig : config
+        )
+      );
+      toast({
+        title: 'Configuration mise à jour',
+        description: 'Les paramètres ont été enregistrés avec succès.',
+      });
+    } catch (err) {
+      setError(err instanceof Error ? err : new Error(String(err)));
+      toast({
+        title: 'Erreur',
+        description: 'Impossible de mettre à jour la configuration.',
+        variant: 'destructive',
+      });
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchConfigs();
+  }, [fetchConfigs]);
+
+  return {
+    configs,
+    updateConfig,
+    loading,
+    error,
   };
 }

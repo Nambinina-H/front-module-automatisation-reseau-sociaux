@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Sidebar from '@/components/layout/Sidebar';
 import Navbar from '@/components/layout/Navbar';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -19,6 +19,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { useConfig } from '@/hooks/useApi';
 
 const Settings = () => {
   const [email, setEmail] = useState('');
@@ -35,7 +36,11 @@ const Settings = () => {
   const [showSupabaseServiceRoleKey, setShowSupabaseServiceRoleKey] = useState(false);
   const isAdmin = true; // Assuming isAdmin is determined elsewhere
 
-  const [wordpressFields, setWordpressFields] = useState({ clientId: '', clientSecret: '' });
+  const [wordpressFields, setWordpressFields] = useState({ 
+    clientId: '', 
+    clientSecret: '',
+    redirectUri: ''  // Ajout de redirectUri dans le state
+  });
   const [openAIFields, setOpenAIFields] = useState({ apiKey: '' });
   const [supabaseFields, setSupabaseFields] = useState({ url: '', key: '', serviceRoleKey: '' });
   const [makeWebhooksFields, setMakeWebhooksFields] = useState({
@@ -79,9 +84,97 @@ const Settings = () => {
   const [showConfirmation, setShowConfirmation] = useState(false); // State to toggle confirmation dialog
   const [currentForm, setCurrentForm] = useState<string | null>(null); // Track which form is being submitted
 
-  const handleFormSubmit = (formName: string) => {
+  const { configs, updateConfig, loading: configLoading } = useConfig();
+
+  // Effet pour remplir les champs avec les données récupérées
+  useEffect(() => {
+    const wordPressConfig = configs.find(c => c.platform === 'wordPress');
+    const openAIConfig = configs.find(c => c.platform === 'openai');
+    const supabaseConfig = configs.find(c => c.platform === 'supabase');
+    const makeConfig = configs.find(c => c.platform === 'make');
+
+    if (wordPressConfig?.keys) {
+      setWordpressFields({
+        clientId: wordPressConfig.keys.clientId || '',
+        clientSecret: wordPressConfig.keys.clientSecret || '',
+        redirectUri: wordPressConfig.keys.redirectUri || ''  // Récupération de redirectUri
+      });
+    }
+
+    if (openAIConfig?.keys) {
+      setOpenAIFields({
+        apiKey: openAIConfig.keys.apiKey || '',
+      });
+    }
+
+    if (supabaseConfig?.keys) {
+      setSupabaseFields({
+        url: supabaseConfig.keys.url || '',
+        key: supabaseConfig.keys.key || '',
+        serviceRoleKey: supabaseConfig.keys.serviceRoleKey || '',
+      });
+    }
+
+    if (makeConfig?.keys) {
+      setMakeWebhooksFields({
+        facebook: makeConfig.keys.facebook || '',
+        linkedin: makeConfig.keys.linkedin || '',
+        instagram: makeConfig.keys.instagram || '',
+        twitter: makeConfig.keys.twitter || '',
+      });
+    }
+  }, [configs]);
+
+  const handleFormSubmit = async (formName: string) => {
     setCurrentForm(formName);
-    setShowConfirmation(true);
+    
+    const config = configs.find(c => {
+      switch (formName) {
+        case 'WordPress': return c.platform === 'wordPress';
+        case 'OpenAI API': return c.platform === 'openai';
+        case 'Supabase': return c.platform === 'supabase';
+        case 'Make Webhooks': return c.platform === 'make';
+        default: return false;
+      }
+    });
+
+    if (!config) return;
+
+    let keys: ConfigKeys = {};
+    switch (formName) {
+      case 'WordPress':
+        keys = {
+          clientId: wordpressFields.clientId,
+          clientSecret: wordpressFields.clientSecret,
+          redirectUri: wordpressFields.redirectUri  // Inclusion de redirectUri dans les données à sauvegarder
+        };
+        break;
+      case 'OpenAI API':
+        keys = {
+          apiKey: openAIFields.apiKey,
+        };
+        break;
+      case 'Supabase':
+        keys = {
+          url: supabaseFields.url,
+          key: supabaseFields.key,
+          serviceRoleKey: supabaseFields.serviceRoleKey,
+        };
+        break;
+      case 'Make Webhooks':
+        keys = {
+          facebook: makeWebhooksFields.facebook,
+          linkedin: makeWebhooksFields.linkedin,
+          instagram: makeWebhooksFields.instagram,
+          twitter: makeWebhooksFields.twitter,
+        };
+        break;
+    }
+
+    console.log('Submitting form:', formName, 'with keys:', keys);
+    await updateConfig(config.id, keys);
+    setShowConfirmation(false);
+    setCurrentForm(null);
   };
 
   const handleConfirmSubmit = () => {
@@ -353,10 +446,14 @@ const Settings = () => {
                               <Input
                                 type="text"
                                 placeholder="Votre Redirect URI"
-                                value={platform.redirectUri}
+                                value={wordpressFields.redirectUri}
                                 onChange={(e) =>
-                                  setWordpressFields({ ...wordpressFields, redirectUri: e.target.value }) // Adjust logic if needed
+                                  setWordpressFields({ 
+                                    ...wordpressFields, 
+                                    redirectUri: e.target.value 
+                                  })
                                 }
+                                required
                               />
                             </div>
                             <div className="flex justify-end">
