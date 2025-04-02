@@ -35,6 +35,25 @@ const Settings = () => {
   const [showSupabaseServiceRoleKey, setShowSupabaseServiceRoleKey] = useState(false);
   const isAdmin = true; // Assuming isAdmin is determined elsewhere
 
+  const [wordpressFields, setWordpressFields] = useState({ clientId: '', clientSecret: '' });
+  const [openAIFields, setOpenAIFields] = useState({ apiKey: '' });
+  const [supabaseFields, setSupabaseFields] = useState({ url: '', key: '', serviceRoleKey: '' });
+  const [makeWebhooksFields, setMakeWebhooksFields] = useState({
+    facebook: '',
+    linkedin: '',
+    instagram: '',
+    twitter: '',
+  });
+
+  const isWordpressFormValid = wordpressFields.clientId && wordpressFields.clientSecret;
+  const isOpenAIFormValid = openAIFields.apiKey;
+  const isSupabaseFormValid = supabaseFields.url && supabaseFields.key && supabaseFields.serviceRoleKey;
+  const isMakeWebhooksFormValid =
+    makeWebhooksFields.facebook &&
+    makeWebhooksFields.linkedin &&
+    makeWebhooksFields.instagram &&
+    makeWebhooksFields.twitter;
+
   const handleConnect = (platform: string) => {
     setConnectingPlatform(platform);
     setErrorMessage('');
@@ -268,12 +287,17 @@ const Settings = () => {
                       ].map((platform) => (
                         <div key={platform.id} className="border rounded-lg p-4">
                           <h3 className="text-lg font-medium mb-4">{platform.name}</h3>
-                          <div className="space-y-4">
+                          <form className="space-y-4">
                             <div className="space-y-2">
                               <Label>Client ID</Label>
                               <Input
                                 type="text"
                                 placeholder={`${platform.name} Client ID`}
+                                value={wordpressFields.clientId}
+                                onChange={(e) =>
+                                  setWordpressFields({ ...wordpressFields, clientId: e.target.value })
+                                }
+                                required
                               />
                             </div>
                             <div className="space-y-2">
@@ -282,8 +306,14 @@ const Settings = () => {
                                 <Input
                                   type={showClientSecret ? "text" : "password"}
                                   placeholder={`${platform.name} Client Secret`}
+                                  value={wordpressFields.clientSecret}
+                                  onChange={(e) =>
+                                    setWordpressFields({ ...wordpressFields, clientSecret: e.target.value })
+                                  }
+                                  required
                                 />
                                 <Button
+                                  type="button" // Prevent form submission
                                   variant="outline"
                                   size="icon"
                                   onClick={() => setShowClientSecret(!showClientSecret)}
@@ -309,23 +339,29 @@ const Settings = () => {
                               </div>
                             </div>
                             <div className="flex justify-end">
-                              <Button>Enregistrer</Button>
+                              <Button type="submit">Enregistrer</Button>
                             </div>
-                          </div>
+                          </form>
                         </div>
                       ))}
                       {/* Add OPENAI_API_KEY Section */}
                       <div className="border rounded-lg p-4">
                         <h3 className="text-lg font-medium mb-4">OpenAI API</h3>
-                        <div className="space-y-4">
+                        <form className="space-y-4">
                           <div className="space-y-2">
                             <Label>OPENAI_API_KEY</Label>
                             <div className="flex items-center space-x-2">
                               <Input
                                 type={showOpenAIKey ? "text" : "password"}
                                 placeholder="Votre clé API OpenAI"
+                                value={openAIFields.apiKey}
+                                onChange={(e) =>
+                                  setOpenAIFields({ ...openAIFields, apiKey: e.target.value })
+                                }
+                                required
                               />
                               <Button
+                                type="button" // Prevent form submission
                                 variant="outline"
                                 size="icon"
                                 onClick={() => setShowOpenAIKey(!showOpenAIKey)}
@@ -335,19 +371,24 @@ const Settings = () => {
                             </div>
                           </div>
                           <div className="flex justify-end">
-                            <Button>Enregistrer</Button>
+                            <Button type="submit">Enregistrer</Button>
                           </div>
-                        </div>
+                        </form>
                       </div>
                       {/* Group Supabase Configurations */}
                       <div className="border rounded-lg p-4">
                         <h3 className="text-lg font-medium mb-4">Supabase</h3>
-                        <div className="space-y-4">
+                        <form className="space-y-4">
                           <div className="space-y-2">
                             <Label>SUPABASE_URL</Label>
                             <Input
                               type="text"
                               placeholder="Votre URL Supabase"
+                              value={supabaseFields.url}
+                              onChange={(e) =>
+                                setSupabaseFields({ ...supabaseFields, url: e.target.value })
+                              }
+                              required
                             />
                           </div>
                           <div className="space-y-2">
@@ -356,8 +397,14 @@ const Settings = () => {
                               <Input
                                 type={showSupabaseKey ? "text" : "password"}
                                 placeholder="Votre clé Supabase"
+                                value={supabaseFields.key}
+                                onChange={(e) =>
+                                  setSupabaseFields({ ...supabaseFields, key: e.target.value })
+                                }
+                                required
                               />
                               <Button
+                                type="button" // Prevent form submission
                                 variant="outline"
                                 size="icon"
                                 onClick={() => setShowSupabaseKey(!showSupabaseKey)}
@@ -372,8 +419,17 @@ const Settings = () => {
                               <Input
                                 type={showSupabaseServiceRoleKey ? "text" : "password"}
                                 placeholder="Votre clé de rôle de service Supabase"
+                                value={supabaseFields.serviceRoleKey}
+                                onChange={(e) =>
+                                  setSupabaseFields({
+                                    ...supabaseFields,
+                                    serviceRoleKey: e.target.value,
+                                  })
+                                }
+                                required
                               />
                               <Button
+                                type="button" // Prevent form submission
                                 variant="outline"
                                 size="icon"
                                 onClick={() => setShowSupabaseServiceRoleKey(!showSupabaseServiceRoleKey)}
@@ -383,19 +439,27 @@ const Settings = () => {
                             </div>
                           </div>
                           <div className="flex justify-end">
-                            <Button>Enregistrer</Button>
+                            <Button type="submit">Enregistrer</Button>
                           </div>
-                        </div>
+                        </form>
                       </div>
                       {/* Add Make Webhooks Section */}
                       <div className="border rounded-lg p-4">
                         <h3 className="text-lg font-medium mb-4">Make Webhooks</h3>
-                        <div className="space-y-4">
+                        <form className="space-y-4">
                           <div className="space-y-2">
                             <Label>MAKE_WEBHOOK_FACEBOOK</Label>
                             <Input
                               type="text"
                               placeholder="Webhook URL pour Facebook"
+                              value={makeWebhooksFields.facebook}
+                              onChange={(e) =>
+                                setMakeWebhooksFields({
+                                  ...makeWebhooksFields,
+                                  facebook: e.target.value,
+                                })
+                              }
+                              required
                             />
                           </div>
                           <div className="space-y-2">
@@ -403,6 +467,14 @@ const Settings = () => {
                             <Input
                               type="text"
                               placeholder="Webhook URL pour LinkedIn"
+                              value={makeWebhooksFields.linkedin}
+                              onChange={(e) =>
+                                setMakeWebhooksFields({
+                                  ...makeWebhooksFields,
+                                  linkedin: e.target.value,
+                                })
+                              }
+                              required
                             />
                           </div>
                           <div className="space-y-2">
@@ -410,6 +482,14 @@ const Settings = () => {
                             <Input
                               type="text"
                               placeholder="Webhook URL pour Instagram"
+                              value={makeWebhooksFields.instagram}
+                              onChange={(e) =>
+                                setMakeWebhooksFields({
+                                  ...makeWebhooksFields,
+                                  instagram: e.target.value,
+                                })
+                              }
+                              required
                             />
                           </div>
                           <div className="space-y-2">
@@ -417,12 +497,20 @@ const Settings = () => {
                             <Input
                               type="text"
                               placeholder="Webhook URL pour Twitter"
+                              value={makeWebhooksFields.twitter}
+                              onChange={(e) =>
+                                setMakeWebhooksFields({
+                                  ...makeWebhooksFields,
+                                  twitter: e.target.value,
+                                })
+                              }
+                              required
                             />
                           </div>
                           <div className="flex justify-end">
-                            <Button>Enregistrer</Button>
+                            <Button type="submit">Enregistrer</Button>
                           </div>
-                        </div>
+                        </form>
                       </div>
                     </div>
                   </CardContent>
