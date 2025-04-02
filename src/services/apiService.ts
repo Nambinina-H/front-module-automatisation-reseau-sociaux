@@ -6,6 +6,7 @@ export interface User {
   id: string;
   email: string;
   role: 'user' | 'admin';
+  app_role?: string; // Add app_role property to User interface
   createdAt?: string;
 }
 
