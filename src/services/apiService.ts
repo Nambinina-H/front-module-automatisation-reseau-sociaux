@@ -215,7 +215,18 @@ class ApiService {
   async login(credentials: LoginCredentials): Promise<AuthResponse> {
     try {
       const response = await this.api.post<AuthResponse>('/auth/login', credentials);
-      this.setToken(response.data.token);
+      const { user, token } = response.data;
+
+      this.setToken(token);
+
+      // Extract and store app_role
+      const appRole = user.app_role;
+      console.log('User:', user, 'App Role:', appRole);
+      if (appRole) {
+        localStorage.setItem('app_role', appRole);
+        console.log('app_role stored:', appRole);
+      }
+
       toast({
         title: 'Connexion réussie',
         description: 'Vous êtes maintenant connecté!',
@@ -229,14 +240,17 @@ class ApiService {
   // Déconnexion
   logout(): void {
     this.clearToken();
+
+    // Remove app_role from localStorage
+    console.log('Suppression de app_role');
+    localStorage.removeItem('app_role');
+
     toast({
       title: 'Déconnexion',
       description: 'Vous avez été déconnecté avec succès.',
     });
-    // Rediriger vers la racine du projet
+
     window.location.href = '/';
-    // Rediriger auth la racine du projet
-    // window.location.href = '/auth';
   }
 
   // Récupérer le profil utilisateur

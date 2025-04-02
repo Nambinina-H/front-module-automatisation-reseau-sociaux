@@ -68,7 +68,9 @@ const navigationItems: NavItem[] = [
 
 const Sidebar = () => {
   const location = useLocation();
-  const { logout } = useAuth();
+  const { logout, appRole } = useAuth();
+
+  console.log('Current app_role in Sidebar:', appRole);
 
   const handleLogout = () => {
     logout();
@@ -82,22 +84,27 @@ const Sidebar = () => {
           &lt;Votre Logo&gt;
         </div>
         <ul className="space-y-2 font-medium flex-grow">
-          {navigationItems.map((item) => (
-            <li key={item.label}>
-              <NavLink
-                to={item.href}
-                className={({ isActive }) =>
-                  cn(
-                    'flex items-center rounded-md p-2 text-gray-300 hover:bg-gray-700 hover:text-white',
-                    isActive && 'bg-gray-700 text-white'
-                  )
-                }
-              >
-                <span className="mr-3">{item.icon}</span>
-                <span className="hidden md:inline">{item.label}</span>
-              </NavLink>
-            </li>
-          ))}
+          {navigationItems.map((item) => {
+            if (item.label === 'Logs' && appRole !== 'admin') {
+              return null; // Hide "Logs" for non-admin users
+            }
+            return (
+              <li key={item.label}>
+                <NavLink
+                  to={item.href}
+                  className={({ isActive }) =>
+                    cn(
+                      'flex items-center rounded-md p-2 text-gray-300 hover:bg-gray-700 hover:text-white',
+                      isActive && 'bg-gray-700 text-white'
+                    )
+                  }
+                >
+                  <span className="mr-3">{item.icon}</span>
+                  <span className="hidden md:inline">{item.label}</span>
+                </NavLink>
+              </li>
+            );
+          })}
         </ul>
         <div className="mt-auto">
           <Separator className="my-2 bg-gray-600" />

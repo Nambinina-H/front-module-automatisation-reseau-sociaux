@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Mail, Lock, Loader2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
@@ -36,7 +35,8 @@ const AuthForm = () => {
         
         await register({ email, password });
       } else {
-        await login({ email, password });
+        const response = await login({ email, password });
+        console.log('Login response:', response);
       }
       
       // Redirection après connexion réussie
