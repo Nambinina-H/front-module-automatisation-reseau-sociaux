@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
-import { Bell, Lock, Globe, FileCode } from 'lucide-react';
+import { Bell, Lock, Globe, FileCode, Eye, EyeOff } from 'lucide-react';
 import PlatformIcon from '@/components/common/PlatformIcon';
 import {
   Dialog,
@@ -28,6 +28,11 @@ const Settings = () => {
   const [clientId, setClientId] = useState('');
   const [clientSecret, setClientSecret] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
+  const [showKeys, setShowKeys] = useState(false); // State to toggle key visibility
+  const [showClientSecret, setShowClientSecret] = useState(false);
+  const [showOpenAIKey, setShowOpenAIKey] = useState(false);
+  const [showSupabaseKey, setShowSupabaseKey] = useState(false);
+  const [showSupabaseServiceRoleKey, setShowSupabaseServiceRoleKey] = useState(false);
   const isAdmin = true; // Assuming isAdmin is determined elsewhere
 
   const handleConnect = (platform: string) => {
@@ -273,10 +278,19 @@ const Settings = () => {
                             </div>
                             <div className="space-y-2">
                               <Label>Client Secret</Label>
-                              <Input
-                                type="password"
-                                placeholder={`${platform.name} Client Secret`}
-                              />
+                              <div className="flex items-center space-x-2">
+                                <Input
+                                  type={showClientSecret ? "text" : "password"}
+                                  placeholder={`${platform.name} Client Secret`}
+                                />
+                                <Button
+                                  variant="outline"
+                                  size="icon"
+                                  onClick={() => setShowClientSecret(!showClientSecret)}
+                                >
+                                  {showClientSecret ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
+                                </Button>
+                              </div>
                             </div>
                             <div className="space-y-2">
                               <Label>Redirect URI</Label>
@@ -306,10 +320,19 @@ const Settings = () => {
                         <div className="space-y-4">
                           <div className="space-y-2">
                             <Label>OPENAI_API_KEY</Label>
-                            <Input
-                              type="password"
-                              placeholder="Votre clé API OpenAI"
-                            />
+                            <div className="flex items-center space-x-2">
+                              <Input
+                                type={showOpenAIKey ? "text" : "password"}
+                                placeholder="Votre clé API OpenAI"
+                              />
+                              <Button
+                                variant="outline"
+                                size="icon"
+                                onClick={() => setShowOpenAIKey(!showOpenAIKey)}
+                              >
+                                {showOpenAIKey ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
+                              </Button>
+                            </div>
                           </div>
                           <div className="flex justify-end">
                             <Button>Enregistrer</Button>
@@ -329,17 +352,35 @@ const Settings = () => {
                           </div>
                           <div className="space-y-2">
                             <Label>SUPABASE_KEY</Label>
-                            <Input
-                              type="password"
-                              placeholder="Votre clé Supabase"
-                            />
+                            <div className="flex items-center space-x-2">
+                              <Input
+                                type={showSupabaseKey ? "text" : "password"}
+                                placeholder="Votre clé Supabase"
+                              />
+                              <Button
+                                variant="outline"
+                                size="icon"
+                                onClick={() => setShowSupabaseKey(!showSupabaseKey)}
+                              >
+                                {showSupabaseKey ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
+                              </Button>
+                            </div>
                           </div>
                           <div className="space-y-2">
                             <Label>SUPABASE_SERVICE_ROLE_KEY</Label>
-                            <Input
-                              type="password"
-                              placeholder="Votre clé de rôle de service Supabase"
-                            />
+                            <div className="flex items-center space-x-2">
+                              <Input
+                                type={showSupabaseServiceRoleKey ? "text" : "password"}
+                                placeholder="Votre clé de rôle de service Supabase"
+                              />
+                              <Button
+                                variant="outline"
+                                size="icon"
+                                onClick={() => setShowSupabaseServiceRoleKey(!showSupabaseServiceRoleKey)}
+                              >
+                                {showSupabaseServiceRoleKey ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
+                              </Button>
+                            </div>
                           </div>
                           <div className="flex justify-end">
                             <Button>Enregistrer</Button>
