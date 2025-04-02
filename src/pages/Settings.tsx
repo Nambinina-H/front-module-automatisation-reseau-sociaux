@@ -237,11 +237,6 @@ const Settings = () => {
                                   </p>
                                 </div>
                               </div>
-                              <Button 
-                                variant={connection.connected ? "outline" : "default"}
-                              >
-                                {connection.connected ? 'Supprimer' : 'Configurer'}
-                              </Button>
                             </div>
                           ))}
                         </div>
@@ -265,7 +260,6 @@ const Settings = () => {
                     <div className="space-y-6">
                       {[
                         { id: 'wordpress', name: 'WordPress', clientId: '', clientSecret: '', redirectUri: 'https://example.com/callback' },
-                        { id: 'linkedin', name: 'LinkedIn', clientId: '', clientSecret: '', redirectUri: 'https://example.com/callback' },
                       ].map((platform) => (
                         <div key={platform.id} className="border rounded-lg p-4">
                           <h3 className="text-lg font-medium mb-4">{platform.name}</h3>
@@ -300,10 +294,95 @@ const Settings = () => {
                                 </Button>
                               </div>
                             </div>
-                            <Button>Enregistrer</Button>
+                            <div className="flex justify-end">
+                              <Button>Enregistrer</Button>
+                            </div>
                           </div>
                         </div>
                       ))}
+                      {/* Add OPENAI_API_KEY Section */}
+                      <div className="border rounded-lg p-4">
+                        <h3 className="text-lg font-medium mb-4">OpenAI API</h3>
+                        <div className="space-y-4">
+                          <div className="space-y-2">
+                            <Label>OPENAI_API_KEY</Label>
+                            <Input
+                              type="password"
+                              placeholder="Votre clé API OpenAI"
+                            />
+                          </div>
+                          <div className="flex justify-end">
+                            <Button>Enregistrer</Button>
+                          </div>
+                        </div>
+                      </div>
+                      {/* Group Supabase Configurations */}
+                      <div className="border rounded-lg p-4">
+                        <h3 className="text-lg font-medium mb-4">Supabase</h3>
+                        <div className="space-y-4">
+                          <div className="space-y-2">
+                            <Label>SUPABASE_URL</Label>
+                            <Input
+                              type="text"
+                              placeholder="Votre URL Supabase"
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label>SUPABASE_KEY</Label>
+                            <Input
+                              type="password"
+                              placeholder="Votre clé Supabase"
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label>SUPABASE_SERVICE_ROLE_KEY</Label>
+                            <Input
+                              type="password"
+                              placeholder="Votre clé de rôle de service Supabase"
+                            />
+                          </div>
+                          <div className="flex justify-end">
+                            <Button>Enregistrer</Button>
+                          </div>
+                        </div>
+                      </div>
+                      {/* Add Make Webhooks Section */}
+                      <div className="border rounded-lg p-4">
+                        <h3 className="text-lg font-medium mb-4">Make Webhooks</h3>
+                        <div className="space-y-4">
+                          <div className="space-y-2">
+                            <Label>MAKE_WEBHOOK_FACEBOOK</Label>
+                            <Input
+                              type="text"
+                              placeholder="Webhook URL pour Facebook"
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label>MAKE_WEBHOOK_LINKEDIN</Label>
+                            <Input
+                              type="text"
+                              placeholder="Webhook URL pour LinkedIn"
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label>MAKE_WEBHOOK_INSTAGRAM</Label>
+                            <Input
+                              type="text"
+                              placeholder="Webhook URL pour Instagram"
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label>MAKE_WEBHOOK_TWITTER</Label>
+                            <Input
+                              type="text"
+                              placeholder="Webhook URL pour Twitter"
+                            />
+                          </div>
+                          <div className="flex justify-end">
+                            <Button>Enregistrer</Button>
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
