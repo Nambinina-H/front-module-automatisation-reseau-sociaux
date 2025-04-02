@@ -76,6 +76,26 @@ const Settings = () => {
     setDisconnectingPlatform(null);
   };
 
+  const [showConfirmation, setShowConfirmation] = useState(false); // State to toggle confirmation dialog
+  const [currentForm, setCurrentForm] = useState<string | null>(null); // Track which form is being submitted
+
+  const handleFormSubmit = (formName: string) => {
+    setCurrentForm(formName);
+    setShowConfirmation(true);
+  };
+
+  const handleConfirmSubmit = () => {
+    // Logic to handle form submission
+    console.log(`Submitting form: ${currentForm}`);
+    setShowConfirmation(false);
+    setCurrentForm(null);
+  };
+
+  const handleCancelSubmit = () => {
+    setShowConfirmation(false);
+    setCurrentForm(null);
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       <Sidebar />
@@ -287,7 +307,13 @@ const Settings = () => {
                       ].map((platform) => (
                         <div key={platform.id} className="border rounded-lg p-4">
                           <h3 className="text-lg font-medium mb-4">{platform.name}</h3>
-                          <form className="space-y-4">
+                          <form
+                            className="space-y-4"
+                            onSubmit={(e) => {
+                              e.preventDefault();
+                              handleFormSubmit("WordPress");
+                            }}
+                          >
                             <div className="space-y-2">
                               <Label>Client ID</Label>
                               <Input
@@ -342,7 +368,13 @@ const Settings = () => {
                       {/* Add OPENAI_API_KEY Section */}
                       <div className="border rounded-lg p-4">
                         <h3 className="text-lg font-medium mb-4">OpenAI API</h3>
-                        <form className="space-y-4">
+                        <form
+                          className="space-y-4"
+                          onSubmit={(e) => {
+                            e.preventDefault();
+                            handleFormSubmit("OpenAI API");
+                          }}
+                        >
                           <div className="space-y-2">
                             <Label>OPENAI_API_KEY</Label>
                             <div className="flex items-center space-x-2">
@@ -373,7 +405,13 @@ const Settings = () => {
                       {/* Group Supabase Configurations */}
                       <div className="border rounded-lg p-4">
                         <h3 className="text-lg font-medium mb-4">Supabase</h3>
-                        <form className="space-y-4">
+                        <form
+                          className="space-y-4"
+                          onSubmit={(e) => {
+                            e.preventDefault();
+                            handleFormSubmit("Supabase");
+                          }}
+                        >
                           <div className="space-y-2">
                             <Label>SUPABASE_URL</Label>
                             <Input
@@ -441,7 +479,13 @@ const Settings = () => {
                       {/* Add Make Webhooks Section */}
                       <div className="border rounded-lg p-4">
                         <h3 className="text-lg font-medium mb-4">Make Webhooks</h3>
-                        <form className="space-y-4">
+                        <form
+                          className="space-y-4"
+                          onSubmit={(e) => {
+                            e.preventDefault();
+                            handleFormSubmit("Make Webhooks");
+                          }}
+                        >
                           <div className="space-y-2">
                             <Label>MAKE_WEBHOOK_FACEBOOK</Label>
                             <Input
@@ -569,6 +613,26 @@ const Settings = () => {
                 <Button variant="outline">Annuler</Button>
               </DialogClose>
               <Button variant="destructive" onClick={handleConfirmDisconnection}>Confirmer</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      )}
+
+      {/* Confirmation Dialog */}
+      {showConfirmation && (
+        <Dialog open={showConfirmation} onOpenChange={setShowConfirmation}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Confirmation</DialogTitle>
+              <DialogDescription>
+                Êtes-vous sûr de vouloir enregistrer les modifications pour {currentForm} ?
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter>
+              <Button variant="outline" onClick={handleCancelSubmit}>
+                Annuler
+              </Button>
+              <Button onClick={handleConfirmSubmit}>Confirmer</Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
