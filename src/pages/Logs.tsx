@@ -27,7 +27,8 @@ const Logs = () => {
     schedule_content: 'Planification de la publication de contenu',
     publish_content: 'Publication de contenu',
     cancel_publication: 'Annulation de la publication planifiée',
-    generate_image: 'Génération d\'image'
+    generate_image: 'Génération d\'image',
+    update_api_key: 'Mise à jour de clé API'
   };
 
   const actionColors = {
@@ -39,7 +40,8 @@ const Logs = () => {
     schedule_content: 'bg-indigo-100 text-indigo-800',
     publish_content: 'bg-teal-100 text-teal-800',
     cancel_publication: 'bg-orange-100 text-orange-800',
-    generate_image: 'bg-pink-100 text-pink-800'
+    generate_image: 'bg-pink-100 text-pink-800',
+    update_api_key: 'bg-cyan-100 text-cyan-800'
   };
 
   const getDetails = (log) => {
@@ -93,6 +95,7 @@ const Logs = () => {
                       <SelectItem value="publish_content">Publication de contenu</SelectItem>
                       <SelectItem value="cancel_publication">Annulation de la publication planifiée</SelectItem>
                       <SelectItem value="generate_image">Génération d'image</SelectItem>
+                      <SelectItem value="update_api_key">Mise à jour de clé API</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
