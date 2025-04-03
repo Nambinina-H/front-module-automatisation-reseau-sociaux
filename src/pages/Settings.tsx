@@ -20,6 +20,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { useConfig, useAuth } from '@/hooks/useApi';
+import { useSearchParams } from "react-router-dom"; // Import pour gérer les paramètres d'URL
 
 const Settings = () => {
   const [email, setEmail] = useState('');
@@ -203,6 +204,14 @@ const Settings = () => {
     }
   };
 
+  const [searchParams] = useSearchParams();
+  const defaultTab = searchParams.get("tab") || "account"; // Lire le paramètre "tab" de l'URL
+  const [activeTab, setActiveTab] = useState(defaultTab);
+
+  useEffect(() => {
+    setActiveTab(defaultTab); // Mettre à jour l'onglet actif si le paramètre change
+  }, [defaultTab]);
+
   return (
     <div className="min-h-screen bg-gray-50">
       <Sidebar />
@@ -215,7 +224,7 @@ const Settings = () => {
             <h1 className="text-2xl font-semibold">Paramètres</h1>
           </div>
           
-          <Tabs defaultValue={isAdmin ? "account" : "account"} className="space-y-6">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
             <TabsList className={`grid w-full max-w-3xl mx-auto grid-cols-${isAdmin ? 4 : 3}`}>
               <TabsTrigger value="account" className="flex items-center gap-2">
                 <Lock className="h-4 w-4" />

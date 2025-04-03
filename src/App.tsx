@@ -2,7 +2,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useLocation, Link } from "react-router-dom";
 import { useEffect } from "react";
 import Index from "./pages/Index";
 import CreatePost from "./pages/CreatePost";
@@ -71,6 +71,8 @@ const App = () => {
             {/* Route 404 */}
             <Route path="*" element={<NotFound />} />
           </Routes>
+          {/* Exemple de lien vers la section "Intégrations" */}
+          <Link to="/parametres?tab=integrations">Aller à Intégrations</Link>
         </BrowserRouter>
       </TooltipProvider>
     </QueryClientProvider>
