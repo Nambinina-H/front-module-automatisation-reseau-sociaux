@@ -236,8 +236,22 @@ const Settings = () => {
             return;
           }
 
-          // Vérifier si l'URL contient "error=access_denied"
           const currentUrl = authWindow.location.href;
+
+          // Vérifier si l'URL contient "code="
+          if (currentUrl.includes("code=")) {
+            const urlParams = new URLSearchParams(new URL(currentUrl).search);
+            const code = urlParams.get("code");
+
+            if (code) {
+              console.log("Code reçu :", code); // Affiche le code dans la console
+            }
+
+            authWindow.close();
+            clearInterval(interval);
+          }
+
+          // Vérifier si l'URL contient "error=access_denied"
           if (currentUrl.includes("error=access_denied")) {
             authWindow.close();
             clearInterval(interval);
