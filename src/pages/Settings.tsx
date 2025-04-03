@@ -220,7 +220,34 @@ const Settings = () => {
 
     try {
       const authorizationUrl = await generateAuthUrl({ clientId, redirectUri });
-      window.open(authorizationUrl, "_blank", "width=600,height=700");
+      const authWindow = window.open(authorizationUrl, "_blank", "width=600,height=700");
+
+      if (!authWindow) {
+        setErrorMessage("Impossible d'ouvrir la fenêtre d'autorisation.");
+        return;
+      }
+
+      // Surveiller les changements dans l'URL de la fenêtre
+      const interval = setInterval(() => {
+        try {
+          if (!authWindow || authWindow.closed) {
+            clearInterval(interval);
+            console.log("Fenêtre fermée par l'utilisateur.");
+            return;
+          }
+
+          // Vérifier si l'URL contient "error=access_denied"
+          const currentUrl = authWindow.location.href;
+          if (currentUrl.includes("error=access_denied")) {
+            authWindow.close();
+            clearInterval(interval);
+            console.log("Fenêtre fermée après redirection avec erreur.");
+            setErrorMessage("Connexion refusée par l'utilisateur.");
+          }
+        } catch (error) {
+          // Ignorer les erreurs de cross-origin jusqu'à ce que l'URL soit accessible
+        }
+      }, 500);
     } catch (error) {
       setErrorMessage(error.message || "Une erreur est survenue.");
     }
