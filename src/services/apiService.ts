@@ -474,6 +474,13 @@ class ApiService {
       throw error;
     }
   }
+
+  generateWordPressAuthUrl(clientId: string, redirectUri: string): string {
+    if (!clientId || !redirectUri) {
+      throw new Error("Client ID et Redirect URI sont requis pour générer l'URL d'autorisation.");
+    }
+    return `https://public-api.wordpress.com/oauth2/authorize?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code`;
+  }
 }
 
 // Export d'une instance unique du service API

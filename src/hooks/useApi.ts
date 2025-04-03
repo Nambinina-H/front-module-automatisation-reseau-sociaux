@@ -301,3 +301,17 @@ export function useConfig() {
     fetchConfigs  // Ajout de l'exposition de fetchConfigs
   };
 }
+
+export function useWordPressAuth() {
+  const { execute, loading, error } = useApi<string, { clientId: string; redirectUri: string }>(
+    ({ clientId, redirectUri }) => {
+      return Promise.resolve(apiService.generateWordPressAuthUrl(clientId, redirectUri));
+    }
+  );
+
+  return {
+    generateAuthUrl: execute,
+    loading,
+    error,
+  };
+}

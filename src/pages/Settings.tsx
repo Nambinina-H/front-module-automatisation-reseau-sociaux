@@ -19,8 +19,9 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { useConfig, useAuth } from '@/hooks/useApi';
+import { useConfig, useAuth, useWordPressAuth } from '@/hooks/useApi';
 import { useSearchParams } from "react-router-dom"; // Import pour gérer les paramètres d'URL
+import { apiService } from '@/services/apiService';
 
 const Settings = () => {
   const [email, setEmail] = useState('');
@@ -212,6 +213,19 @@ const Settings = () => {
     setActiveTab(defaultTab); // Mettre à jour l'onglet actif si le paramètre change
   }, [defaultTab]);
 
+  const { generateAuthUrl, loading: authLoading, error: authError } = useWordPressAuth();
+
+  const handleWordPressConnect = async () => {
+    const { clientId, redirectUri } = wordpressFields;
+
+    try {
+      const authorizationUrl = await generateAuthUrl({ clientId, redirectUri });
+      window.open(authorizationUrl, "_blank", "width=600,height=700");
+    } catch (error) {
+      setErrorMessage(error.message || "Une erreur est survenue.");
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       <Sidebar />
@@ -370,9 +384,9 @@ const Settings = () => {
                         <p className="text-sm text-muted-foreground mb-4">
                           Connectez-vous avec votre compte WordPress pour publier automatiquement.
                         </p>
-                        <Button variant="outline">
+                        <Button variant="outline" onClick={handleWordPressConnect} disabled={authLoading}>
                           <PlatformIcon platform="wordpress" size={24} className="mr-2" />
-                          Se connecter avec WordPress
+                          {authLoading ? "Chargement..." : "Se connecter avec WordPress"}
                         </Button>
                       </div>
                       <div className="border rounded-lg p-4">
