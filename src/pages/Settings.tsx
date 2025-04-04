@@ -273,6 +273,28 @@ const Settings = () => {
     }
   };
 
+  // Ajouter l'état pour WordPress
+  const [isWordPressConnected, setIsWordPressConnected] = useState(false);
+  
+  // Effet pour vérifier si WordPress est connecté en vérifiant les configs
+  useEffect(() => {
+    const wordPressConfig = configs.find(c => c.platform === 'wordPress');
+    setIsWordPressConnected(!!wordPressConfig?.keys?.accessToken);
+  }, [configs]);
+
+  // Fonction pour déconnecter WordPress
+  const handleWordPressDisconnect = async () => {
+    try {
+      await apiService.disconnectWordPress();
+      setIsWordPressConnected(false);
+      if (fetchConfigs) {
+        await fetchConfigs(); // Recharger les configs après déconnexion
+      }
+    } catch (error) {
+      console.error("Erreur lors de la déconnexion:", error);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       <Sidebar />
@@ -431,9 +453,13 @@ const Settings = () => {
                         <p className="text-sm text-muted-foreground mb-4">
                           Connectez-vous avec votre compte WordPress pour publier automatiquement.
                         </p>
-                        <Button variant="outline" onClick={handleWordPressConnect} disabled={authLoading}>
+                        <Button 
+                          variant="outline" 
+                          onClick={isWordPressConnected ? handleWordPressDisconnect : handleWordPressConnect} 
+                          disabled={authLoading}
+                        >
                           <PlatformIcon platform="wordpress" size={24} className="mr-2" />
-                          {authLoading ? "Chargement..." : "Se connecter avec WordPress"}
+                          {authLoading ? "Chargement..." : isWordPressConnected ? "Se déconnecter" : "Connecter"}
                         </Button>
                       </div>
                       <div className="border rounded-lg p-4">

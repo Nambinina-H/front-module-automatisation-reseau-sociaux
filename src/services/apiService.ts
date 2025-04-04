@@ -524,6 +524,25 @@ class ApiService {
       throw error;
     }
   }
+
+  async disconnectWordPress(): Promise<any> {
+    try {
+      const response = await this.api.post('/oauth/wordpress/disconnect');
+      toast({
+        title: 'Succès',
+        description: 'WordPress déconnecté'
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Erreur lors de la déconnexion:", error);
+      toast({
+        title: 'Erreur',
+        description: 'Erreur lors de la déconnexion de WordPress',
+        variant: 'destructive'
+      });
+      throw error;
+    }
+  }
 }
 
 // Export d'une instance unique du service API
