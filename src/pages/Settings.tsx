@@ -227,8 +227,8 @@ const Settings = () => {
         return;
       }
 
-      // Surveiller les changements dans l'URL de la fenêtre
-      const interval = setInterval(async () => { // Ajout de "async" ici
+      let isCodeSent = false; // Flag pour éviter les envois multiples
+      const interval = setInterval(async () => {
         try {
           if (!authWindow || authWindow.closed) {
             clearInterval(interval);
@@ -238,35 +238,40 @@ const Settings = () => {
 
           const currentUrl = authWindow.location.href;
 
-          // Vérifier si l'URL contient "code="
-          if (currentUrl.includes("code=")) {
+          if (currentUrl.includes("code=") && !isCodeSent) {
+            isCodeSent = true; // Marquer que le code a été envoyé
+            clearInterval(interval); // Arrêter l'intervalle immédiatement
+            
             const urlParams = new URLSearchParams(new URL(currentUrl).search);
             const code = urlParams.get("code");
 
             if (code) {
-              console.log("Code reçu :", code); // Affiche le code dans la console
+              console.log("Code reçu :", code);
               try {
                 const response = await apiService.sendWordPressCode(code);
                 console.log("Réponse de l'API :", response);
+                toast({
+                  title: "Succès",
+                  description: "Connexion WordPress réussie"
+                });
               } catch (error) {
                 console.error("Erreur lors de l'envoi du code :", error);
+                setErrorMessage(error.response?.data?.error || "Erreur lors de la connexion à WordPress");
+              } finally {
+                authWindow.close();
               }
-              authWindow.close();
-              clearInterval(interval);
             }
           }
 
-          // Vérifier si l'URL contient "error=access_denied"
           if (currentUrl.includes("error=access_denied")) {
-            authWindow.close();
             clearInterval(interval);
-            console.log("Fenêtre fermée après redirection avec erreur.");
+            authWindow.close();
             setErrorMessage("Connexion refusée par l'utilisateur.");
           }
         } catch (error) {
           // Ignorer les erreurs de cross-origin jusqu'à ce que l'URL soit accessible
         }
-      }, 500);
+      }, 1000); // Augmenter l'intervalle à 1 seconde pour réduire les requêtes
     } catch (error) {
       setErrorMessage(error.message || "Une erreur est survenue.");
     }
