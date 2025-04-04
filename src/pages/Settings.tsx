@@ -27,11 +27,9 @@ const Settings = () => {
   const [email, setEmail] = useState('');
   const [connectingPlatform, setConnectingPlatform] = useState<string | null>(null);
   const [disconnectingPlatform, setDisconnectingPlatform] = useState<string | null>(null);
-  const [urlWebhook, setUrlWebhook] = useState('');
   const [clientId, setClientId] = useState('');
   const [clientSecret, setClientSecret] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
-  const [showKeys, setShowKeys] = useState(false); // State to toggle key visibility
   const [showClientSecret, setShowClientSecret] = useState(false);
   const [showOpenAIKey, setShowOpenAIKey] = useState(false);
   const [showSupabaseKey, setShowSupabaseKey] = useState(false);
@@ -53,41 +51,10 @@ const Settings = () => {
     twitter: '',
   });
 
-  const isWordpressFormValid = wordpressFields.clientId && wordpressFields.clientSecret;
-  const isOpenAIFormValid = openAIFields.apiKey;
-  const isSupabaseFormValid = supabaseFields.url && supabaseFields.key && supabaseFields.serviceRoleKey;
-  const isMakeWebhooksFormValid =
-    makeWebhooksFields.facebook &&
-    makeWebhooksFields.linkedin &&
-    makeWebhooksFields.instagram &&
-    makeWebhooksFields.twitter;
-
-  const handleConnect = (platform: string) => {
-    setConnectingPlatform(platform);
-    setErrorMessage('');
-  };
-
-  const handleDisconnect = (platform: string) => {
-    setDisconnectingPlatform(platform);
-  };
-
-  const handleSubmitConnection = () => {
-    // Implement the connection logic here
-    // On success:
-    setConnectingPlatform(null);
-    // On error:
-    // setErrorMessage('Connection failed. Please check your URL webhook.');
-  };
-
-  const handleConfirmDisconnection = () => {
-    // Implement the disconnection logic here
-    setDisconnectingPlatform(null);
-  };
-
   const [showConfirmation, setShowConfirmation] = useState(false); // State to toggle confirmation dialog
   const [currentForm, setCurrentForm] = useState<string | null>(null); // Track which form is being submitted
 
-  const { configs, updateConfig, loading: configLoading, fetchConfigs } = useConfig();
+  const { configs, updateConfig, fetchConfigs } = useConfig();
 
   // Effet pour remplir les champs avec les données récupérées
   useEffect(() => {
@@ -213,7 +180,7 @@ const Settings = () => {
     setActiveTab(defaultTab); // Mettre à jour l'onglet actif si le paramètre change
   }, [defaultTab]);
 
-  const { generateAuthUrl, loading: authLoading, error: authError } = useWordPressAuth();
+  const { generateAuthUrl, loading: authLoading } = useWordPressAuth();
 
   const handleWordPressConnect = async () => {
     const { clientId, redirectUri } = wordpressFields;
@@ -800,7 +767,7 @@ const Settings = () => {
               <DialogClose asChild>
                 <Button variant="outline">Annuler</Button>
               </DialogClose>
-              <Button onClick={handleSubmitConnection}>Soumettre</Button>
+              <Button>Soumettre</Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
@@ -819,7 +786,7 @@ const Settings = () => {
               <DialogClose asChild>
                 <Button variant="outline">Annuler</Button>
               </DialogClose>
-              <Button variant="destructive" onClick={handleConfirmDisconnection}>Confirmer</Button>
+              <Button variant="destructive">Confirmer</Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
