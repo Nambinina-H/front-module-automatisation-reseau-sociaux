@@ -494,17 +494,33 @@ class ApiService {
     }
   }
 
-  // Envoyer le code via une requête GET
+  // Envoyer le code via une requête GET au backend
   async sendWordPressCode(code: string): Promise<any> {
     try {
-      console.log("Envoi du code au backend:", code); // Ajout du log ici
-      const response = await this.api.get(`/oauth/wordpress/callback`, {
-        params: { code },
+      // S'assurer que seul le paramètre code est envoyé dans la requête
+      const response = await this.api.get('/oauth/wordpress/callback', {
+        params: { code }
       });
-      console.log("Réponse du backend:", response.data); // Log de la réponse
+      
+      console.log("Code envoyé au backend:", code);
+      console.log("Réponse du backend:", response.data);
+      
+      if (response.data.message) {
+        toast({
+          title: 'Succès',
+          description: response.data.message
+        });
+      }
+
       return response.data;
     } catch (error) {
-      console.error("Erreur lors de l'envoi du code au backend:", error); // Log en cas d'erreur
+      console.error("Erreur lors de l'envoi du code:", error);
+      const errorMessage = error.response?.data?.error || "Une erreur est survenue lors de la connexion à WordPress";
+      toast({
+        title: 'Erreur',
+        description: errorMessage,
+        variant: 'destructive'
+      });
       throw error;
     }
   }
