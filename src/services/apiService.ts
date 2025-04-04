@@ -481,6 +481,33 @@ class ApiService {
     }
     return `https://public-api.wordpress.com/oauth2/authorize?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code`;
   }
+
+  // Envoyer le code via une requête GET
+  async sendCode(code: string): Promise<any> {
+    try {
+      const response = await this.api.get(`/api/config/list`, {
+        params: { code },
+      });
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  // Envoyer le code via une requête GET
+  async sendWordPressCode(code: string): Promise<any> {
+    try {
+      console.log("Envoi du code au backend:", code); // Ajout du log ici
+      const response = await this.api.get(`/oauth/wordpress/callback`, {
+        params: { code },
+      });
+      console.log("Réponse du backend:", response.data); // Log de la réponse
+      return response.data;
+    } catch (error) {
+      console.error("Erreur lors de l'envoi du code au backend:", error); // Log en cas d'erreur
+      throw error;
+    }
+  }
 }
 
 // Export d'une instance unique du service API

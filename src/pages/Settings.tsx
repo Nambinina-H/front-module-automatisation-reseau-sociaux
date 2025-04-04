@@ -228,7 +228,7 @@ const Settings = () => {
       }
 
       // Surveiller les changements dans l'URL de la fenêtre
-      const interval = setInterval(() => {
+      const interval = setInterval(async () => { // Ajout de "async" ici
         try {
           if (!authWindow || authWindow.closed) {
             clearInterval(interval);
@@ -245,10 +245,15 @@ const Settings = () => {
 
             if (code) {
               console.log("Code reçu :", code); // Affiche le code dans la console
+              try {
+                const response = await apiService.sendWordPressCode(code);
+                console.log("Réponse de l'API :", response);
+              } catch (error) {
+                console.error("Erreur lors de l'envoi du code :", error);
+              }
+              authWindow.close();
+              clearInterval(interval);
             }
-
-            authWindow.close();
-            clearInterval(interval);
           }
 
           // Vérifier si l'URL contient "error=access_denied"
