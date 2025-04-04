@@ -227,7 +227,7 @@ const Settings = () => {
         return;
       }
 
-      let isCodeSent = false; // Flag pour éviter les envois multiples
+      let isCodeSent = false;
       const interval = setInterval(async () => {
         try {
           if (!authWindow || authWindow.closed) {
@@ -239,8 +239,8 @@ const Settings = () => {
           const currentUrl = authWindow.location.href;
 
           if (currentUrl.includes("code=") && !isCodeSent) {
-            isCodeSent = true; // Marquer que le code a été envoyé
-            clearInterval(interval); // Arrêter l'intervalle immédiatement
+            isCodeSent = true;
+            clearInterval(interval);
             
             const urlParams = new URLSearchParams(new URL(currentUrl).search);
             const code = urlParams.get("code");
@@ -250,10 +250,6 @@ const Settings = () => {
               try {
                 const response = await apiService.sendWordPressCode(code);
                 console.log("Réponse de l'API :", response);
-                toast({
-                  title: "Succès",
-                  description: "Connexion WordPress réussie"
-                });
               } catch (error) {
                 console.error("Erreur lors de l'envoi du code :", error);
                 setErrorMessage(error.response?.data?.error || "Erreur lors de la connexion à WordPress");
@@ -271,7 +267,7 @@ const Settings = () => {
         } catch (error) {
           // Ignorer les erreurs de cross-origin jusqu'à ce que l'URL soit accessible
         }
-      }, 1000); // Augmenter l'intervalle à 1 seconde pour réduire les requêtes
+      }, 1000);
     } catch (error) {
       setErrorMessage(error.message || "Une erreur est survenue.");
     }
