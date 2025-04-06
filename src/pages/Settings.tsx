@@ -19,7 +19,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { useConfig, useAuth, useWordPressAuth } from '@/hooks/useApi';
+import { useConfig, useAuth, useWordPressAuth, useFilteredConfigs } from '@/hooks/useApi';
 import { useSearchParams } from "react-router-dom"; // Import pour gérer les paramètres d'URL
 import { apiService } from '@/services/apiService';
 
@@ -34,7 +34,7 @@ const Settings = () => {
   const [showOpenAIKey, setShowOpenAIKey] = useState(false);
   const [showSupabaseKey, setShowSupabaseKey] = useState(false);
   const [showSupabaseServiceRoleKey, setShowSupabaseServiceRoleKey] = useState(false);
-  const { appRole } = useAuth(); // Récupérer le rôle de l'utilisateur
+  const { appRole, userId } = useAuth(); // Récupérer le rôle de l'utilisateur
   const isAdmin = appRole === 'admin'; // Vérifier si l'utilisateur est admin
 
   const [wordpressFields, setWordpressFields] = useState({ 
@@ -55,6 +55,7 @@ const Settings = () => {
   const [currentForm, setCurrentForm] = useState<string | null>(null); // Track which form is being submitted
 
   const { configs, updateConfig, fetchConfigs } = useConfig();
+  const { getFilteredConfigs, loading: filteredLoading } = useFilteredConfigs();
 
   // Effet pour remplir les champs avec les données récupérées
   useEffect(() => {
@@ -245,9 +246,23 @@ const Settings = () => {
   
   // Effet pour vérifier si WordPress est connecté en vérifiant les configs
   useEffect(() => {
-    const wordPressConfig = configs.find(c => c.platform === 'wordPress');
-    setIsWordPressConnected(!!wordPressConfig?.keys?.accessToken);
-  }, [configs]);
+    const fetchWordPressConfig = async () => {
+      try {
+        const filteredConfigs = await getFilteredConfigs({
+          platform: 'wordPressClient',
+          userId: userId || '', // Ensure userId is retrieved from useAuth
+        });
+        const wordPressConfig = filteredConfigs.find(c => c.platform === 'wordPressClient');
+        setIsWordPressConnected(!!wordPressConfig?.keys?.access_token);
+      } catch (error) {
+        console.error('Error fetching filtered configs:', error);
+      }
+    };
+
+    if (userId) {
+      fetchWordPressConfig();
+    }
+  }, [getFilteredConfigs, userId]);
 
   // Fonction pour déconnecter WordPress
   const handleWordPressDisconnect = async () => {

@@ -55,8 +55,9 @@ export function useAuth() {
     execute: fetchProfile 
   } = useApi<User>(apiService.getProfile.bind(apiService));
 
-  const appRole = localStorage.getItem('app_role');
-  console.log('Retrieved app_role:', appRole);
+  const user = apiService.getUser();
+  const appRole = user?.app_role;
+  const userId = user?.id;
 
   return {
     login: executeLogin,
@@ -65,7 +66,9 @@ export function useAuth() {
     profile,
     fetchProfile,
     isAuthenticated: apiService.isAuthenticated(),
-    appRole, // Expose app_role
+    user,
+    userId,
+    appRole,
     loading: {
       login: loginLoading,
       register: registerLoading,
@@ -311,6 +314,18 @@ export function useWordPressAuth() {
 
   return {
     generateAuthUrl: execute,
+    loading,
+    error,
+  };
+}
+
+export function useFilteredConfigs() {
+  const { execute, loading, error } = useApi<ApiConfig[], { platform: string; userId: string }>(
+    ({ platform, userId }) => apiService.getFilteredConfigs(platform, userId)
+  );
+
+  return {
+    getFilteredConfigs: execute,
     loading,
     error,
   };
