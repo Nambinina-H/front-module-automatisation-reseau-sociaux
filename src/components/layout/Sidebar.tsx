@@ -81,7 +81,7 @@ const Sidebar = () => {
     <aside className="fixed left-0 top-0 z-50 h-full w-16 flex-none bg-[#1A1F2C] shadow-sm transition-all duration-300 md:w-60">
       <div className="flex h-full flex-col px-3 py-4 overflow-y-auto bg-[#1A1F2C]">
         <div className="mb-6 text-white text-center text-xl font-bold">
-          &lt;Votre Logo&gt;
+          <br/>
         </div>
         <ul className="space-y-2 font-medium flex-grow">
           {navigationItems.map((item) => {
