@@ -50,6 +50,7 @@ const PostCreator: React.FC<PostCreatorProps> = ({ className }) => {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const { publishNow, loading } = usePublishNow();
   const { uploadMedia } = useUploadMedia();
+  const [title, setTitle] = useState<string>(''); // Add state for title
   
   interface ImmediatePublishParams {
     platforms: string[];  // On garde le tableau pour la compatibilité avec l'API
@@ -348,6 +349,17 @@ const PostCreator: React.FC<PostCreatorProps> = ({ className }) => {
           </Select>
         </div>
 
+        {selectedPlatform === 'wordpress' && (
+          <div className="space-y-3">
+            <label className="text-sm font-medium">Titre</label>
+            <Input 
+              placeholder="Entrez le titre de votre contenu" 
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+            />
+          </div>
+        )}
+
         {contentType.includes('text') && (
           <div className="space-y-3">
             <label className="text-sm font-medium">Contenu</label>
@@ -430,7 +442,7 @@ const PostCreator: React.FC<PostCreatorProps> = ({ className }) => {
         <div className="space-y-3">
           <label className="text-sm font-medium">Plateformes</label>
           <div className="flex flex-wrap gap-2">
-            {(['facebook', 'twitter', 'linkedin', 'instagram', 'wordpress'] as const).map((platform) => (
+            {(['wordpress', 'facebook', 'twitter', 'linkedin', 'instagram'] as const).map((platform) => (
               <Toggle
                 key={platform}
                 pressed={selectedPlatform === platform}
