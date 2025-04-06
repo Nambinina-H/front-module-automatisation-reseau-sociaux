@@ -137,7 +137,6 @@ export interface ApiConfigResponse {
 class ApiService {
   private api: AxiosInstance;
   private token: string | null = null;
-  private user: User | null = null;
 
   constructor() {
     const baseURL = import.meta.env.VITE_REACT_APP_BACKEND_URL || 'https://backend-module-generation-contenu.up.railway.app/';
@@ -172,12 +171,6 @@ class ApiService {
 
     // Récupérer le token au démarrage s'il existe
     this.token = localStorage.getItem('auth_token');
-
-    // Restaurer l'utilisateur au démarrage
-    const storedUser = localStorage.getItem('user_data');
-    if (storedUser) {
-      this.user = JSON.parse(storedUser);
-    }
   }
 
   // Gestion des erreurs
@@ -225,34 +218,6 @@ class ApiService {
     localStorage.removeItem('auth_token');
   }
 
-  // Gestion de l'utilisateur
-  private setUser(user: User): void {
-    this.user = user;
-    // Stocker uniquement les données essentielles
-    const userData = {
-      id: user.id,
-      email: user.email,
-      role: user.role,
-      app_role: user.app_role
-    };
-    localStorage.setItem('user_data', JSON.stringify(userData));
-  }
-
-  getUser(): User | null {
-    return this.user;
-  }
-
-  private clearUser(): void {
-    this.user = null;
-    localStorage.removeItem('user_data');
-    localStorage.removeItem('app_role'); // Pour la rétrocompatibilité
-  }
-
-  updateUser(updatedUser: User): void {
-    this.user = updatedUser;
-    localStorage.setItem('user_data', JSON.stringify(updatedUser)); // Update localStorage
-  }
-
   // Vérifie si l'utilisateur est authentifié
   isAuthenticated(): boolean {
     return !!this.getToken();
@@ -280,9 +245,16 @@ class ApiService {
     try {
       const response = await this.api.post<AuthResponse>('/auth/login', credentials);
       const { user, token } = response.data;
-      
+
       this.setToken(token);
-      this.setUser(user);
+
+      // Extract and store app_role
+      const appRole = user.app_role;
+      console.log('User:', user, 'App Role:', appRole);
+      if (appRole) {
+        localStorage.setItem('app_role', appRole);
+        console.log('app_role stored:', appRole);
+      }
 
       toast({
         title: 'Connexion réussie',
@@ -297,8 +269,11 @@ class ApiService {
   // Déconnexion
   logout(): void {
     this.clearToken();
-    this.clearUser();
-    
+
+    // Remove app_role from localStorage
+    console.log('Suppression de app_role');
+    localStorage.removeItem('app_role');
+
     toast({
       title: 'Déconnexion',
       description: 'Vous avez été déconnecté avec succès.',
@@ -494,17 +469,6 @@ class ApiService {
   async updateConfig(id: string, keys: ConfigKeys): Promise<ApiConfig> {
     try {
       const response = await this.api.put<{message: string; data: ApiConfig}>(`/api/config/update/${id}`, { keys });
-      return response.data.data;
-    } catch (error) {
-      throw error;
-    }
-  }
-
-  async getFilteredConfigs(platform: string, userId: string): Promise<ApiConfig[]> {
-    try {
-      const response = await this.api.get<ApiConfigResponse>('/api/config/list', {
-        params: { platform, user_id: userId },
-      });
       return response.data.data;
     } catch (error) {
       throw error;
