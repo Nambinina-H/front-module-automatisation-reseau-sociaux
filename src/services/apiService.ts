@@ -233,8 +233,7 @@ class ApiService {
       id: user.id,
       email: user.email,
       role: user.role,
-      app_role: user.app_role,
-      isWordPressConnected: user.isWordPressConnected, // Inclure isWordPressConnected
+      app_role: user.app_role
     };
     localStorage.setItem('user_data', JSON.stringify(userData));
   }
@@ -247,6 +246,11 @@ class ApiService {
     this.user = null;
     localStorage.removeItem('user_data');
     localStorage.removeItem('app_role'); // Pour la rétrocompatibilité
+  }
+
+  updateUser(updatedUser: User): void {
+    this.user = updatedUser;
+    localStorage.setItem('user_data', JSON.stringify(updatedUser)); // Update localStorage
   }
 
   // Vérifie si l'utilisateur est authentifié
@@ -276,7 +280,7 @@ class ApiService {
     try {
       const response = await this.api.post<AuthResponse>('/auth/login', credentials);
       const { user, token } = response.data;
-
+      
       this.setToken(token);
       this.setUser(user);
 
@@ -294,21 +298,13 @@ class ApiService {
   logout(): void {
     this.clearToken();
     this.clearUser();
-
+    
     toast({
       title: 'Déconnexion',
       description: 'Vous avez été déconnecté avec succès.',
     });
 
     window.location.href = '/';
-  }
-
-  // Mise à jour des données utilisateur
-  updateUser(updatedUser: Partial<User>): void {
-    if (this.user) {
-      this.user = { ...this.user, ...updatedUser };
-      localStorage.setItem('user_data', JSON.stringify(this.user));
-    }
   }
 
   // Récupérer le profil utilisateur
@@ -498,6 +494,17 @@ class ApiService {
   async updateConfig(id: string, keys: ConfigKeys): Promise<ApiConfig> {
     try {
       const response = await this.api.put<{message: string; data: ApiConfig}>(`/api/config/update/${id}`, { keys });
+      return response.data.data;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async getFilteredConfigs(platform: string, userId: string): Promise<ApiConfig[]> {
+    try {
+      const response = await this.api.get<ApiConfigResponse>('/api/config/list', {
+        params: { platform, user_id: userId },
+      });
       return response.data.data;
     } catch (error) {
       throw error;

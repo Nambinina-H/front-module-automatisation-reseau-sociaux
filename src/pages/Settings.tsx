@@ -19,7 +19,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { useConfig, useAuth, useWordPressAuth } from '@/hooks/useApi';
+import { useConfig, useAuth, useWordPressAuth, useFilteredConfigs } from '@/hooks/useApi';
 import { useSearchParams } from "react-router-dom"; // Import pour gérer les paramètres d'URL
 import { apiService } from '@/services/apiService';
 
@@ -34,7 +34,7 @@ const Settings = () => {
   const [showOpenAIKey, setShowOpenAIKey] = useState(false);
   const [showSupabaseKey, setShowSupabaseKey] = useState(false);
   const [showSupabaseServiceRoleKey, setShowSupabaseServiceRoleKey] = useState(false);
-  const { appRole, userId, isWordPressConnected } = useAuth(); // Récupérer isWordPressConnected
+  const { appRole, userId, isWordPressConnected, user } = useAuth(); // Retrieve isWordPressConnected
   const [localIsWordPressConnected, setLocalIsWordPressConnected] = useState(isWordPressConnected);
   const isAdmin = appRole === 'admin'; // Vérifier si l'utilisateur est admin
 
@@ -56,6 +56,7 @@ const Settings = () => {
   const [currentForm, setCurrentForm] = useState<string | null>(null); // Track which form is being submitted
 
   const { configs, updateConfig, fetchConfigs } = useConfig();
+  const { getFilteredConfigs, loading: filteredLoading } = useFilteredConfigs();
 
   // Effet pour remplir les champs avec les données récupérées
   useEffect(() => {
@@ -218,8 +219,8 @@ const Settings = () => {
               try {
                 const response = await apiService.sendWordPressCode(code);
                 console.log("Réponse de l'API :", response);
-                setLocalIsWordPressConnected(true); // Mettre à jour l'état local
-                apiService.updateUser({ isWordPressConnected: true }); // Mettre à jour les données utilisateur
+                setLocalIsWordPressConnected(true); // Update local state
+                apiService.updateUser({ ...user, isWordPressConnected: true }); // Update user data
               } catch (error) {
                 console.error("Erreur lors de l'envoi du code :", error);
                 setErrorMessage(error.response?.data?.error || "Erreur lors de la connexion à WordPress");
@@ -244,20 +245,44 @@ const Settings = () => {
   };
 
   // Ajouter l'état pour WordPress
-  const [isWordPressConnected, setIsWordPressConnected] = useState(false);
-  
-  // Effet pour vérifier si WordPress est connecté en vérifiant les configs
+  const [isFetchingWordPressConfig, setIsFetchingWordPressConfig] = useState(false);
+
+  // Effet pour vérifier si WordPress est connecté
   useEffect(() => {
-    const wordPressConfig = configs.find(c => c.platform === 'wordPress');
-    setIsWordPressConnected(!!wordPressConfig?.keys?.accessToken);
-  }, [configs]);
+    const fetchWordPressConfig = async () => {
+      if (isFetchingWordPressConfig || localIsWordPressConnected) {
+        console.log("Skipping fetch: already fetching or connected."); // Debug log
+        return;
+      }
+
+      try {
+        setIsFetchingWordPressConfig(true);
+        console.log("Fetching WordPress config for userId:", userId); // Debug log
+        const filteredConfigs = await getFilteredConfigs({
+          platform: 'wordPressClient',
+          userId: userId || '', // Ensure userId is retrieved from useAuth
+        });
+        console.log("Filtered configs for WordPress:", filteredConfigs); // Debug log
+        const wordPressConfig = filteredConfigs.find(c => c.platform === 'wordPressClient');
+        setLocalIsWordPressConnected(!!wordPressConfig?.keys?.access_token);
+      } catch (error) {
+        console.error('Error fetching filtered configs:', error); // Debug log
+      } finally {
+        setIsFetchingWordPressConfig(false);
+      }
+    };
+
+    if (userId) {
+      fetchWordPressConfig();
+    }
+  }, [getFilteredConfigs, userId, localIsWordPressConnected, isFetchingWordPressConfig]);
 
   // Fonction pour déconnecter WordPress
   const handleWordPressDisconnect = async () => {
     try {
       await apiService.disconnectWordPress();
-      setLocalIsWordPressConnected(false); // Mettre à jour l'état local
-      apiService.updateUser({ isWordPressConnected: false }); // Mettre à jour les données utilisateur
+      setLocalIsWordPressConnected(false); // Update local state
+      apiService.updateUser({ ...user, isWordPressConnected: false }); // Update user data
       if (fetchConfigs) {
         await fetchConfigs(); // Recharger les configs après déconnexion
       }

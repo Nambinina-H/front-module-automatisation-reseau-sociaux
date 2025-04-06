@@ -58,7 +58,7 @@ export function useAuth() {
   const user = apiService.getUser();
   const appRole = user?.app_role;
   const userId = user?.id;
-  const isWordPressConnected = user?.isWordPressConnected || false;
+  const isWordPressConnected = user?.isWordPressConnected || false; // Retrieve isWordPressConnected
 
   return {
     login: executeLogin,
@@ -316,6 +316,18 @@ export function useWordPressAuth() {
 
   return {
     generateAuthUrl: execute,
+    loading,
+    error,
+  };
+}
+
+export function useFilteredConfigs() {
+  const { execute, loading, error } = useApi<ApiConfig[], { platform: string; userId: string }>(
+    ({ platform, userId }) => apiService.getFilteredConfigs(platform, userId)
+  );
+
+  return {
+    getFilteredConfigs: execute,
     loading,
     error,
   };
