@@ -440,7 +440,12 @@ class ApiService {
     title: string;
   }): Promise<any> {
     try {
-      const response = await this.api.post('/publish/wordpress', params, {
+      const status = params.date ? "future" : "publish"; // Determine status based on date
+      const payload = { ...params, status }; // Add status to the payload
+
+      console.log('Données envoyées pour la publication WordPress:', payload); // Log the data being sent
+
+      const response = await this.api.post('/publish/wordpress', payload, {
         headers: {
           'Content-Type': 'application/json',
         },
