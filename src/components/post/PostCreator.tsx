@@ -291,6 +291,15 @@ const PostCreator: React.FC<PostCreatorProps> = ({ className }) => {
       ];
     }
 
+    // Si WordPress est sélectionné
+    if (selectedPlatform === 'wordpress') {
+      return [
+        { value: 'text', label: 'Texte uniquement' },
+        { value: 'text-image', label: 'Texte et image' },
+        { value: 'text-video', label: 'Texte et vidéo' }
+      ];
+    }
+
     // Configuration par défaut pour les autres cas
     return [
       { value: 'text', label: 'Texte uniquement' },
