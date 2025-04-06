@@ -34,7 +34,8 @@ const Settings = () => {
   const [showOpenAIKey, setShowOpenAIKey] = useState(false);
   const [showSupabaseKey, setShowSupabaseKey] = useState(false);
   const [showSupabaseServiceRoleKey, setShowSupabaseServiceRoleKey] = useState(false);
-  const { appRole } = useAuth(); // Récupérer le rôle de l'utilisateur
+  const { appRole, userId, isWordPressConnected } = useAuth(); // Récupérer isWordPressConnected
+  const [localIsWordPressConnected, setLocalIsWordPressConnected] = useState(isWordPressConnected);
   const isAdmin = appRole === 'admin'; // Vérifier si l'utilisateur est admin
 
   const [wordpressFields, setWordpressFields] = useState({ 
@@ -217,6 +218,8 @@ const Settings = () => {
               try {
                 const response = await apiService.sendWordPressCode(code);
                 console.log("Réponse de l'API :", response);
+                setLocalIsWordPressConnected(true); // Mettre à jour l'état local
+                apiService.updateUser({ isWordPressConnected: true }); // Mettre à jour les données utilisateur
               } catch (error) {
                 console.error("Erreur lors de l'envoi du code :", error);
                 setErrorMessage(error.response?.data?.error || "Erreur lors de la connexion à WordPress");
@@ -253,7 +256,8 @@ const Settings = () => {
   const handleWordPressDisconnect = async () => {
     try {
       await apiService.disconnectWordPress();
-      setIsWordPressConnected(false);
+      setLocalIsWordPressConnected(false); // Mettre à jour l'état local
+      apiService.updateUser({ isWordPressConnected: false }); // Mettre à jour les données utilisateur
       if (fetchConfigs) {
         await fetchConfigs(); // Recharger les configs après déconnexion
       }
@@ -422,11 +426,11 @@ const Settings = () => {
                         </p>
                         <Button 
                           variant="outline" 
-                          onClick={isWordPressConnected ? handleWordPressDisconnect : handleWordPressConnect} 
+                          onClick={localIsWordPressConnected ? handleWordPressDisconnect : handleWordPressConnect} 
                           disabled={authLoading}
                         >
                           <PlatformIcon platform="wordpress" size={24} className="mr-2" />
-                          {authLoading ? "Chargement..." : isWordPressConnected ? "Se déconnecter" : "Connecter"}
+                          {authLoading ? "Chargement..." : localIsWordPressConnected ? "Se déconnecter" : "Connecter"}
                         </Button>
                       </div>
                       <div className="border rounded-lg p-4">
