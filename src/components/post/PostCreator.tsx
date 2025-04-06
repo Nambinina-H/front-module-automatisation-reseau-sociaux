@@ -38,8 +38,12 @@ const PostCreator: React.FC<PostCreatorProps> = ({ className }) => {
   const [keywords, setKeywords] = useState<string[]>([]);
   const [newKeyword, setNewKeyword] = useState('');
   const [date, setDate] = useState<Date | undefined>(undefined); // Remove default date
-  const [selectedHour, setSelectedHour] = useState<string>('12');
-  const [selectedMinute, setSelectedMinute] = useState<string>('00');
+  const now = new Date();
+  const initialMinute = now.getMinutes() + 1;
+  const adjustedTime = new Date(now.setMinutes(initialMinute));
+
+  const [selectedHour, setSelectedHour] = useState<string>(adjustedTime.getHours().toString().padStart(2, '0'));
+  const [selectedMinute, setSelectedMinute] = useState<string>(adjustedTime.getMinutes().toString().padStart(2, '0'));
   const [timePickerOpen, setTimePickerOpen] = useState(false);
   const timePickerRef = useRef<HTMLDivElement>(null);
   const [content, setContent] = useState<string>('');
@@ -508,8 +512,11 @@ const PostCreator: React.FC<PostCreatorProps> = ({ className }) => {
                     onSelect={setDate}
                     initialFocus
                     locale={fr}
-                    fromDate={new Date()}
-                    disabled={(date) => date < new Date()}
+                    fromDate={new Date()} // Allow selection only from today
+                    disabled={(date) => {
+                      const now = new Date();
+                      return date < new Date(now.setHours(0, 0, 0, 0)); // Disable dates before today
+                    }}
                   />
                 </PopoverContent>
               </Popover>
