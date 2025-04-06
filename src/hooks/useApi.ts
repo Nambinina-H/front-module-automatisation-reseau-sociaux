@@ -315,3 +315,19 @@ export function useWordPressAuth() {
     error,
   };
 }
+
+export function usePublishToWordPress() {
+  const { execute, loading, error } = useApi<any, {
+    content: string;
+    mediaUrl?: string;
+    type: 'text' | 'image' | 'video' | 'text-image' | 'text-video';
+    date?: string;
+    title: string;
+  }>(apiService.publishToWordPress.bind(apiService));
+
+  return {
+    publishToWordPress: execute,
+    loading,
+    error,
+  };
+}

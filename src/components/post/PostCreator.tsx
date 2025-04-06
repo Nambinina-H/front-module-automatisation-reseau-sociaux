@@ -17,7 +17,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { toast } from '@/hooks/use-toast';
 import { Button as ShadcnButton } from '@/components/ui/button';
 import { Checkbox } from "@/components/ui/checkbox";
-import { usePublishNow, useUploadMedia } from '@/hooks/useApi';
+import { usePublishNow, useUploadMedia, usePublishToWordPress } from '@/hooks/useApi';
 
 type ContentType = 'text' | 'text-image' | 'text-video' | 'image' | 'video';
 
@@ -50,6 +50,7 @@ const PostCreator: React.FC<PostCreatorProps> = ({ className }) => {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const { publishNow, loading } = usePublishNow();
   const { uploadMedia } = useUploadMedia();
+  const { publishToWordPress, loading: wordpressLoading } = usePublishToWordPress();
   const [title, setTitle] = useState<string>(''); // Add state for title
   
   interface ImmediatePublishParams {
@@ -218,16 +219,6 @@ const PostCreator: React.FC<PostCreatorProps> = ({ className }) => {
       return;
     }
 
-    // Validation de la longueur du contenu textuel
-    if (contentType.includes('text') && maxLength !== null && content.length > maxLength) {
-      toast({
-        title: "Erreur",
-        description: `Le contenu dépasse la longueur maximale autorisée pour ${selectedPlatform} (${maxLength} caractères)`,
-        variant: "destructive"
-      });
-      return;
-    }
-
     try {
       let mediaUrl = '';
 
@@ -240,17 +231,24 @@ const PostCreator: React.FC<PostCreatorProps> = ({ className }) => {
         mediaUrl = response.url;
       }
 
-      const publishParams: ImmediatePublishParams = {
-        platforms: [selectedPlatform], // On envoie un tableau avec une seule plateforme
-        type: contentType,
-        content,
-        mediaUrl
-      };
-
-      // Log the content to be sent
-      console.log("Publishing content:", publishParams);
-
-      await publishNow(publishParams);
+      if (selectedPlatform === 'wordpress') {
+        const publishParams = {
+          content,
+          mediaUrl,
+          type: contentType,
+          date: isScheduled && date ? `${date.toISOString().split('T')[0]}T${selectedHour}:${selectedMinute}:00` : undefined,
+          title,
+        };
+        await publishToWordPress(publishParams);
+      } else {
+        const publishParams: ImmediatePublishParams = {
+          platforms: [selectedPlatform],
+          type: contentType,
+          content,
+          mediaUrl,
+        };
+        await publishNow(publishParams);
+      }
 
       toast({
         title: "Publication réussie",

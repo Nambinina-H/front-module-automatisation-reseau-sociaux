@@ -431,6 +431,31 @@ class ApiService {
     }
   }
 
+  // Publier sur WordPress
+  async publishToWordPress(params: {
+    content: string;
+    mediaUrl?: string;
+    type: 'text' | 'image' | 'video' | 'text-image' | 'text-video';
+    date?: string;
+    title: string;
+  }): Promise<any> {
+    try {
+      const response = await this.api.post('/publish/wordpress', params, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      toast({
+        title: 'Publication réussie',
+        description: 'Le contenu a été publié avec succès sur WordPress!',
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Erreur lors de la publication sur WordPress:', error);
+      throw error;
+    }
+  }
+
   // ==== LOGS ====
   
   // Récupérer les logs
