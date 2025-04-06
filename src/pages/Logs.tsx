@@ -28,7 +28,8 @@ const Logs = () => {
     publish_content: 'Publication de contenu',
     cancel_publication: 'Annulation de la publication planifiée',
     generate_image: 'Génération d\'image',
-    update_api_key: 'Mise à jour de clé API'
+    update_api_key: 'Mise à jour de clé API',
+    publish_wordpress: 'Contenu publié sur WordPress',
   };
 
   const actionColors = {
@@ -41,11 +42,19 @@ const Logs = () => {
     publish_content: 'bg-teal-100 text-teal-800',
     cancel_publication: 'bg-orange-100 text-orange-800',
     generate_image: 'bg-pink-100 text-pink-800',
-    update_api_key: 'bg-cyan-100 text-cyan-800'
+    update_api_key: 'bg-cyan-100 text-cyan-800',
+    publish_wordpress: 'bg-teal-100 text-teal-800',
   };
 
   const getDetails = (log) => {
-    return log.details;
+    const urlRegex = /(https?:\/\/[^\s]+)/g;
+    const details = log.details;
+
+    if (urlRegex.test(details)) {
+      return details.replace(urlRegex, (url) => `<a href="${url}" target="_blank" class="text-blue-500 underline">${url}</a>`);
+    }
+
+    return details;
   };
 
   const filteredLogs = logs.filter(log => 
@@ -118,7 +127,9 @@ const Logs = () => {
                           {actionLabels[log.action]}
                         </Badge>
                       </td>
-                      <td className="px-4 py-2 border-b">{getDetails(log)}</td>
+                      <td className="px-4 py-2 border-b">
+                        <div dangerouslySetInnerHTML={{ __html: getDetails(log) }} />
+                      </td>
                       <td className="px-4 py-2 border-b text-center">
                         {new Date(log.created_at).toLocaleString()}
                       </td>
