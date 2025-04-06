@@ -248,6 +248,11 @@ class ApiService {
     localStorage.removeItem('app_role'); // Pour la rétrocompatibilité
   }
 
+  updateUser(updatedUser: User): void {
+    this.user = updatedUser;
+    localStorage.setItem('user_data', JSON.stringify(updatedUser)); // Update localStorage
+  }
+
   // Vérifie si l'utilisateur est authentifié
   isAuthenticated(): boolean {
     return !!this.getToken();

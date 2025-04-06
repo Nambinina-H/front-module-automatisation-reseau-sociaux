@@ -58,6 +58,7 @@ export function useAuth() {
   const user = apiService.getUser();
   const appRole = user?.app_role;
   const userId = user?.id;
+  const isWordPressConnected = user?.isWordPressConnected || false; // Retrieve isWordPressConnected
 
   return {
     login: executeLogin,
@@ -69,6 +70,7 @@ export function useAuth() {
     user,
     userId,
     appRole,
+    isWordPressConnected, // Expose isWordPressConnected
     loading: {
       login: loginLoading,
       register: registerLoading,

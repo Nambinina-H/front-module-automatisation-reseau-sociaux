@@ -34,7 +34,8 @@ const Settings = () => {
   const [showOpenAIKey, setShowOpenAIKey] = useState(false);
   const [showSupabaseKey, setShowSupabaseKey] = useState(false);
   const [showSupabaseServiceRoleKey, setShowSupabaseServiceRoleKey] = useState(false);
-  const { appRole, userId } = useAuth(); // Récupérer le rôle de l'utilisateur
+  const { appRole, userId, isWordPressConnected, user } = useAuth(); // Retrieve isWordPressConnected
+  const [localIsWordPressConnected, setLocalIsWordPressConnected] = useState(isWordPressConnected);
   const isAdmin = appRole === 'admin'; // Vérifier si l'utilisateur est admin
 
   const [wordpressFields, setWordpressFields] = useState({ 
@@ -218,6 +219,8 @@ const Settings = () => {
               try {
                 const response = await apiService.sendWordPressCode(code);
                 console.log("Réponse de l'API :", response);
+                setLocalIsWordPressConnected(true); // Update local state
+                apiService.updateUser({ ...user, isWordPressConnected: true }); // Update user data
               } catch (error) {
                 console.error("Erreur lors de l'envoi du code :", error);
                 setErrorMessage(error.response?.data?.error || "Erreur lors de la connexion à WordPress");
@@ -242,33 +245,44 @@ const Settings = () => {
   };
 
   // Ajouter l'état pour WordPress
-  const [isWordPressConnected, setIsWordPressConnected] = useState(false);
-  
-  // Effet pour vérifier si WordPress est connecté en vérifiant les configs
+  const [isFetchingWordPressConfig, setIsFetchingWordPressConfig] = useState(false);
+
+  // Effet pour vérifier si WordPress est connecté
   useEffect(() => {
     const fetchWordPressConfig = async () => {
+      if (isFetchingWordPressConfig || localIsWordPressConnected) {
+        console.log("Skipping fetch: already fetching or connected."); // Debug log
+        return;
+      }
+
       try {
+        setIsFetchingWordPressConfig(true);
+        console.log("Fetching WordPress config for userId:", userId); // Debug log
         const filteredConfigs = await getFilteredConfigs({
           platform: 'wordPressClient',
           userId: userId || '', // Ensure userId is retrieved from useAuth
         });
+        console.log("Filtered configs for WordPress:", filteredConfigs); // Debug log
         const wordPressConfig = filteredConfigs.find(c => c.platform === 'wordPressClient');
-        setIsWordPressConnected(!!wordPressConfig?.keys?.access_token);
+        setLocalIsWordPressConnected(!!wordPressConfig?.keys?.access_token);
       } catch (error) {
-        console.error('Error fetching filtered configs:', error);
+        console.error('Error fetching filtered configs:', error); // Debug log
+      } finally {
+        setIsFetchingWordPressConfig(false);
       }
     };
 
     if (userId) {
       fetchWordPressConfig();
     }
-  }, [getFilteredConfigs, userId]);
+  }, [getFilteredConfigs, userId, localIsWordPressConnected, isFetchingWordPressConfig]);
 
   // Fonction pour déconnecter WordPress
   const handleWordPressDisconnect = async () => {
     try {
       await apiService.disconnectWordPress();
-      setIsWordPressConnected(false);
+      setLocalIsWordPressConnected(false); // Update local state
+      apiService.updateUser({ ...user, isWordPressConnected: false }); // Update user data
       if (fetchConfigs) {
         await fetchConfigs(); // Recharger les configs après déconnexion
       }
@@ -437,11 +451,11 @@ const Settings = () => {
                         </p>
                         <Button 
                           variant="outline" 
-                          onClick={isWordPressConnected ? handleWordPressDisconnect : handleWordPressConnect} 
+                          onClick={localIsWordPressConnected ? handleWordPressDisconnect : handleWordPressConnect} 
                           disabled={authLoading}
                         >
                           <PlatformIcon platform="wordpress" size={24} className="mr-2" />
-                          {authLoading ? "Chargement..." : isWordPressConnected ? "Se déconnecter" : "Connecter"}
+                          {authLoading ? "Chargement..." : localIsWordPressConnected ? "Se déconnecter" : "Connecter"}
                         </Button>
                       </div>
                       <div className="border rounded-lg p-4">
