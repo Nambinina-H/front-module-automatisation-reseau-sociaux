@@ -434,26 +434,6 @@ const Settings = () => {
                         <p className="text-sm text-muted-foreground mb-4">
                           Intégrez vos réseaux sociaux via des webhooks Make.com.
                         </p>
-                        <div className="space-y-4">
-                          {[
-                            { platform: 'linkedin', name: 'LinkedIn', connected: true },
-                            { platform: 'instagram', name: 'Instagram', connected: true },
-                            { platform: 'twitter', name: 'Twitter', connected: true },
-                            { platform: 'facebook', name: 'Facebook', connected: true },
-                          ].map((connection) => (
-                            <div key={connection.platform} className="flex items-center justify-between">
-                              <div className="flex items-center space-x-3">
-                                <PlatformIcon platform={connection.platform} size={24} />
-                                <div>
-                                  <p className="font-medium">{connection.name}</p>
-                                  <p className="text-sm text-muted-foreground">
-                                    {connection.connected ? 'Webhook configuré' : 'Non configuré'}
-                                  </p>
-                                </div>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
                       </div>
                     </div>
                   </div>

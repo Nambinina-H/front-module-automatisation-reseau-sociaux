@@ -211,6 +211,15 @@ const PostCreator: React.FC<PostCreatorProps> = ({ className }) => {
       return;
     }
 
+    if (isScheduled && !date) {
+      toast({
+        title: "Erreur",
+        description: "Veuillez sélectionner une date pour planifier la publication",
+        variant: "destructive"
+      });
+      return;
+    }
+
     // Validation du contenu selon le type
     if ((contentType.includes('text') && !content) ||
         (contentType.includes('image') && !imageFile) ||
@@ -236,11 +245,15 @@ const PostCreator: React.FC<PostCreatorProps> = ({ className }) => {
       }
 
       if (selectedPlatform === 'wordpress') {
+        const formattedDate = isScheduled && date
+          ? new Date(date.getFullYear(), date.getMonth(), date.getDate(), parseInt(selectedHour), parseInt(selectedMinute)).toISOString()
+          : undefined;
+
         const publishParams = {
           content,
           mediaUrl,
           type: contentType,
-          date: isScheduled && date ? `${date.toISOString().split('T')[0]}T${selectedHour}:${selectedMinute}:00` : undefined,
+          date: formattedDate,
           title,
         };
         await publishToWordPress(publishParams);
