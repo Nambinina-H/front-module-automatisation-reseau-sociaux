@@ -275,14 +275,10 @@ const Settings = () => {
           </div>
           
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-            <TabsList className={`grid w-full max-w-3xl mx-auto grid-cols-${isAdmin ? 4 : 3}`}>
+            <TabsList className={`grid w-full max-w-3xl mx-auto grid-cols-${isAdmin ? 3 : 2}`}>
               <TabsTrigger value="account" className="flex items-center gap-2">
                 <Lock className="h-4 w-4" />
                 <span className="hidden md:inline">Compte</span>
-              </TabsTrigger>
-              <TabsTrigger value="notifications" className="flex items-center gap-2">
-                <Bell className="h-4 w-4" />
-                <span className="hidden md:inline">Notifications</span>
               </TabsTrigger>
               <TabsTrigger value="integrations" className="flex items-center gap-2">
                 <Globe className="h-4 w-4" />
@@ -358,46 +354,6 @@ const Settings = () => {
                           </DialogFooter>
                         </DialogContent>
                       </Dialog>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-            
-            <TabsContent value="notifications">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Préférences de notifications</CardTitle>
-                  <CardDescription>
-                    Configurez les notifications que vous souhaitez recevoir
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                  {[
-                    { id: 'post-published', label: 'Publication de post', description: 'Recevoir une notification lorsqu\'un post est publié' },
-                    { id: 'post-scheduled', label: 'Planification de post', description: 'Recevoir une notification lorsqu\'un post est planifié' },
-                    { id: 'platform-updates', label: 'Mises à jour de la plateforme', description: 'Recevoir des notifications concernant les mises à jour de la plateforme' },
-                  ].map((notification) => (
-                    <div key={notification.id} className="flex items-center justify-between border-b border-gray-100 pb-4">
-                      <div>
-                        <p className="font-medium">{notification.label}</p>
-                        <p className="text-sm text-gray-500">{notification.description}</p>
-                      </div>
-                      <Switch />
-                    </div>
-                  ))}
-                  
-                  <div className="space-y-2 pt-4">
-                    <h3 className="font-medium">Méthodes de notification</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div className="flex items-center justify-between">
-                        <p>Email</p>
-                        <Switch />
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <p>Notifications dans l'application</p>
-                        <Switch />
-                      </div>
                     </div>
                   </div>
                 </CardContent>
