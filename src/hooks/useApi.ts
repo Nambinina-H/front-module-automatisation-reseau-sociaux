@@ -1,20 +1,7 @@
-
 import { useState, useCallback, useEffect } from 'react';
 import { apiService } from '@/services/apiService';
 import { User, Content, Log, LoginCredentials, RegisterCredentials, AuthResponse, ContentGenerationParams, PublishParams, ContentGenerationResponse, ImageGenerationParams, ImageGenerationResponse, ImmediatePublishParams, MediaUploadResponse, ApiConfig, ConfigKeys } from '@/services/apiService';
 import { toast } from '../components/ui/use-toast';
-
-// Add PaginatedResponse interface
-export interface PaginatedResponse<T> {
-  logs: T[];
-  pagination: {
-    total: number;
-    page: number;
-    perPage: number;
-    totalPages: number;
-  };
-}
-
 export function useApi<T, P = any>(
   apiMethod: (params?: P) => Promise<T>,
   initialData?: T
