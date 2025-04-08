@@ -1,14 +1,10 @@
-
 import React, { useState } from 'react';
 import Sidebar from '@/components/layout/Sidebar';
 import Navbar from '@/components/layout/Navbar';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import { Calendar, Grid3X3, List } from 'lucide-react';
+import { Grid3X3, List } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import PostCard from '@/components/dashboard/PostCard';
 import Publication1 from '@/components/publications/Publication1';
-import Publication2 from '@/components/publications/Publication2';
-import Publication3 from '@/components/publications/Publication3';
 import { Button } from '@/components/ui/button';
 
 // Types fictifs pour l'exemple
@@ -25,7 +21,6 @@ type Content = {
 const Publications = () => {
   const [activeTab, setActiveTab] = useState<string>('all');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
-  const [selectedVariant, setSelectedVariant] = useState<number>(1);
 
   // Données d'exemple - à remplacer par les vraies données de l'API
   const samplePosts: Content[] = [
@@ -101,47 +96,21 @@ const Publications = () => {
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
             <h1 className="text-2xl font-semibold mb-3 md:mb-0">Publications</h1>
             
-            <div className="flex flex-col md:flex-row space-y-3 md:space-y-0 md:space-x-3 w-full md:w-auto">
-              <div className="flex space-x-2">
-                <Button 
-                  variant={viewMode === 'grid' ? 'default' : 'outline'} 
-                  size="sm" 
-                  onClick={() => setViewMode('grid')}
-                >
-                  <Grid3X3 size={16} className="mr-1" /> Grille
-                </Button>
-                <Button 
-                  variant={viewMode === 'list' ? 'default' : 'outline'} 
-                  size="sm" 
-                  onClick={() => setViewMode('list')}
-                >
-                  <List size={16} className="mr-1" /> Liste
-                </Button>
-              </div>
-              
-              <div className="flex space-x-2">
-                <Button 
-                  variant={selectedVariant === 1 ? 'default' : 'outline'} 
-                  size="sm" 
-                  onClick={() => setSelectedVariant(1)}
-                >
-                  Style 1
-                </Button>
-                <Button 
-                  variant={selectedVariant === 2 ? 'default' : 'outline'} 
-                  size="sm" 
-                  onClick={() => setSelectedVariant(2)}
-                >
-                  Style 2
-                </Button>
-                <Button 
-                  variant={selectedVariant === 3 ? 'default' : 'outline'} 
-                  size="sm" 
-                  onClick={() => setSelectedVariant(3)}
-                >
-                  Style 3
-                </Button>
-              </div>
+            <div className="flex space-x-2">
+              <Button 
+                variant={viewMode === 'grid' ? 'default' : 'outline'} 
+                size="sm" 
+                onClick={() => setViewMode('grid')}
+              >
+                <Grid3X3 size={16} className="mr-1" /> Grille
+              </Button>
+              <Button 
+                variant={viewMode === 'list' ? 'default' : 'outline'} 
+                size="sm" 
+                onClick={() => setViewMode('list')}
+              >
+                <List size={16} className="mr-1" /> Liste
+              </Button>
             </div>
           </div>
 
@@ -181,21 +150,15 @@ const Publications = () => {
             </TabsList>
             
             <TabsContent value="all" className="mt-4">
-              {selectedVariant === 1 && <Publication1 posts={filteredPosts} viewMode={viewMode} />}
-              {selectedVariant === 2 && <Publication2 posts={filteredPosts} viewMode={viewMode} />}
-              {selectedVariant === 3 && <Publication3 posts={filteredPosts} viewMode={viewMode} />}
+              <Publication1 posts={filteredPosts} viewMode={viewMode} />
             </TabsContent>
             
             <TabsContent value="published" className="mt-4">
-              {selectedVariant === 1 && <Publication1 posts={filteredPosts} viewMode={viewMode} />}
-              {selectedVariant === 2 && <Publication2 posts={filteredPosts} viewMode={viewMode} />}
-              {selectedVariant === 3 && <Publication3 posts={filteredPosts} viewMode={viewMode} />}
+              <Publication1 posts={filteredPosts} viewMode={viewMode} />
             </TabsContent>
             
             <TabsContent value="scheduled" className="mt-4">
-              {selectedVariant === 1 && <Publication1 posts={filteredPosts} viewMode={viewMode} />}
-              {selectedVariant === 2 && <Publication2 posts={filteredPosts} viewMode={viewMode} />}
-              {selectedVariant === 3 && <Publication3 posts={filteredPosts} viewMode={viewMode} />}
+              <Publication1 posts={filteredPosts} viewMode={viewMode} />
             </TabsContent>
           </Tabs>
         </main>
