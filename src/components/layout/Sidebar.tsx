@@ -1,3 +1,4 @@
+
 import React from 'react';
 import {
   Home,
@@ -8,7 +9,8 @@ import {
   Wand2,
   LogOut,
   FileText,
-  Users
+  Users,
+  BookOpen
 } from 'lucide-react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
@@ -33,6 +35,11 @@ const navigationItems: NavItem[] = [
     icon: <Home size={18} />,
     label: 'Créer un post',
     href: '/creer-post'
+  },
+  {
+    icon: <BookOpen size={18} />,
+    label: 'Publications',
+    href: '/publications'
   },
   // {
   //   icon: <Calendar size={18} />,

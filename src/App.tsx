@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -15,6 +16,7 @@ import ContentGeneration from "./pages/ContentGeneration";
 import Auth from "./pages/Auth";
 import Logs from "./pages/Logs";
 import UserManagement from "./pages/UserManagement";
+import Publications from "./pages/Publications";
 import { apiService } from "./services/apiService";
 
 const queryClient = new QueryClient();
@@ -67,6 +69,7 @@ const App = () => {
             <Route path="/generation-contenu" element={<PrivateRoute><ContentGeneration /></PrivateRoute>} />
             <Route path="/gestion-utilisateurs" element={<PrivateRoute><UserManagement /></PrivateRoute>} />
             <Route path="/logs" element={<PrivateRoute><Logs /></PrivateRoute>} />
+            <Route path="/publications" element={<PrivateRoute><Publications /></PrivateRoute>} />
             
             {/* Route 404 */}
             <Route path="*" element={<NotFound />} />
