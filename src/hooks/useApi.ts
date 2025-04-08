@@ -1,23 +1,7 @@
-
 import { useState, useCallback, useEffect } from 'react';
 import { apiService } from '@/services/apiService';
 import { User, Content, Log, LoginCredentials, RegisterCredentials, AuthResponse, ContentGenerationParams, PublishParams, ContentGenerationResponse, ImageGenerationParams, ImageGenerationResponse, ImmediatePublishParams, MediaUploadResponse, ApiConfig, ConfigKeys } from '@/services/apiService';
 import { toast } from '../components/ui/use-toast';
-
-// Define the PaginatedResponse type that we're using in useLogs
-export interface PaginatedResponse<T> {
-  message: string;
-  logs: T[];
-  pagination: {
-    page: number;
-    limit: number;
-    totalLogs: number;
-    totalPages: number;
-    hasNextPage: boolean;
-    hasPreviousPage: boolean;
-  };
-}
-
 export function useApi<T, P = any>(
   apiMethod: (params?: P) => Promise<T>,
   initialData?: T

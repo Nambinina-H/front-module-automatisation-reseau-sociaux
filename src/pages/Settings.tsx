@@ -20,8 +20,8 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { useConfig, useAuth, useWordPressAuth } from '@/hooks/useApi';
-import { useSearchParams } from "react-router-dom";
-import { apiService, ConfigKeys } from '@/services/apiService';
+import { useSearchParams } from "react-router-dom"; // Import pour gérer les paramètres d'URL
+import { apiService } from '@/services/apiService';
 
 const Settings = () => {
   const [email, setEmail] = useState('');
@@ -34,13 +34,13 @@ const Settings = () => {
   const [showOpenAIKey, setShowOpenAIKey] = useState(false);
   const [showSupabaseKey, setShowSupabaseKey] = useState(false);
   const [showSupabaseServiceRoleKey, setShowSupabaseServiceRoleKey] = useState(false);
-  const { appRole, userId } = useAuth();
-  const isAdmin = appRole === 'admin';
+  const { appRole, userId } = useAuth(); // Récupérer le rôle de l'utilisateur et userId
+  const isAdmin = appRole === 'admin'; // Vérifier si l'utilisateur est admin
 
   const [wordpressFields, setWordpressFields] = useState({ 
     clientId: '', 
     clientSecret: '',
-    redirectUri: ''
+    redirectUri: ''  // Ajout de redirectUri dans le state
   });
   const [openAIFields, setOpenAIFields] = useState({ apiKey: '' });
   const [supabaseFields, setSupabaseFields] = useState({ url: '', key: '', serviceRoleKey: '' });
@@ -55,11 +55,12 @@ const Settings = () => {
     blogId: '',
   });
 
-  const [showConfirmation, setShowConfirmation] = useState(false);
-  const [currentForm, setCurrentForm] = useState<string | null>(null);
+  const [showConfirmation, setShowConfirmation] = useState(false); // State to toggle confirmation dialog
+  const [currentForm, setCurrentForm] = useState<string | null>(null); // Track which form is being submitted
 
   const { configs, updateConfig, fetchConfigs } = useConfig();
 
+  // Effet pour remplir les champs avec les données récupérées
   useEffect(() => {
     const wordPressConfig = configs.find(c => c.platform === 'wordPress');
     const openAIConfig = configs.find(c => c.platform === 'openai');
@@ -71,7 +72,7 @@ const Settings = () => {
       setWordpressFields({
         clientId: wordPressConfig.keys.clientId || '',
         clientSecret: wordPressConfig.keys.clientSecret || '',
-        redirectUri: wordPressConfig.keys.redirectUri || ''
+        redirectUri: wordPressConfig.keys.redirectUri || ''  // Récupération de redirectUri
       });
     }
 
@@ -103,7 +104,7 @@ const Settings = () => {
         blogUrl: wordPressClientConfig.keys.blog_url || '',
         blogId: wordPressClientConfig.keys.blog_id || '',
       });
-      console.log('WordPress Client Config:', wordPressClientConfig);
+      console.log('WordPress Client Config:', wordPressClientConfig); // Debugging
     }
   }, [configs, userId]);
 
@@ -163,6 +164,7 @@ const Settings = () => {
       setShowConfirmation(false);
       setCurrentForm(null);
       
+      // Forcer un rechargement des configurations après la mise à jour
       if (fetchConfigs) {
         await fetchConfigs();
       }
@@ -176,6 +178,7 @@ const Settings = () => {
     setCurrentForm(null);
   };
 
+  // Event handler for Dialog onOpenChange
   const handleDialogOpenChange = (open: boolean) => {
     if (!open) {
       handleCancelSubmit();
@@ -183,11 +186,11 @@ const Settings = () => {
   };
 
   const [searchParams] = useSearchParams();
-  const defaultTab = searchParams.get("tab") || "account";
+  const defaultTab = searchParams.get("tab") || "account"; // Lire le paramètre "tab" de l'URL
   const [activeTab, setActiveTab] = useState(defaultTab);
 
   useEffect(() => {
-    setActiveTab(defaultTab);
+    setActiveTab(defaultTab); // Mettre à jour l'onglet actif si le paramètre change
   }, [defaultTab]);
 
   const { generateAuthUrl, loading: authLoading } = useWordPressAuth();
@@ -205,7 +208,7 @@ const Settings = () => {
   };
 
   useEffect(() => {
-    fetchWordPressData();
+    fetchWordPressData(); // Récupérer les données au chargement
   }, [configs, userId]);
 
   const handleWordPressConnect = async () => {
@@ -244,8 +247,9 @@ const Settings = () => {
                 const response = await apiService.sendWordPressCode(code);
                 console.log("Réponse de l'API :", response);
   
+                // Rafraîchir les configurations et les données WordPress
                 await fetchConfigs();
-                await fetchWordPressData();
+                await fetchWordPressData(); // Rafraîchir les données après connexion
               } catch (error) {
                 console.error("Erreur lors de l'envoi du code :", error);
                 setErrorMessage(error.response?.data?.error || "Erreur lors de la connexion à WordPress");
@@ -268,19 +272,23 @@ const Settings = () => {
       setErrorMessage(error.message || "Une erreur est survenue.");
     }
   };
+  
 
+  // Ajouter l'état pour WordPress
   const [isWordPressConnected, setIsWordPressConnected] = useState(false);
-
+  
+  // Effet pour vérifier si WordPress est connecté en se basant sur wordPressClientConfig
   useEffect(() => {
     const wordPressClientConfig = configs.find(c => c.platform === 'wordPressClient' && c.user_id === userId);
     setIsWordPressConnected(!!wordPressClientConfig?.keys?.blog_url && !!wordPressClientConfig?.keys?.blog_id);
   }, [configs, userId]);
 
+  // Fonction pour déconnecter WordPress
   const handleWordPressDisconnect = async () => {
     try {
       await apiService.disconnectWordPress();
-      await fetchConfigs();
-      await fetchWordPressData();
+      await fetchConfigs(); // Recharger les configs après déconnexion
+      await fetchWordPressData(); // Rafraîchir les données après déconnexion
     } catch (error) {
       console.error("Erreur lors de la déconnexion:", error);
     }
@@ -481,7 +489,7 @@ const Settings = () => {
                                   required
                                 />
                                 <Button
-                                  type="button"
+                                  type="button" // Prevent form submission
                                   variant="outline"
                                   size="icon"
                                   onClick={() => setShowClientSecret(!showClientSecret)}
@@ -511,6 +519,7 @@ const Settings = () => {
                           </form>
                         </div>
                       ))}
+                      {/* Add OPENAI_API_KEY Section */}
                       <div className="border rounded-lg p-4">
                         <h3 className="text-lg font-medium mb-4">OpenAI API</h3>
                         <form
@@ -533,7 +542,7 @@ const Settings = () => {
                                 required
                               />
                               <Button
-                                type="button"
+                                type="button" // Prevent form submission
                                 variant="outline"
                                 size="icon"
                                 onClick={() => setShowOpenAIKey(!showOpenAIKey)}
@@ -547,6 +556,7 @@ const Settings = () => {
                           </div>
                         </form>
                       </div>
+                      {/* Group Supabase Configurations */}
                       <div className="border rounded-lg p-4">
                         <h3 className="text-lg font-medium mb-4">Supabase</h3>
                         <form
@@ -581,7 +591,7 @@ const Settings = () => {
                                 required
                               />
                               <Button
-                                type="button"
+                                type="button" // Prevent form submission
                                 variant="outline"
                                 size="icon"
                                 onClick={() => setShowSupabaseKey(!showSupabaseKey)}
@@ -606,7 +616,7 @@ const Settings = () => {
                                 required
                               />
                               <Button
-                                type="button"
+                                type="button" // Prevent form submission
                                 variant="outline"
                                 size="icon"
                                 onClick={() => setShowSupabaseServiceRoleKey(!showSupabaseServiceRoleKey)}
@@ -620,6 +630,7 @@ const Settings = () => {
                           </div>
                         </form>
                       </div>
+                      {/* Add Make Webhooks Section */}
                       <div className="border rounded-lg p-4">
                         <h3 className="text-lg font-medium mb-4">Make Webhooks</h3>
                         <form
@@ -761,6 +772,7 @@ const Settings = () => {
         </Dialog>
       )}
 
+      {/* Confirmation Dialog */}
       {showConfirmation && (
         <Dialog 
           open={showConfirmation} 
