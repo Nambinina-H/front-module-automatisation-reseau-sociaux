@@ -213,16 +213,16 @@ const Settings = () => {
 
   const handleWordPressConnect = async () => {
     const { clientId, redirectUri } = wordpressFields;
-
+  
     try {
       const authorizationUrl = await generateAuthUrl({ clientId, redirectUri });
       const authWindow = window.open(authorizationUrl, "_blank", "width=600,height=700");
-
+  
       if (!authWindow) {
         setErrorMessage("Impossible d'ouvrir la fenêtre d'autorisation.");
         return;
       }
-
+  
       let isCodeSent = false;
       const interval = setInterval(async () => {
         try {
@@ -231,21 +231,24 @@ const Settings = () => {
             console.log("Fenêtre fermée par l'utilisateur.");
             return;
           }
-
+  
           const currentUrl = authWindow.location.href;
-
+  
           if (currentUrl.includes("code=") && !isCodeSent) {
             isCodeSent = true;
             clearInterval(interval);
             
             const urlParams = new URLSearchParams(new URL(currentUrl).search);
             const code = urlParams.get("code");
-
+  
             if (code) {
               console.log("Code reçu :", code);
               try {
                 const response = await apiService.sendWordPressCode(code);
                 console.log("Réponse de l'API :", response);
+  
+                // Rafraîchir les configurations et les données WordPress
+                await fetchConfigs();
                 await fetchWordPressData(); // Rafraîchir les données après connexion
               } catch (error) {
                 console.error("Erreur lors de l'envoi du code :", error);
@@ -255,7 +258,7 @@ const Settings = () => {
               }
             }
           }
-
+  
           if (currentUrl.includes("error=access_denied")) {
             clearInterval(interval);
             authWindow.close();
@@ -269,6 +272,7 @@ const Settings = () => {
       setErrorMessage(error.message || "Une erreur est survenue.");
     }
   };
+  
 
   // Ajouter l'état pour WordPress
   const [isWordPressConnected, setIsWordPressConnected] = useState(false);
