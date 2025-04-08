@@ -194,11 +194,11 @@ export function usePublishNow() {
 
 export function useLogs() {
   const {
-    data: logs,
+    data: logsData,
     loading: logsLoading,
     error: logsError,
     execute: fetchLogs
-  } = useApi<Log[]>(apiService.getLogs.bind(apiService), []);
+  } = useApi<PaginatedResponse<Log>, number>(apiService.getLogs.bind(apiService));
 
   const {
     execute: executeExport,
@@ -226,7 +226,8 @@ export function useLogs() {
   );
 
   return {
-    logs,
+    logs: logsData?.logs || [],
+    pagination: logsData?.pagination,
     fetchLogs,
     exportLogs: executeExport,
     downloadLogs,

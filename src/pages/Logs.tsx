@@ -12,11 +12,12 @@ import { useLogs } from '@/hooks/useApi';
 const Logs = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filter, setFilter] = useState('all');
-  const { logs, fetchLogs, loading } = useLogs();
+  const [currentPage, setCurrentPage] = useState(1);
+  const { logs, pagination, fetchLogs, loading } = useLogs();
 
   useEffect(() => {
-    fetchLogs();
-  }, []); // Fetch logs only once when the component mounts
+    fetchLogs(currentPage);
+  }, [currentPage]); // Recharge les logs quand la page change
 
   const actionLabels = {
     create: 'Création d\'un utilisateur',
@@ -67,6 +68,18 @@ const Logs = () => {
      log.action.toLowerCase().includes(searchTerm.toLowerCase()) ||
      getDetails(log).toLowerCase().includes(searchTerm.toLowerCase()))
   );
+
+  const handleNextPage = () => {
+    if (pagination?.hasNextPage) {
+      setCurrentPage(prev => prev + 1);
+    }
+  };
+
+  const handlePreviousPage = () => {
+    if (pagination?.hasPreviousPage) {
+      setCurrentPage(prev => prev - 1);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -144,13 +157,23 @@ const Logs = () => {
               {/* Pagination UI */}
               <div className="flex justify-between items-center mt-4">
                 <div className="text-sm text-gray-600">
-                  Page <span className="font-medium">1</span> sur <span className="font-medium">10</span>
+                  Page <span className="font-medium">{pagination?.page || 1}</span> sur{' '}
+                  <span className="font-medium">{pagination?.totalPages || 1}</span> |{' '}
+                  Total : <span className="font-medium">{pagination?.totalLogs || 0}</span> logs
                 </div>
                 <div className="flex items-center gap-2">
-                  <Button variant="outline" disabled>
+                  <Button 
+                    variant="outline" 
+                    onClick={handlePreviousPage}
+                    disabled={!pagination?.hasPreviousPage || loading.fetch}
+                  >
                     Précédent
                   </Button>
-                  <Button variant="outline">
+                  <Button 
+                    variant="outline"
+                    onClick={handleNextPage}
+                    disabled={!pagination?.hasNextPage || loading.fetch}
+                  >
                     Suivant
                   </Button>
                 </div>

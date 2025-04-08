@@ -133,6 +133,19 @@ export interface ApiConfigResponse {
   data: ApiConfig[];
 }
 
+interface PaginatedResponse<T> {
+  message: string;
+  logs: T[];
+  pagination: {
+    page: number;
+    limit: number;
+    totalLogs: number;
+    totalPages: number;
+    hasNextPage: boolean;
+    hasPreviousPage: boolean;
+  };
+}
+
 // Classe principale du service API
 class ApiService {
   private api: AxiosInstance;
@@ -479,10 +492,10 @@ class ApiService {
   // ==== LOGS ====
   
   // Récupérer les logs
-  async getLogs(): Promise<Log[]> {
+  async getLogs(page: number = 1): Promise<PaginatedResponse<Log>> {
     try {
-      const response = await this.api.get<{ message: string; logs: Log[] }>('/logs');
-      return response.data.logs;
+      const response = await this.api.get<PaginatedResponse<Log>>(`/logs?page=${page}`);
+      return response.data;
     } catch (error) {
       throw error;
     }
