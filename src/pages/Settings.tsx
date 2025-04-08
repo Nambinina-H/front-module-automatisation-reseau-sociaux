@@ -396,7 +396,10 @@ const Settings = () => {
                             <br/>
                           </div>
                         ) : (
-                          <p className="text-sm text-red-500">Aucune configuration trouvée.</p>
+                          <div className="space-y-2">
+                            <p className="text-sm text-500">Aucun compte WordPress connecter.</p>
+                            <br/>
+                          </div>
                         )}
                         <Button 
                           variant="outline" 
