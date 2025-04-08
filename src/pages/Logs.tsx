@@ -30,6 +30,8 @@ const Logs = () => {
     generate_image: 'Génération d\'image',
     update_api_key: 'Mise à jour de clé API',
     publish_wordpress: 'Contenu publié sur WordPress',
+    wordpress_oauth_connect: 'Connexion WordPress OAuth réussie', // Added label
+    wordpress_oauth_disconnect: 'Déconnexion WordPress réussie', // Added label
   };
 
   const actionColors = {
@@ -44,6 +46,8 @@ const Logs = () => {
     generate_image: 'bg-pink-100 text-pink-800',
     update_api_key: 'bg-cyan-100 text-cyan-800',
     publish_wordpress: 'bg-teal-100 text-teal-800',
+    wordpress_oauth_connect: 'bg-green-100 text-green-800', // Added color
+    wordpress_oauth_disconnect: 'bg-red-100 text-red-800', // Added color
   };
 
   const getDetails = (log) => {
