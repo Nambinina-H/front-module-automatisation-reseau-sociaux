@@ -8,6 +8,7 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { RefreshCw } from 'lucide-react';
 import { useLogs } from '@/hooks/useApi';
+import { Skeleton } from "@/components/ui/skeleton"; // Add this import
 
 const Logs = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -81,6 +82,27 @@ const Logs = () => {
     }
   };
 
+  const LogsSkeleton = () => (
+    <tbody>
+      {[...Array(10)].map((_, index) => (
+        <tr key={index}>
+          <td className="px-4 py-2 border-b">
+            <Skeleton className="h-4 w-32 mx-auto" />
+          </td>
+          <td className="px-4 py-2 border-b">
+            <Skeleton className="h-6 w-40 mx-auto rounded-full" />
+          </td>
+          <td className="px-4 py-2 border-b">
+            <Skeleton className="h-4 w-full" />
+          </td>
+          <td className="px-4 py-2 border-b">
+            <Skeleton className="h-4 w-32 mx-auto" />
+          </td>
+        </tr>
+      ))}
+    </tbody>
+  );
+
   return (
     <div className="min-h-screen bg-gray-50">
       <Sidebar />
@@ -122,6 +144,9 @@ const Logs = () => {
                       <SelectItem value="cancel_publication">Annulation de la publication planifiée</SelectItem>
                       <SelectItem value="generate_image">Génération d'image</SelectItem>
                       <SelectItem value="update_api_key">Mise à jour de clé API</SelectItem>
+                      <SelectItem value="publish_wordpress">Publication sur WordPress</SelectItem>
+                      <SelectItem value="wordpress_oauth_connect">Connexion WordPress</SelectItem>
+                      <SelectItem value="wordpress_oauth_disconnect">Déconnexion WordPress</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -135,24 +160,28 @@ const Logs = () => {
                     <th className="w-1/6 px-4 py-2 border-b">Date</th>
                   </tr>
                 </thead>
-                <tbody>
-                  {filteredLogs.map(log => (
-                    <tr key={log.id}>
-                      <td className="px-4 py-2 border-b text-center">{log.email}</td>
-                      <td className="px-4 py-2 border-b text-center">
-                        <Badge className={`${actionColors[log.action]} whitespace-nowrap`}>
-                          {actionLabels[log.action]}
-                        </Badge>
-                      </td>
-                      <td className="px-4 py-2 border-b">
-                        <div dangerouslySetInnerHTML={{ __html: getDetails(log) }} />
-                      </td>
-                      <td className="px-4 py-2 border-b text-center">
-                        {new Date(log.created_at).toLocaleString()}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
+                {loading.fetch ? (
+                  <LogsSkeleton />
+                ) : (
+                  <tbody>
+                    {filteredLogs.map(log => (
+                      <tr key={log.id}>
+                        <td className="px-4 py-2 border-b text-center">{log.email}</td>
+                        <td className="px-4 py-2 border-b text-center">
+                          <Badge className={`${actionColors[log.action]} whitespace-nowrap`}>
+                            {actionLabels[log.action]}
+                          </Badge>
+                        </td>
+                        <td className="px-4 py-2 border-b">
+                          <div dangerouslySetInnerHTML={{ __html: getDetails(log) }} />
+                        </td>
+                        <td className="px-4 py-2 border-b text-center">
+                          {new Date(log.created_at).toLocaleString()}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                )}
               </table>
               {/* Pagination UI */}
               <div className="flex justify-between items-center mt-4">
