@@ -416,7 +416,7 @@ const Settings = () => {
                           </div>
                         ) : (
                           <div className="space-y-2">
-                            <p className="text-sm text-500">Aucun compte WordPress connecter.</p>
+                            <p className="text-sm text-500">Aucun compte WordPress connecté.</p>
                             <br/>
                           </div>
                         )}
