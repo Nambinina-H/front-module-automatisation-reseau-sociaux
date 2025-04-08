@@ -195,6 +195,22 @@ const Settings = () => {
 
   const { generateAuthUrl, loading: authLoading } = useWordPressAuth();
 
+  const fetchWordPressData = async () => {
+    try {
+      const wordPressClientConfig = configs.find(c => c.platform === 'wordPressClient' && c.user_id === userId);
+      setWordpressClientFields({
+        blogUrl: wordPressClientConfig?.keys?.blog_url || '',
+        blogId: wordPressClientConfig?.keys?.blog_id || '',
+      });
+    } catch (error) {
+      console.error('Erreur lors de la récupération des données WordPress:', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchWordPressData(); // Récupérer les données au chargement
+  }, [configs, userId]);
+
   const handleWordPressConnect = async () => {
     const { clientId, redirectUri } = wordpressFields;
 
@@ -230,6 +246,7 @@ const Settings = () => {
               try {
                 const response = await apiService.sendWordPressCode(code);
                 console.log("Réponse de l'API :", response);
+                await fetchWordPressData(); // Rafraîchir les données après connexion
               } catch (error) {
                 console.error("Erreur lors de l'envoi du code :", error);
                 setErrorMessage(error.response?.data?.error || "Erreur lors de la connexion à WordPress");
@@ -266,10 +283,8 @@ const Settings = () => {
   const handleWordPressDisconnect = async () => {
     try {
       await apiService.disconnectWordPress();
-      setIsWordPressConnected(false);
-      if (fetchConfigs) {
-        await fetchConfigs(); // Recharger les configs après déconnexion
-      }
+      await fetchConfigs(); // Recharger les configs après déconnexion
+      await fetchWordPressData(); // Rafraîchir les données après déconnexion
     } catch (error) {
       console.error("Erreur lors de la déconnexion:", error);
     }
