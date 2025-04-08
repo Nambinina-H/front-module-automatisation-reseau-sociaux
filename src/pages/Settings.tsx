@@ -256,11 +256,11 @@ const Settings = () => {
   // Ajouter l'état pour WordPress
   const [isWordPressConnected, setIsWordPressConnected] = useState(false);
   
-  // Effet pour vérifier si WordPress est connecté en vérifiant les configs
+  // Effet pour vérifier si WordPress est connecté en se basant sur wordPressClientConfig
   useEffect(() => {
-    const wordPressConfig = configs.find(c => c.platform === 'wordPress');
-    setIsWordPressConnected(!!wordPressConfig?.keys?.accessToken);
-  }, [configs]);
+    const wordPressClientConfig = configs.find(c => c.platform === 'wordPressClient' && c.user_id === userId);
+    setIsWordPressConnected(!!wordPressClientConfig?.keys?.blog_url && !!wordPressClientConfig?.keys?.blog_id);
+  }, [configs, userId]);
 
   // Fonction pour déconnecter WordPress
   const handleWordPressDisconnect = async () => {
@@ -385,32 +385,19 @@ const Settings = () => {
                   <div className="space-y-6">
                     <div className="grid gap-6">
                       <div className="border rounded-lg p-4">
-                        <h3 className="text-lg font-medium mb-2">WordPress Client</h3>
-                        <p className="text-sm text-muted-foreground mb-4">
-                          Connectez-vous avec votre compte WordPress Client pour publier automatiquement.
-                        </p>
-                        {wordpressClientFields.blogUrl && wordpressClientFields.blogId ? (
-                          <div className="space-y-2">
-                            <p><strong>Blog URL:</strong> {wordpressClientFields.blogUrl}</p>
-                            <p><strong>Blog ID:</strong> {wordpressClientFields.blogId}</p>
-                          </div>
-                        ) : (
-                          <p className="text-sm text-red-500">Aucune configuration trouvée.</p>
-                        )}
-                        <Button 
-                          variant="outline" 
-                          onClick={isWordPressConnected ? handleWordPressDisconnect : handleWordPressConnect} 
-                          disabled={authLoading}
-                        >
-                          <PlatformIcon platform="wordpress" size={24} className="mr-2" />
-                          {authLoading ? "Chargement..." : isWordPressConnected ? "Se déconnecter" : "Connecter"}
-                        </Button>
-                      </div>
-                      <div className="border rounded-lg p-4">
                         <h3 className="text-lg font-medium mb-2">WordPress</h3>
                         <p className="text-sm text-muted-foreground mb-4">
                           Connectez-vous avec votre compte WordPress pour publier automatiquement.
                         </p>
+                        {wordpressClientFields.blogUrl && wordpressClientFields.blogId ? (
+                          <div className="space-y-2">
+                            <p>Blog URL : {wordpressClientFields.blogUrl}</p>
+                            <p>Blog ID : {wordpressClientFields.blogId}</p>
+                            <br/>
+                          </div>
+                        ) : (
+                          <p className="text-sm text-red-500">Aucune configuration trouvée.</p>
+                        )}
                         <Button 
                           variant="outline" 
                           onClick={isWordPressConnected ? handleWordPressDisconnect : handleWordPressConnect} 
