@@ -274,7 +274,7 @@ const PostCreator: React.FC<PostCreatorProps> = ({ className }) => {
     } catch (error) {
       toast({
         title: "Erreur de publication",
-        description: error.message || "Une erreur est survenue lors de la publication",
+        description: "Vérifiez que votre site WordPress est bien connecté avant de réessayer.",
         variant: "destructive"
       });
     }
