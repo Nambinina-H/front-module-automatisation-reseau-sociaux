@@ -8,7 +8,7 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { RefreshCw } from 'lucide-react';
 import { useLogs } from '@/hooks/useApi';
-import { Skeleton } from "@/components/ui/skeleton"; // Add this import
+import { Skeleton } from "@/components/ui/skeleton";
 
 const Logs = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -18,7 +18,7 @@ const Logs = () => {
 
   useEffect(() => {
     fetchLogs(currentPage);
-  }, [currentPage]); // Recharge les logs quand la page change
+  }, [currentPage, fetchLogs]);
 
   const actionLabels = {
     create: 'Création d\'un utilisateur',
@@ -32,8 +32,8 @@ const Logs = () => {
     generate_image: 'Génération d\'image',
     update_api_key: 'Mise à jour de clé API',
     publish_wordpress: 'Contenu publié sur WordPress',
-    wordpress_oauth_connect: 'Connexion WordPress OAuth réussie', // Added label
-    wordpress_oauth_disconnect: 'Déconnexion WordPress réussie', // Added label
+    wordpress_oauth_connect: 'Connexion WordPress OAuth réussie',
+    wordpress_oauth_disconnect: 'Déconnexion WordPress réussie',
   };
 
   const actionColors = {
@@ -48,8 +48,8 @@ const Logs = () => {
     generate_image: 'bg-pink-100 text-pink-800',
     update_api_key: 'bg-cyan-100 text-cyan-800',
     publish_wordpress: 'bg-teal-100 text-teal-800',
-    wordpress_oauth_connect: 'bg-green-100 text-green-800', // Added color
-    wordpress_oauth_disconnect: 'bg-red-100 text-red-800', // Added color
+    wordpress_oauth_connect: 'bg-green-100 text-green-800',
+    wordpress_oauth_disconnect: 'bg-red-100 text-red-800',
   };
 
   const getDetails = (log) => {
@@ -80,6 +80,10 @@ const Logs = () => {
     if (pagination?.hasPreviousPage) {
       setCurrentPage(prev => prev - 1);
     }
+  };
+
+  const handleRefreshClick = () => {
+    fetchLogs(currentPage);
   };
 
   const LogsSkeleton = () => (
@@ -124,7 +128,7 @@ const Logs = () => {
                 <div className="flex items-center gap-2">
                   <Button 
                     className="flex items-center gap-2"
-                    onClick={fetchLogs} // Add onClick handler to refresh logs
+                    onClick={handleRefreshClick}
                   >
                     <RefreshCw className="h-4 w-4" />
                   </Button>
@@ -145,8 +149,8 @@ const Logs = () => {
                       <SelectItem value="generate_image">Génération d'image</SelectItem>
                       <SelectItem value="update_api_key">Mise à jour de clé API</SelectItem>
                       <SelectItem value="publish_wordpress">Publication sur WordPress</SelectItem>
-                      <SelectItem value="wordpress_oauth_connect">Connexion WordPress</SelectItem>
-                      <SelectItem value="wordpress_oauth_disconnect">Déconnexion WordPress</SelectItem>
+                      <SelectItem value="wordpress_oauth_connect">Connexion WordPress OAuth réussie</SelectItem>
+                      <SelectItem value="wordpress_oauth_disconnect">Déconnexion WordPress réussie</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -183,7 +187,6 @@ const Logs = () => {
                   </tbody>
                 )}
               </table>
-              {/* Pagination UI */}
               <div className="flex justify-between items-center mt-4">
                 <div className="text-sm text-gray-600">
                   Page <span className="font-medium">{pagination?.page || 1}</span> sur{' '}

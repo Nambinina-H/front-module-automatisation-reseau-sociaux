@@ -117,6 +117,8 @@ export interface ConfigKeys {
   linkedin?: string;
   instagram?: string;
   twitter?: string;
+  blog_url?: string;  // Added property
+  blog_id?: string;   // Added property
 }
 
 export interface ApiConfig {
