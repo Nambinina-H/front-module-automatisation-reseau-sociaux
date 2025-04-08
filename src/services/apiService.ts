@@ -218,6 +218,22 @@ class ApiService {
     localStorage.removeItem('auth_token');
   }
 
+  private setUser(user: User): void {
+    console.log('Storing user in localStorage:', user); // Debug log
+    localStorage.setItem('user', JSON.stringify(user));
+  }
+
+  getUser(): User | null {
+    const user = localStorage.getItem('user');
+    console.log('Retrieved user from localStorage:', user); // Debug log
+    return user ? JSON.parse(user) : null;
+  }
+
+  private clearUser(): void {
+    console.log('Clearing user from localStorage'); // Debug log
+    localStorage.removeItem('user');
+  }
+
   // Vérifie si l'utilisateur est authentifié
   isAuthenticated(): boolean {
     return !!this.getToken();
@@ -247,13 +263,13 @@ class ApiService {
       const { user, token } = response.data;
 
       this.setToken(token);
+      this.setUser(user); // Store user information
 
-      // Extract and store app_role
+      console.log('User logged in:', user); // Debug log
+
       const appRole = user.app_role;
-      console.log('User:', user, 'App Role:', appRole);
       if (appRole) {
         localStorage.setItem('app_role', appRole);
-        console.log('app_role stored:', appRole);
       }
 
       toast({
@@ -268,10 +284,9 @@ class ApiService {
 
   // Déconnexion
   logout(): void {
+    console.log('Logging out user'); // Debug log
     this.clearToken();
-
-    // Remove app_role from localStorage
-    console.log('Suppression de app_role');
+    this.clearUser(); // Clear user information
     localStorage.removeItem('app_role');
 
     toast({

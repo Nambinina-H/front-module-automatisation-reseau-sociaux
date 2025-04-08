@@ -55,8 +55,13 @@ export function useAuth() {
     execute: fetchProfile 
   } = useApi<User>(apiService.getProfile.bind(apiService));
 
+  const user = apiService.getUser(); // Retrieve user from localStorage
+  const userId = user?.id || null;
   const appRole = localStorage.getItem('app_role');
-  console.log('Retrieved app_role:', appRole);
+
+  console.log('useAuth - User:', user); // Debug log
+  console.log('useAuth - User ID:', userId); // Debug log
+  console.log('useAuth - App Role:', appRole); // Debug log
 
   return {
     login: executeLogin,
@@ -64,8 +69,10 @@ export function useAuth() {
     logout,
     profile,
     fetchProfile,
+    user, // Expose user
+    userId, // Expose userId
+    appRole, // Expose appRole
     isAuthenticated: apiService.isAuthenticated(),
-    appRole, // Expose app_role
     loading: {
       login: loginLoading,
       register: registerLoading,

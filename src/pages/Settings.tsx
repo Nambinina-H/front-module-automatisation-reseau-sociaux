@@ -34,7 +34,7 @@ const Settings = () => {
   const [showOpenAIKey, setShowOpenAIKey] = useState(false);
   const [showSupabaseKey, setShowSupabaseKey] = useState(false);
   const [showSupabaseServiceRoleKey, setShowSupabaseServiceRoleKey] = useState(false);
-  const { appRole } = useAuth(); // Récupérer le rôle de l'utilisateur
+  const { appRole, userId } = useAuth(); // Récupérer le rôle de l'utilisateur et userId
   const isAdmin = appRole === 'admin'; // Vérifier si l'utilisateur est admin
 
   const [wordpressFields, setWordpressFields] = useState({ 
@@ -50,6 +50,10 @@ const Settings = () => {
     instagram: '',
     twitter: '',
   });
+  const [wordpressClientFields, setWordpressClientFields] = useState({
+    blogUrl: '',
+    blogId: '',
+  });
 
   const [showConfirmation, setShowConfirmation] = useState(false); // State to toggle confirmation dialog
   const [currentForm, setCurrentForm] = useState<string | null>(null); // Track which form is being submitted
@@ -62,6 +66,7 @@ const Settings = () => {
     const openAIConfig = configs.find(c => c.platform === 'openai');
     const supabaseConfig = configs.find(c => c.platform === 'supabase');
     const makeConfig = configs.find(c => c.platform === 'make');
+    const wordPressClientConfig = configs.find(c => c.platform === 'wordPressClient' && c.user_id === userId);
 
     if (wordPressConfig?.keys) {
       setWordpressFields({
@@ -93,7 +98,15 @@ const Settings = () => {
         twitter: makeConfig.keys.twitter || '',
       });
     }
-  }, [configs]);
+
+    if (wordPressClientConfig?.keys) {
+      setWordpressClientFields({
+        blogUrl: wordPressClientConfig.keys.blog_url || '',
+        blogId: wordPressClientConfig.keys.blog_id || '',
+      });
+      console.log('WordPress Client Config:', wordPressClientConfig); // Debugging
+    }
+  }, [configs, userId]);
 
   const handleFormSubmit = (formName: string) => {
     setCurrentForm(formName);
@@ -371,6 +384,28 @@ const Settings = () => {
                 <CardContent>
                   <div className="space-y-6">
                     <div className="grid gap-6">
+                      <div className="border rounded-lg p-4">
+                        <h3 className="text-lg font-medium mb-2">WordPress Client</h3>
+                        <p className="text-sm text-muted-foreground mb-4">
+                          Connectez-vous avec votre compte WordPress Client pour publier automatiquement.
+                        </p>
+                        {wordpressClientFields.blogUrl && wordpressClientFields.blogId ? (
+                          <div className="space-y-2">
+                            <p><strong>Blog URL:</strong> {wordpressClientFields.blogUrl}</p>
+                            <p><strong>Blog ID:</strong> {wordpressClientFields.blogId}</p>
+                          </div>
+                        ) : (
+                          <p className="text-sm text-red-500">Aucune configuration trouvée.</p>
+                        )}
+                        <Button 
+                          variant="outline" 
+                          onClick={isWordPressConnected ? handleWordPressDisconnect : handleWordPressConnect} 
+                          disabled={authLoading}
+                        >
+                          <PlatformIcon platform="wordpress" size={24} className="mr-2" />
+                          {authLoading ? "Chargement..." : isWordPressConnected ? "Se déconnecter" : "Connecter"}
+                        </Button>
+                      </div>
                       <div className="border rounded-lg p-4">
                         <h3 className="text-lg font-medium mb-2">WordPress</h3>
                         <p className="text-sm text-muted-foreground mb-4">
