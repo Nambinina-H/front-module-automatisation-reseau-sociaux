@@ -141,6 +141,20 @@ const Logs = () => {
                   ))}
                 </tbody>
               </table>
+              {/* Pagination UI */}
+              <div className="flex justify-between items-center mt-4">
+                <div className="text-sm text-gray-600">
+                  Page <span className="font-medium">1</span> sur <span className="font-medium">10</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Button variant="outline" disabled>
+                    Précédent
+                  </Button>
+                  <Button variant="outline">
+                    Suivant
+                  </Button>
+                </div>
+              </div>
             </CardContent>
           </Card>
         </main>
