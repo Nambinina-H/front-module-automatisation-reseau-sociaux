@@ -4,7 +4,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 import Button from '@/components/common/Button';
-import { Calendar as CalendarIcon, Clock, Plus, UploadCloud, X } from 'lucide-react';
+import { Calendar as CalendarIcon, Clock, Plus, UploadCloud, X, Wand2 } from 'lucide-react';
 import { Toggle } from '@/components/ui/toggle';
 import PlatformIcon from '@/components/common/PlatformIcon';
 import Badge from '@/components/common/Badge';
@@ -17,7 +17,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { toast } from '@/hooks/use-toast';
 import { Button as ShadcnButton } from '@/components/ui/button';
 import { Checkbox } from "@/components/ui/checkbox";
-import { usePublishNow, useUploadMedia, usePublishToWordPress } from '@/hooks/useApi';
+import { usePublishNow, useUploadMedia, usePublishToWordPress, useContent } from '@/hooks/useApi';
+import ContentGeneratorModal from '@/components/post/ContentGeneratorModal';
 
 type ContentType = 'text' | 'text-image' | 'text-video' | 'image' | 'video';
 
@@ -56,6 +57,7 @@ const PostCreator: React.FC<PostCreatorProps> = ({ className }) => {
   const { uploadMedia } = useUploadMedia();
   const { publishToWordPress, loading: wordpressLoading } = usePublishToWordPress();
   const [title, setTitle] = useState<string>(''); // Add state for title
+  const [isContentGeneratorOpen, setIsContentGeneratorOpen] = useState(false);
   
   interface ImmediatePublishParams {
     platforms: string[];  // On garde le tableau pour la compatibilité avec l'API
@@ -201,6 +203,47 @@ const PostCreator: React.FC<PostCreatorProps> = ({ className }) => {
     }
   };
 
+  // Nouvelle fonction pour recevoir le contenu généré
+  const handleGeneratedContent = (generatedData: { text?: string, imageUrl?: string }) => {
+    if (generatedData.text) {
+      setContent(generatedData.text);
+    }
+    
+    if (generatedData.imageUrl) {
+      // Pour les images générées en ligne, nous devons les convertir en File
+      fetch(generatedData.imageUrl)
+        .then(response => response.blob())
+        .then(blob => {
+          const file = new File([blob], `generated-image-${Date.now()}.png`, { type: 'image/png' });
+          setImageFile(file);
+          setImagePreview(generatedData.imageUrl);
+          
+          // Si le type de contenu était texte uniquement, modifier pour inclure l'image
+          if (contentType === 'text') {
+            setContentType('text-image');
+          } else if (contentType === 'video') {
+            setContentType('text-image');
+          }
+        })
+        .catch(error => {
+          console.error("Erreur lors de la conversion de l'URL de l'image en fichier", error);
+          toast({
+            title: "Erreur",
+            description: "Impossible de récupérer l'image générée",
+            variant: "destructive"
+          });
+        });
+    }
+    
+    // Fermer la modale après avoir appliqué les changements
+    setIsContentGeneratorOpen(false);
+    
+    toast({
+      title: "Contenu généré",
+      description: "Le contenu généré a été inséré dans le formulaire",
+    });
+  };
+
   const handlePublish = async () => {
     if (!selectedPlatform) {
       toast({
@@ -334,239 +377,304 @@ const PostCreator: React.FC<PostCreatorProps> = ({ className }) => {
   }, [selectedPlatform]);
 
   return (
-    <Card className={cn('w-full fancy-border', className)}>
-      <CardHeader>
-        <CardTitle className="text-xl font-medium">Publier un nouveau contenu</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-6">
-        <div className="space-y-3">
-          <label className="text-sm font-medium">Type de contenu</label>
-          <Select
-            value={contentType}
-            onValueChange={(value: ContentType) => {
-              setContentType(value);
-              setImageFile(null);
-              setVideoFile(null);
-              setImagePreview(null);
-              setContent('');
-            }}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="Sélectionner le type de contenu" />
-            </SelectTrigger>
-            <SelectContent>
-              {getAvailableContentTypes().map(type => (
-                <SelectItem key={type.value} value={type.value}>
-                  {type.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
-        {selectedPlatform === 'wordpress' && (
+    <>
+      <Card className={cn('w-full fancy-border', className)}>
+        <CardHeader>
+          <CardTitle className="text-xl font-medium">Publier un nouveau contenu</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-6">
           <div className="space-y-3">
-            <label className="text-sm font-medium">Titre</label>
-            <Input 
-              placeholder="Entrez le titre de votre contenu" 
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-            />
+            <label className="text-sm font-medium">Type de contenu</label>
+            <Select
+              value={contentType}
+              onValueChange={(value: ContentType) => {
+                setContentType(value);
+                setImageFile(null);
+                setVideoFile(null);
+                setImagePreview(null);
+                setContent('');
+              }}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Sélectionner le type de contenu" />
+              </SelectTrigger>
+              <SelectContent>
+                {getAvailableContentTypes().map(type => (
+                  <SelectItem key={type.value} value={type.value}>
+                    {type.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
-        )}
 
-        {contentType.includes('text') && (
-          <div className="space-y-3">
-            <label className="text-sm font-medium">Contenu</label>
-            <Textarea 
-              placeholder="Que souhaitez-vous partager ?" 
-              className="min-h-32 resize-none"
-              value={content}
-              onChange={(e) => setContent(e.target.value)}
-              maxLength={maxLength || undefined}
-            />
-            {maxLength !== null && (
-              <div className="text-right text-sm text-gray-500">
-                {remainingCharacters} caractères restants
-              </div>
-            )}
-          </div>
-        )}
-
-        {contentType.includes('image') && (
-          <div className="space-y-3">
-            <label className="text-sm font-medium">Image</label>
-            <div className="border-2 border-dashed rounded-lg p-4 text-center">
-              <input
-                type="file"
-                accept="image/*"
-                className="hidden"
-                id="image-upload"
-                onChange={(e) => handleFileChange(e, 'image')}
+          {selectedPlatform === 'wordpress' && (
+            <div className="space-y-3">
+              <label className="text-sm font-medium">Titre</label>
+              <Input 
+                placeholder="Entrez le titre de votre contenu" 
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
               />
-              {imagePreview ? (
-                <div className="relative">
-                  <img src={imagePreview} alt="Preview" className="max-h-64 mx-auto rounded-lg" />
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    className="absolute -top-2 -right-2 h-6 w-6 rounded-full bg-gray-800 hover:bg-gray-700 border-0 shadow-lg"
-                    onClick={() => {
-                      setImageFile(null);
-                      setImagePreview(null);
-                    }}
-                  >
-                    <X className="h-4 w-4 text-white" />
-                  </Button>
+            </div>
+          )}
+
+          {contentType.includes('text') && (
+            <div className="space-y-3">
+              <div className="flex justify-between items-center">
+                <label className="text-sm font-medium">Contenu</label>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={() => setIsContentGeneratorOpen(true)}
+                  iconLeft={<Wand2 className="h-4 w-4" />}
+                >
+                  Générer du contenu
+                </Button>
+              </div>
+              <Textarea 
+                placeholder="Que souhaitez-vous partager ?" 
+                className="min-h-32 resize-none"
+                value={content}
+                onChange={(e) => setContent(e.target.value)}
+                maxLength={maxLength || undefined}
+              />
+              {maxLength !== null && (
+                <div className="text-right text-sm text-gray-500">
+                  {remainingCharacters} caractères restants
                 </div>
-              ) : (
-                <label htmlFor="image-upload" className="cursor-pointer">
-                  <div className="flex flex-col items-center">
-                    <UploadCloud className="h-8 w-8 mb-2 text-gray-400" />
-                    <span className="text-sm text-gray-500">Cliquez pour télécharger une image</span>
-                  </div>
-                </label>
               )}
             </div>
-          </div>
-        )}
+          )}
 
-        {contentType.includes('video') && (
-          <div className="space-y-3">
-            <label className="text-sm font-medium">Vidéo</label>
-            <div className="border-2 border-dashed rounded-lg p-4 text-center">
-              <input
-                type="file"
-                accept="video/*"
-                className="hidden"
-                id="video-upload"
-                onChange={(e) => handleFileChange(e, 'video')}
-              />
-              <label htmlFor="video-upload" className="cursor-pointer">
-                <div className="flex flex-col items-center">
-                  <UploadCloud className="h-8 w-8 mb-2 text-gray-400" />
-                  <span className="text-sm text-gray-500">
-                    {videoFile ? videoFile.name : "Cliquez pour télécharger une vidéo"}
-                  </span>
-                </div>
-              </label>
-            </div>
-          </div>
-        )}
-
-        <div className="space-y-3">
-          <label className="text-sm font-medium">Plateformes</label>
-          <div className="flex flex-wrap gap-2">
-            {(['wordpress', 'facebook', 'twitter', 'linkedin', 'instagram'] as const).map((platform) => (
-              <Toggle
-                key={platform}
-                pressed={selectedPlatform === platform}
-                onPressedChange={() => togglePlatform(platform)}
-                className={cn(
-                  'data-[state=on]:bg-gray-100 h-10 px-3',
-                  selectedPlatform === platform && 
-                  platform === 'linkedin' && 'data-[state=on]:text-socialBlue',
-                  selectedPlatform === platform && 
-                  platform === 'instagram' && 'data-[state=on]:text-socialBlue-instagram',
-                  selectedPlatform === platform && 
-                  platform === 'twitter' && 'data-[state=on]:text-socialBlue-twitter',
-                  selectedPlatform === platform && 
-                  platform === 'facebook' && 'data-[state=on]:text-socialBlue-facebook',
-                  selectedPlatform === platform && 
-                  platform === 'wordpress' && 'data-[state=on]:text-socialBlue-wordpress',
-                )}
-              >
-                <PlatformIcon platform={platform} className="mr-2" />
-                {platform.charAt(0).toUpperCase() + platform.slice(1)}
-              </Toggle>
-            ))}
-          </div>
-        </div>
-        
-        <div className="space-y-3">
-          <div className="flex items-center space-x-2">
-            <Checkbox 
-              id="scheduled"
-              checked={isScheduled}
-              onCheckedChange={(checked) => {
-                setIsScheduled(checked as boolean);
-                if (!checked) {
-                  setDate(undefined);
-                  setSelectedHour('12');
-                  setSelectedMinute('00');
-                }
-              }}
-            />
-            <label 
-              htmlFor="scheduled" 
-              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-            >
-              Planifier la publication
-            </label>
-          </div>
-
-          {isScheduled && (
-            <div className="flex gap-4 mt-2">
-              {/* Date picker */}
-              <Popover>
-                <PopoverTrigger asChild>
-                  <ShadcnButton
-                    variant="outline"
-                    className="w-[200px] h-10 justify-start text-left font-normal"
+          {contentType.includes('image') && (
+            <div className="space-y-3">
+              <div className="flex justify-between items-center">
+                <label className="text-sm font-medium">Image</label>
+                {!imagePreview && (
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={() => setIsContentGeneratorOpen(true)}
+                    iconLeft={<Wand2 className="h-4 w-4" />}
                   >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {date ? format(date, "dd MMMM yyyy", { locale: fr }) : "Sélectionner une date"}
-                  </ShadcnButton>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0 bg-white z-50" align="start">
-                  <Calendar
-                    mode="single"
-                    selected={date}
-                    onSelect={setDate}
-                    initialFocus
-                    locale={fr}
-                    fromDate={new Date()} // Allow selection only from today
-                    disabled={(date) => {
-                      const now = new Date();
-                      return date < new Date(now.setHours(0, 0, 0, 0)); // Disable dates before today
-                    }}
-                  />
-                </PopoverContent>
-              </Popover>
-              
-              {/* Time picker */}
-              <div className="flex items-center gap-2 border rounded-md px-3 h-10 min-w-[150px]">
-                <Clock className="h-4 w-4 text-muted-foreground" />
-                <div className="flex items-center">
-                  <Input
-                    type="number"
-                    min={0}
-                    max={23}
-                    value={selectedHour}
-                    onChange={(e) => handleHourChange(e.target.value)}
-                    className="w-12 h-8 text-center p-0 border-0 focus-visible:ring-0"
-                  />
-                  <span className="mx-1">:</span>
-                  <Input
-                    type="number"
-                    min={0}
-                    max={59}
-                    value={selectedMinute}
-                    onChange={(e) => handleMinuteChange(e.target.value)}
-                    className="w-12 h-8 text-center p-0 border-0 focus-visible:ring-0"
-                  />
-                </div>
+                    Générer une image
+                  </Button>
+                )}
+              </div>
+              <div className="border-2 border-dashed rounded-lg p-4 text-center">
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  id="image-upload"
+                  onChange={(e) => handleFileChange(e, 'image')}
+                />
+                {imagePreview ? (
+                  <div className="relative">
+                    <img src={imagePreview} alt="Preview" className="max-h-64 mx-auto rounded-lg" />
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      className="absolute -top-2 -right-2 h-6 w-6 rounded-full bg-gray-800 hover:bg-gray-700 border-0 shadow-lg"
+                      onClick={() => {
+                        setImageFile(null);
+                        setImagePreview(null);
+                      }}
+                    >
+                      <X className="h-4 w-4 text-white" />
+                    </Button>
+                  </div>
+                ) : (
+                  <label htmlFor="image-upload" className="cursor-pointer">
+                    <div className="flex flex-col items-center">
+                      <UploadCloud className="h-8 w-8 mb-2 text-gray-400" />
+                      <span className="text-sm text-gray-500">Cliquez pour télécharger une image</span>
+                    </div>
+                  </label>
+                )}
               </div>
             </div>
           )}
-        </div>
-      </CardContent>
-      <CardFooter className="flex justify-end space-x-2 pt-6">
-        <Button onClick={handlePublish} disabled={loading}>
-          {loading ? "Publication en cours..." : "Publier"}
-        </Button>
-      </CardFooter>
-    </Card>
+
+          {contentType.includes('video') && (
+            <div className="space-y-3">
+              <label className="text-sm font-medium">Vidéo</label>
+              <div className="border-2 border-dashed rounded-lg p-4 text-center">
+                <input
+                  type="file"
+                  accept="video/*"
+                  className="hidden"
+                  id="video-upload"
+                  onChange={(e) => handleFileChange(e, 'video')}
+                />
+                <label htmlFor="video-upload" className="cursor-pointer">
+                  <div className="flex flex-col items-center">
+                    <UploadCloud className="h-8 w-8 mb-2 text-gray-400" />
+                    <span className="text-sm text-gray-500">
+                      {videoFile ? videoFile.name : "Cliquez pour télécharger une vidéo"}
+                    </span>
+                  </div>
+                </label>
+              </div>
+            </div>
+          )}
+
+          <div className="space-y-3">
+            <label className="text-sm font-medium">Plateformes</label>
+            <div className="flex flex-wrap gap-2">
+              {(['wordpress', 'facebook', 'twitter', 'linkedin', 'instagram'] as const).map((platform) => (
+                <Toggle
+                  key={platform}
+                  pressed={selectedPlatform === platform}
+                  onPressedChange={() => togglePlatform(platform)}
+                  className={cn(
+                    'data-[state=on]:bg-gray-100 h-10 px-3',
+                    selectedPlatform === platform && 
+                    platform === 'linkedin' && 'data-[state=on]:text-socialBlue',
+                    selectedPlatform === platform && 
+                    platform === 'instagram' && 'data-[state=on]:text-socialBlue-instagram',
+                    selectedPlatform === platform && 
+                    platform === 'twitter' && 'data-[state=on]:text-socialBlue-twitter',
+                    selectedPlatform === platform && 
+                    platform === 'facebook' && 'data-[state=on]:text-socialBlue-facebook',
+                    selectedPlatform === platform && 
+                    platform === 'wordpress' && 'data-[state=on]:text-socialBlue-wordpress',
+                  )}
+                >
+                  <PlatformIcon platform={platform} className="mr-2" />
+                  {platform.charAt(0).toUpperCase() + platform.slice(1)}
+                </Toggle>
+              ))}
+            </div>
+          </div>
+          
+          <div className="space-y-3">
+            <div className="flex items-center space-x-2">
+              <Checkbox 
+                id="scheduled"
+                checked={isScheduled}
+                onCheckedChange={(checked) => {
+                  setIsScheduled(checked as boolean);
+                  if (!checked) {
+                    setDate(undefined);
+                    setSelectedHour('12');
+                    setSelectedMinute('00');
+                  }
+                }}
+              />
+              <label 
+                htmlFor="scheduled" 
+                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+              >
+                Planifier la publication
+              </label>
+            </div>
+
+            {isScheduled && (
+              <div className="flex gap-4 mt-2">
+                {/* Date picker */}
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <ShadcnButton
+                      variant="outline"
+                      className="w-[200px] h-10 justify-start text-left font-normal"
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {date ? format(date, "dd MMMM yyyy", { locale: fr }) : "Sélectionner une date"}
+                    </ShadcnButton>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0 bg-white z-50" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={date}
+                      onSelect={setDate}
+                      initialFocus
+                      locale={fr}
+                      fromDate={new Date()} // Allow selection only from today
+                      disabled={(date) => {
+                        const now = new Date();
+                        return date < new Date(now.setHours(0, 0, 0, 0)); // Disable dates before today
+                      }}
+                    />
+                  </PopoverContent>
+                </Popover>
+                
+                {/* Time picker */}
+                <div className="flex items-center gap-2 border rounded-md px-3 h-10 min-w-[150px]">
+                  <Clock className="h-4 w-4 text-muted-foreground" />
+                  <div className="flex items-center">
+                    <Input
+                      type="number"
+                      min={0}
+                      max={23}
+                      value={selectedHour}
+                      onChange={(e) => handleHourChange(e.target.value)}
+                      className="w-12 h-8 text-center p-0 border-0 focus-visible:ring-0"
+                    />
+                    <span className="mx-1">:</span>
+                    <Input
+                      type="number"
+                      min={0}
+                      max={59}
+                      value={selectedMinute}
+                      onChange={(e) => handleMinuteChange(e.target.value)}
+                      className="w-12 h-8 text-center p-0 border-0 focus-visible:ring-0"
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+          
+          <div className="space-y-3">
+            <label className="text-sm font-medium">Mots-clés</label>
+            <div className="flex gap-2">
+              <Input 
+                placeholder="Ajouter un mot-clé" 
+                value={newKeyword}
+                onChange={(e) => setNewKeyword(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    addKeyword();
+                  }
+                }}
+              />
+              <Button onClick={addKeyword} disabled={!newKeyword}>Ajouter</Button>
+            </div>
+            
+            {keywords.length > 0 && (
+              <div className="flex flex-wrap gap-1 mt-2">
+                {keywords.map((keyword) => (
+                  <Badge
+                    key={keyword}
+                    variant="secondary"
+                    className="cursor-pointer hover:bg-gray-200"
+                    onClick={() => removeKeyword(keyword)}
+                  >
+                    {keyword} &times;
+                  </Badge>
+                ))}
+              </div>
+            )}
+          </div>
+        </CardContent>
+        <CardFooter className="flex justify-end space-x-2 pt-6">
+          <Button onClick={handlePublish} disabled={loading}>
+            {loading ? "Publication en cours..." : "Publier"}
+          </Button>
+        </CardFooter>
+      </Card>
+      
+      <ContentGeneratorModal 
+        isOpen={isContentGeneratorOpen} 
+        onClose={() => setIsContentGeneratorOpen(false)}
+        onGenerated={handleGeneratedContent}
+        initialKeywords={keywords}
+        contentType={contentType.includes('text') ? 'text' : contentType.includes('image') ? 'image' : 'video'}
+      />
+    </>
   );
 };
 
