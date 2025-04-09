@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import Sidebar from '@/components/layout/Sidebar';
 import Navbar from '@/components/layout/Navbar';
@@ -7,15 +6,6 @@ import { Grid3X3, List } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import Publication1 from '@/components/publications/Publication1';
 import { Button } from '@/components/ui/button';
-import { 
-  Pagination, 
-  PaginationContent, 
-  PaginationEllipsis, 
-  PaginationItem, 
-  PaginationLink, 
-  PaginationNext, 
-  PaginationPrevious 
-} from '@/components/ui/pagination';
 
 // Types fictifs pour l'exemple
 type Content = {
@@ -31,12 +21,6 @@ type Content = {
 const Publications = () => {
   const [activeTab, setActiveTab] = useState<string>('all');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
-  const [currentPage, setCurrentPage] = useState(1);
-  const [selectedPlatform, setSelectedPlatform] = useState('');
-  const [startDate, setStartDate] = useState('');
-  const [endDate, setEndDate] = useState('');
-  
-  const itemsPerPage = 6;
 
   // Données d'exemple - à remplacer par les vraies données de l'API
   const samplePosts: Content[] = [
@@ -96,93 +80,10 @@ const Publications = () => {
     },
   ];
 
-  // Application des filtres
-  const applyFilters = () => {
-    let filtered = samplePosts;
-    
-    // Filtre par statut (publié/planifié)
-    if (activeTab !== 'all') {
-      filtered = filtered.filter(post => post.status === activeTab);
-    }
-    
-    // Filtre par plateforme
-    if (selectedPlatform) {
-      filtered = filtered.filter(post => 
-        post.platforms.includes(selectedPlatform as 'linkedin' | 'instagram' | 'twitter' | 'facebook')
-      );
-    }
-    
-    // Filtre par date de début
-    if (startDate) {
-      const start = new Date(startDate);
-      filtered = filtered.filter(post => post.scheduledDate >= start);
-    }
-    
-    // Filtre par date de fin
-    if (endDate) {
-      const end = new Date(endDate);
-      end.setHours(23, 59, 59, 999); // Fin de journée
-      filtered = filtered.filter(post => post.scheduledDate <= end);
-    }
-    
-    return filtered;
-  };
-
-  const filteredPosts = applyFilters();
-  
-  // Pagination
-  const totalPages = Math.ceil(filteredPosts.length / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const paginatedPosts = filteredPosts.slice(startIndex, startIndex + itemsPerPage);
-  
-  // Générer les liens de pagination
-  const generatePaginationLinks = () => {
-    const links = [];
-    const maxVisiblePages = 5;
-    
-    if (totalPages <= maxVisiblePages) {
-      // Afficher toutes les pages si leur nombre est inférieur au max visible
-      for (let i = 1; i <= totalPages; i++) {
-        links.push(i);
-      }
-    } else {
-      // Toujours inclure la première page
-      links.push(1);
-      
-      // Calculer les pages autour de la page courante
-      let startPage = Math.max(2, currentPage - 1);
-      let endPage = Math.min(totalPages - 1, currentPage + 1);
-      
-      // Ajuster si nous sommes près du début ou de la fin
-      if (currentPage <= 3) {
-        endPage = Math.min(4, totalPages - 1);
-      } else if (currentPage >= totalPages - 2) {
-        startPage = Math.max(2, totalPages - 3);
-      }
-      
-      // Ajouter ellipsis après la première page si nécessaire
-      if (startPage > 2) {
-        links.push('ellipsis-start');
-      }
-      
-      // Ajouter les pages intermédiaires
-      for (let i = startPage; i <= endPage; i++) {
-        links.push(i);
-      }
-      
-      // Ajouter ellipsis avant la dernière page si nécessaire
-      if (endPage < totalPages - 1) {
-        links.push('ellipsis-end');
-      }
-      
-      // Toujours inclure la dernière page
-      if (totalPages > 1) {
-        links.push(totalPages);
-      }
-    }
-    
-    return links;
-  };
+  // Filtres en fonction du statut (publié/planifié)
+  const filteredPosts = activeTab === 'all' 
+    ? samplePosts 
+    : samplePosts.filter(post => post.status === activeTab);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -221,11 +122,7 @@ const Publications = () => {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                   <label className="block text-sm font-medium mb-1">Plateforme</label>
-                  <select 
-                    className="w-full p-2 border rounded"
-                    value={selectedPlatform}
-                    onChange={(e) => setSelectedPlatform(e.target.value)}
-                  >
+                  <select className="w-full p-2 border rounded">
                     <option value="">Toutes les plateformes</option>
                     <option value="linkedin">LinkedIn</option>
                     <option value="twitter">Twitter</option>
@@ -235,21 +132,11 @@ const Publications = () => {
                 </div>
                 <div>
                   <label className="block text-sm font-medium mb-1">Date de début</label>
-                  <input 
-                    type="date" 
-                    className="w-full p-2 border rounded"
-                    value={startDate}
-                    onChange={(e) => setStartDate(e.target.value)} 
-                  />
+                  <input type="date" className="w-full p-2 border rounded" />
                 </div>
                 <div>
                   <label className="block text-sm font-medium mb-1">Date de fin</label>
-                  <input 
-                    type="date" 
-                    className="w-full p-2 border rounded"
-                    value={endDate}
-                    onChange={(e) => setEndDate(e.target.value)}
-                  />
+                  <input type="date" className="w-full p-2 border rounded" />
                 </div>
               </div>
             </CardContent>
@@ -263,153 +150,15 @@ const Publications = () => {
             </TabsList>
             
             <TabsContent value="all" className="mt-4">
-              <Publication1 posts={paginatedPosts} viewMode={viewMode} />
-              {totalPages > 1 && (
-                <div className="mt-6">
-                  <Pagination>
-                    <PaginationContent>
-                      {currentPage > 1 && (
-                        <PaginationItem>
-                          <PaginationPrevious href="#" onClick={(e) => {
-                            e.preventDefault();
-                            setCurrentPage(prev => Math.max(1, prev - 1));
-                          }} />
-                        </PaginationItem>
-                      )}
-                      
-                      {generatePaginationLinks().map((page, index) => (
-                        typeof page === 'number' ? (
-                          <PaginationItem key={`page-${page}`}>
-                            <PaginationLink 
-                              href="#" 
-                              isActive={currentPage === page}
-                              onClick={(e) => {
-                                e.preventDefault();
-                                setCurrentPage(page);
-                              }}
-                            >
-                              {page}
-                            </PaginationLink>
-                          </PaginationItem>
-                        ) : (
-                          <PaginationItem key={`ellipsis-${index}`}>
-                            <PaginationEllipsis />
-                          </PaginationItem>
-                        )
-                      ))}
-                      
-                      {currentPage < totalPages && (
-                        <PaginationItem>
-                          <PaginationNext href="#" onClick={(e) => {
-                            e.preventDefault();
-                            setCurrentPage(prev => Math.min(totalPages, prev + 1));
-                          }} />
-                        </PaginationItem>
-                      )}
-                    </PaginationContent>
-                  </Pagination>
-                </div>
-              )}
+              <Publication1 posts={filteredPosts} viewMode={viewMode} />
             </TabsContent>
             
             <TabsContent value="published" className="mt-4">
-              <Publication1 posts={paginatedPosts} viewMode={viewMode} />
-              {totalPages > 1 && (
-                <div className="mt-6">
-                  <Pagination>
-                    <PaginationContent>
-                      {currentPage > 1 && (
-                        <PaginationItem>
-                          <PaginationPrevious href="#" onClick={(e) => {
-                            e.preventDefault();
-                            setCurrentPage(prev => Math.max(1, prev - 1));
-                          }} />
-                        </PaginationItem>
-                      )}
-                      
-                      {generatePaginationLinks().map((page, index) => (
-                        typeof page === 'number' ? (
-                          <PaginationItem key={`page-${page}`}>
-                            <PaginationLink 
-                              href="#" 
-                              isActive={currentPage === page}
-                              onClick={(e) => {
-                                e.preventDefault();
-                                setCurrentPage(page);
-                              }}
-                            >
-                              {page}
-                            </PaginationLink>
-                          </PaginationItem>
-                        ) : (
-                          <PaginationItem key={`ellipsis-${index}`}>
-                            <PaginationEllipsis />
-                          </PaginationItem>
-                        )
-                      ))}
-                      
-                      {currentPage < totalPages && (
-                        <PaginationItem>
-                          <PaginationNext href="#" onClick={(e) => {
-                            e.preventDefault();
-                            setCurrentPage(prev => Math.min(totalPages, prev + 1));
-                          }} />
-                        </PaginationItem>
-                      )}
-                    </PaginationContent>
-                  </Pagination>
-                </div>
-              )}
+              <Publication1 posts={filteredPosts} viewMode={viewMode} />
             </TabsContent>
             
             <TabsContent value="scheduled" className="mt-4">
-              <Publication1 posts={paginatedPosts} viewMode={viewMode} />
-              {totalPages > 1 && (
-                <div className="mt-6">
-                  <Pagination>
-                    <PaginationContent>
-                      {currentPage > 1 && (
-                        <PaginationItem>
-                          <PaginationPrevious href="#" onClick={(e) => {
-                            e.preventDefault();
-                            setCurrentPage(prev => Math.max(1, prev - 1));
-                          }} />
-                        </PaginationItem>
-                      )}
-                      
-                      {generatePaginationLinks().map((page, index) => (
-                        typeof page === 'number' ? (
-                          <PaginationItem key={`page-${page}`}>
-                            <PaginationLink 
-                              href="#" 
-                              isActive={currentPage === page}
-                              onClick={(e) => {
-                                e.preventDefault();
-                                setCurrentPage(page);
-                              }}
-                            >
-                              {page}
-                            </PaginationLink>
-                          </PaginationItem>
-                        ) : (
-                          <PaginationItem key={`ellipsis-${index}`}>
-                            <PaginationEllipsis />
-                          </PaginationItem>
-                        )
-                      ))}
-                      
-                      {currentPage < totalPages && (
-                        <PaginationItem>
-                          <PaginationNext href="#" onClick={(e) => {
-                            e.preventDefault();
-                            setCurrentPage(prev => Math.min(totalPages, prev + 1));
-                          }} />
-                        </PaginationItem>
-                      )}
-                    </PaginationContent>
-                  </Pagination>
-                </div>
-              )}
+              <Publication1 posts={filteredPosts} viewMode={viewMode} />
             </TabsContent>
           </Tabs>
         </main>
