@@ -347,7 +347,25 @@ const Settings = () => {
                       <label className="text-sm font-medium">Confirmer le nouveau mot de passe</label>
                       <Input type="password" placeholder="••••••••" />
                     </div>
-                    <Button>Mettre à jour le mot de passe</Button>
+                    <Dialog>
+                      <DialogTrigger asChild>
+                        <Button>Mettre à jour le mot de passe</Button>
+                      </DialogTrigger>
+                      <DialogContent>
+                        <DialogHeader>
+                          <DialogTitle>Confirmation modification mot de passe</DialogTitle>
+                          <DialogDescription>
+                            Êtes-vous sûr de vouloir modifier votre mot de passe ?
+                          </DialogDescription>
+                        </DialogHeader>
+                        <DialogFooter>
+                          <DialogClose asChild>
+                            <Button variant="outline">Annuler</Button>
+                          </DialogClose>
+                          <Button>Confirmer</Button>
+                        </DialogFooter>
+                      </DialogContent>
+                    </Dialog>
                   </div>
                   
                   <div className="border-t border-gray-200 pt-6 space-y-4">
