@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
-import { Bell, Lock, Globe, FileCode, Eye, EyeOff } from 'lucide-react';
+import { Bell, Lock, Globe, FileCode, Eye, EyeOff, ExternalLink } from 'lucide-react';
 import PlatformIcon from '@/components/common/PlatformIcon';
 import {
   Dialog,
@@ -410,7 +410,18 @@ const Settings = () => {
                         </p>
                         {wordpressClientFields.blogUrl && wordpressClientFields.blogId ? (
                           <div className="space-y-2">
-                            <p>Blog URL : {wordpressClientFields.blogUrl}</p>
+                            <div className="flex items-center gap-2">
+                              <p>Blog URL : {wordpressClientFields.blogUrl}</p>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-4 w-4 hover:text-primary"
+                                onClick={() => window.open(wordpressClientFields.blogUrl, '_blank')}
+                                title="Ouvrir le blog"
+                              >
+                                <ExternalLink className="h-4 w-4" />
+                              </Button>
+                            </div>
                             <p>Blog ID : {wordpressClientFields.blogId}</p>
                             <br/>
                           </div>
