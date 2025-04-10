@@ -368,16 +368,6 @@ const Settings = () => {
                               Cette action ne peut pas être annulée. Pour confirmer, veuillez entrer votre email.
                             </DialogDescription>
                           </DialogHeader>
-                          <div className="space-y-4">
-                            <Label htmlFor="email">Tapez "email" pour confirmer </Label>
-                            <Input 
-                              id="email" 
-                              type="email" 
-                              placeholder="Your email" 
-                              value={email}
-                              onChange={(e) => setEmail(e.target.value)}
-                            />
-                          </div>
                           <DialogFooter>
                             <DialogClose asChild>
                               <Button variant="outline">Annuler</Button>

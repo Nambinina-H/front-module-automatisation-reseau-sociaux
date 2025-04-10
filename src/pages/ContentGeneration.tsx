@@ -906,130 +906,173 @@ const ContentGeneration = () => {
                 </TabsContent>
                 
                 <TabsContent value="video" className="mt-0">
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>Génération de vidéos</CardTitle>
-                      <CardDescription>
-                        Créez des vidéos courtes pour les réseaux sociaux, basées sur des mots-clés.
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="prompt">Description de la vidéo</Label>
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <Card>
+                      <CardHeader>
+                        <CardTitle>Génération de vidéos</CardTitle>
+                        <CardDescription>
+                          Créez des vidéos courtes pour les réseaux sociaux, basées sur des mots-clés.
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent className="space-y-4">
                         <div className="space-y-2">
-                          <Textarea 
-                            id="prompt"
-                            placeholder="Décrivez la vidéo que vous souhaitez générer..."
-                            className="min-h-32"
-                            value={prompt}
-                            onChange={(e) => setPrompt(e.target.value)}
-                          />
+                          <Label htmlFor="prompt">Description de la vidéo</Label>
+                          <div className="space-y-2">
+                            <Textarea 
+                              id="prompt"
+                              placeholder="Décrivez la vidéo que vous souhaitez générer..."
+                              className="min-h-32"
+                              value={prompt}
+                              onChange={(e) => setPrompt(e.target.value)}
+                            />
+                            <Button 
+                              variant="outline"
+                              className="w-full flex items-center justify-center gap-2"
+                              onClick={handleGenerateVideoDescription}
+                              disabled={isGeneratingDescription || keywords.length === 0}
+                            >
+                              {isGeneratingDescription ? (
+                                <>Génération en cours...</>
+                              ) : (
+                                <>
+                                  <Wand2 className="h-4 w-4" />
+                                  Générer la description à partir des mots-clés
+                                </>
+                              )}
+                            </Button>
+                          </div>
+                        </div>
+                        
+                        <Separator className="my-4" />
+                        
+                        <div className="space-y-2">
+                          <Label>Options de vidéo</Label>
+                          <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                              <Label htmlFor="duration" className="text-sm">Durée</Label>
+                              <Select defaultValue="5">
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Durée" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="5">5 secondes</SelectItem>
+                                  <SelectItem value="9">9 secondes</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                            
+                            <div className="space-y-2">
+                              <Label htmlFor="resolution" className="text-sm">Résolution</Label>
+                              <Select defaultValue="720p">
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Résolution" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="540p">540p</SelectItem>
+                                  <SelectItem value="720p">720p (HD)</SelectItem>
+                                  <SelectItem value="1080p">1080p (Full HD)</SelectItem>
+                                  <SelectItem value="4k">4K (Ultra HD)</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                          </div>
+                        </div>
+                        
+                        <div className="space-y-2">
+                          <Label>Mots-clés</Label>
+                          <div className="flex gap-2">
+                            <Input 
+                              placeholder="Ajouter un mot-clé" 
+                              value={newKeyword}
+                              onChange={(e) => setNewKeyword(e.target.value)}
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter') {
+                                  e.preventDefault();
+                                  addKeyword();
+                                }
+                              }}
+                            />
+                            <Button onClick={addKeyword} disabled={!newKeyword}>Ajouter</Button>
+                          </div>
+                          
+                          {keywords.length > 0 && (
+                            <div className="flex flex-wrap gap-1 mt-2">
+                              {keywords.map((keyword) => (
+                                <Badge
+                                  key={keyword}
+                                  variant="secondary"
+                                  className="cursor-pointer hover:bg-gray-200"
+                                  onClick={() => removeKeyword(keyword)}
+                                >
+                                  {keyword} &times;
+                                </Badge>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                        
+                        <div className="pt-4">
                           <Button 
-                            variant="outline"
-                            className="w-full flex items-center justify-center gap-2"
-                            onClick={handleGenerateVideoDescription}
-                            disabled={isGeneratingDescription || keywords.length === 0}
+                            onClick={handleGeneration} 
+                            disabled={isGenerating}
+                            className="w-full"
                           >
-                            {isGeneratingDescription ? (
+                            {isGenerating ? (
                               <>Génération en cours...</>
                             ) : (
                               <>
-                                <Wand2 className="h-4 w-4" />
-                                Générer la description à partir des mots-clés
+                                <Wand2 className="mr-2 h-4 w-4" />
+                                Générer la vidéo
                               </>
                             )}
                           </Button>
                         </div>
-                      </div>
-                      
-                      <Separator className="my-4" />
-                      
-                      <div className="space-y-2">
-                        <Label>Options de vidéo</Label>
-                        <div className="grid grid-cols-2 gap-4">
-                          <div className="space-y-2">
-                            <Label htmlFor="duration" className="text-sm">Durée</Label>
-                            <Select defaultValue="5">
-                              <SelectTrigger>
-                                <SelectValue placeholder="Durée" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="5">5 secondes</SelectItem>
-                                <SelectItem value="9">9 secondes</SelectItem>
-                              </SelectContent>
-                            </Select>
-                          </div>
-                          
-                          <div className="space-y-2">
-                            <Label htmlFor="resolution" className="text-sm">Résolution</Label>
-                            <Select defaultValue="720p">
-                              <SelectTrigger>
-                                <SelectValue placeholder="Résolution" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="540p">540p</SelectItem>
-                                <SelectItem value="720p">720p (HD)</SelectItem>
-                                <SelectItem value="1080p">1080p (Full HD)</SelectItem>
-                                <SelectItem value="4k">4K (Ultra HD)</SelectItem>
-                              </SelectContent>
-                            </Select>
-                          </div>
-                        </div>
-                      </div>
-                      
-                      <div className="space-y-2">
-                        <Label>Mots-clés</Label>
-                        <div className="flex gap-2">
-                          <Input 
-                            placeholder="Ajouter un mot-clé" 
-                            value={newKeyword}
-                            onChange={(e) => setNewKeyword(e.target.value)}
-                            onKeyDown={(e) => {
-                              if (e.key === 'Enter') {
-                                e.preventDefault();
-                                addKeyword();
-                              }
-                            }}
+                      </CardContent>
+                    </Card>
+                    
+                    {/* Nouvelle carte pour la génération audio */}
+                    <Card>
+                      <CardHeader>
+                        <CardTitle>Génération d'Audio</CardTitle>
+                        <CardDescription>
+                          Créez des sons et des effets sonores à partir de descriptions textuelles.
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent className="space-y-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="audioPrompt">Description de l'audio</Label>
+                          <Textarea 
+                            id="audioPrompt"
+                            placeholder="Décrivez l'audio que vous souhaitez générer..."
+                            className="min-h-32"
                           />
-                          <Button onClick={addKeyword} disabled={!newKeyword}>Ajouter</Button>
                         </div>
                         
-                        {keywords.length > 0 && (
-                          <div className="flex flex-wrap gap-1 mt-2">
-                            {keywords.map((keyword) => (
-                              <Badge
-                                key={keyword}
-                                variant="secondary"
-                                className="cursor-pointer hover:bg-gray-200"
-                                onClick={() => removeKeyword(keyword)}
-                              >
-                                {keyword} &times;
-                              </Badge>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                      
-                      <div className="pt-4">
-                        <Button 
-                          onClick={handleGeneration} 
-                          disabled={isGenerating}
-                          className="w-full"
-                        >
-                          {isGenerating ? (
-                            <>Génération en cours...</>
-                          ) : (
-                            <>
-                              <Wand2 className="mr-2 h-4 w-4" />
-                              Générer la vidéo
-                            </>
-                          )}
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
-                 
+                        <div className="space-y-2">
+                          <Label htmlFor="negativePrompt">Éléments à éviter (optionnel)</Label>
+                          <Textarea 
+                            id="negativePrompt"
+                            placeholder="Décrivez les éléments que vous souhaitez éviter dans l'audio..."
+                            className="min-h-20"
+                          />
+                        </div>
+                        
+                        <div className="pt-4">
+                          <Button 
+                            className="w-full"
+                            onClick={() => {
+                              toast.info("La génération audio sera bientôt disponible");
+                            }}
+                          >
+                            <Wand2 className="mr-2 h-4 w-4" />
+                            Générer l'audio
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </div>
                 </TabsContent>
+                
               </div>
               {activeTab === 'text' && (
                 <div className="lg:col-span-1 space-y-6">
