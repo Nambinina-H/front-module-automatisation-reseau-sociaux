@@ -884,8 +884,6 @@ const ContentGeneration = () => {
                 </TabsContent>
                 
                 <TabsContent value="video" className="mt-0">
-                  {/* <Maintenance /> */}
-                  
                   <Card>
                     <CardHeader>
                       <CardTitle>Génération de vidéos</CardTitle>
@@ -894,81 +892,6 @@ const ContentGeneration = () => {
                       </CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
-                      <div className="space-y-2">
-                        <div className="flex justify-between items-center">
-                          <Label htmlFor="template">Modèle</Label>
-                          <Dialog>
-                            <DialogTrigger asChild>
-                              <Button variant="outline" size="sm" className="h-8">
-                                <Plus className="h-3.5 w-3.5 mr-1" />
-                                Ajouter
-                              </Button>
-                            </DialogTrigger>
-                            <DialogContent className="sm:max-w-[425px]">
-                              <DialogHeader>
-                                <DialogTitle>Ajouter un nouveau modèle</DialogTitle>
-                                <DialogDescription>
-                                  Créez un nouveau modèle pour la génération de vidéos.
-                                </DialogDescription>
-                              </DialogHeader>
-                              <div className="grid gap-4 py-4">
-                                <div className="grid grid-cols-4 items-center gap-4">
-                                  <Label htmlFor="templateName" className="text-right">
-                                    Nom
-                                  </Label>
-                                  <Input
-                                    id="templateName"
-                                    value={newTemplateName}
-                                    onChange={(e) => setNewTemplateName(e.target.value)}
-                                    className="col-span-3"
-                                  />
-                                </div>
-                                <div className="grid grid-cols-4 items-center gap-4">
-                                  <Label htmlFor="templateType" className="text-right">
-                                    Type
-                                  </Label>
-                                  <Select 
-                                    value={newTemplateType} 
-                                    onValueChange={setNewTemplateType}
-                                    defaultValue="video"
-                                  >
-                                    <SelectTrigger className="col-span-3">
-                                      <SelectValue placeholder="Sélectionner un type" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                      <SelectItem value="text">Texte</SelectItem>
-                                      <SelectItem value="image">Image</SelectItem>
-                                      <SelectItem value="video">Vidéo</SelectItem>
-                                    </SelectContent>
-                                  </Select>
-                                </div>
-                              </div>
-                              <DialogFooter>
-                                <DialogClose asChild>
-                                  <Button variant="outline">Annuler</Button>
-                                </DialogClose>
-                                <Button onClick={handleAddTemplate}>Ajouter</Button>
-                              </DialogFooter>
-                            </DialogContent>
-                          </Dialog>
-                        </div>
-                        <Select 
-                          onValueChange={(value) => setSettings({...settings, template: value})}
-                          value={settings.template}
-                        >
-                          <SelectTrigger>
-                            <SelectValue placeholder="Sélectionner un modèle" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {filterTemplatesByType('video').map(template => (
-                              <SelectItem key={template.id} value={template.id}>
-                                {template.name}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      
                       <div className="space-y-2">
                         <Label htmlFor="prompt">Description de la vidéo</Label>
                         <Textarea 
