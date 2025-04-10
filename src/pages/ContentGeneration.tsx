@@ -658,7 +658,7 @@ const ContentGeneration = () => {
                         <Label>Mots-clés</Label>
                         <div className="flex gap-2">
                           <Input 
-                            placeholder="Ajouter un mot-clé, un par un" 
+                            placeholder="Ajouter un mot-clé" 
                             value={newKeyword}
                             onChange={(e) => setNewKeyword(e.target.value)}
                             onKeyDown={(e) => {
@@ -832,7 +832,7 @@ const ContentGeneration = () => {
                         <Label>Mots-clés</Label>
                         <div className="flex gap-2">
                           <Input 
-                            placeholder="Ajouter un mot-clé, un par un" 
+                            placeholder="Ajouter un mot-clé" 
                             value={newKeyword}
                             onChange={(e) => setNewKeyword(e.target.value)}
                             onKeyDown={(e) => {
@@ -1005,9 +1005,10 @@ const ContentGeneration = () => {
                                 <SelectValue placeholder="Résolution" />
                               </SelectTrigger>
                               <SelectContent>
-                                <SelectItem value="480p">480p</SelectItem>
+                                <SelectItem value="540p">540p</SelectItem>
                                 <SelectItem value="720p">720p (HD)</SelectItem>
                                 <SelectItem value="1080p">1080p (Full HD)</SelectItem>
+                                <SelectItem value="4k">4K (Ultra HD)</SelectItem>
                               </SelectContent>
                             </Select>
                           </div>
@@ -1018,7 +1019,7 @@ const ContentGeneration = () => {
                         <Label>Mots-clés</Label>
                         <div className="flex gap-2">
                           <Input 
-                            placeholder="Ajouter un mot-clé, un par un" 
+                            placeholder="Ajouter un mot-clé" 
                             value={newKeyword}
                             onChange={(e) => setNewKeyword(e.target.value)}
                             onKeyDown={(e) => {
