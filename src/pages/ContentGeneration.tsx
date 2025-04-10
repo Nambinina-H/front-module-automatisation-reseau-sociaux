@@ -894,13 +894,26 @@ const ContentGeneration = () => {
                     <CardContent className="space-y-4">
                       <div className="space-y-2">
                         <Label htmlFor="prompt">Description de la vidéo</Label>
-                        <Textarea 
-                          id="prompt"
-                          placeholder="Décrivez la vidéo que vous souhaitez générer..."
-                          className="min-h-32"
-                          value={prompt}
-                          onChange={(e) => setPrompt(e.target.value)}
-                        />
+                        <div className="space-y-2">
+                          <Textarea 
+                            id="prompt"
+                            placeholder="Décrivez la vidéo que vous souhaitez générer..."
+                            className="min-h-32"
+                            value={prompt}
+                            onChange={(e) => setPrompt(e.target.value)}
+                          />
+                          <Button 
+                            variant="outline"
+                            className="w-full flex items-center justify-center gap-2"
+                            onClick={() => {
+                              // La logique de génération sera implémentée plus tard
+                              toast.info("Cette fonctionnalité sera bientôt disponible");
+                            }}
+                          >
+                            <Wand2 className="h-4 w-4" />
+                            Générer la description à partir des mots-clés
+                          </Button>
+                        </div>
                       </div>
                       
                       <Separator className="my-4" />
