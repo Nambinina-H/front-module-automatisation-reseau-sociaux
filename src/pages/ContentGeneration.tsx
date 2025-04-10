@@ -658,7 +658,7 @@ const ContentGeneration = () => {
                         <Label>Mots-clés</Label>
                         <div className="flex gap-2">
                           <Input 
-                            placeholder="Ajouter un mot-clé" 
+                            placeholder="Ajouter un mot-clé, un par un" 
                             value={newKeyword}
                             onChange={(e) => setNewKeyword(e.target.value)}
                             onKeyDown={(e) => {
@@ -832,7 +832,7 @@ const ContentGeneration = () => {
                         <Label>Mots-clés</Label>
                         <div className="flex gap-2">
                           <Input 
-                            placeholder="Ajouter un mot-clé" 
+                            placeholder="Ajouter un mot-clé, un par un" 
                             value={newKeyword}
                             onChange={(e) => setNewKeyword(e.target.value)}
                             onKeyDown={(e) => {
@@ -884,8 +884,8 @@ const ContentGeneration = () => {
                 </TabsContent>
                 
                 <TabsContent value="video" className="mt-0">
-                  <Maintenance />
-                  {/* 
+                  {/* <Maintenance /> */}
+                  
                   <Card>
                     <CardHeader>
                       <CardTitle>Génération de vidéos</CardTitle>
@@ -987,14 +987,13 @@ const ContentGeneration = () => {
                         <div className="grid grid-cols-2 gap-4">
                           <div className="space-y-2">
                             <Label htmlFor="duration" className="text-sm">Durée</Label>
-                            <Select defaultValue="30">
+                            <Select defaultValue="5">
                               <SelectTrigger>
                                 <SelectValue placeholder="Durée" />
                               </SelectTrigger>
                               <SelectContent>
-                                <SelectItem value="15">15 secondes</SelectItem>
-                                <SelectItem value="30">30 secondes</SelectItem>
-                                <SelectItem value="60">1 minute</SelectItem>
+                                <SelectItem value="5">5 secondes</SelectItem>
+                                <SelectItem value="9">9 secondes</SelectItem>
                               </SelectContent>
                             </Select>
                           </div>
@@ -1019,7 +1018,7 @@ const ContentGeneration = () => {
                         <Label>Mots-clés</Label>
                         <div className="flex gap-2">
                           <Input 
-                            placeholder="Ajouter un mot-clé" 
+                            placeholder="Ajouter un mot-clé, un par un" 
                             value={newKeyword}
                             onChange={(e) => setNewKeyword(e.target.value)}
                             onKeyDown={(e) => {
@@ -1066,7 +1065,7 @@ const ContentGeneration = () => {
                       </div>
                     </CardContent>
                   </Card>
-                  */}
+                 
                 </TabsContent>
               </div>
               {activeTab === 'text' && (
