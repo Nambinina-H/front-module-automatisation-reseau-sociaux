@@ -339,3 +339,15 @@ export function usePublishToWordPress() {
     error,
   };
 }
+
+export function useVideoDescription() {
+  const { execute, loading, error } = useApi<VideoDescriptionResponse, VideoDescriptionParams>(
+    apiService.generateVideoDescription.bind(apiService)
+  );
+
+  return {
+    generateVideoDescription: execute,
+    loading,
+    error
+  };
+}

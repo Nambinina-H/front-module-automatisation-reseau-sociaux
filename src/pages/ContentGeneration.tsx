@@ -35,6 +35,9 @@ import { useContent } from '@/hooks/useApi';
 import { ContentGenerationParams, ContentPersonalization } from '@/services/apiService';
 import Maintenance from '@/components/ui/Maintenance';
 
+// Ajoutez l'import du nouveau hook
+import { useVideoDescription } from '@/hooks/useApi';
+
 // Sample template data
 const initialTemplates = [
   { id: 'blog', name: 'Article de blog', contentType: 'text' },
@@ -169,6 +172,9 @@ const ContentGeneration = () => {
     loading: { generate: isApiGenerating, generateImage: isApiImageGenerating }
   } = useContent();
   
+  // Ajoutez le hook pour la génération de description vidéo
+  const { generateVideoDescription, loading: isGeneratingDescription } = useVideoDescription();
+
   const addKeyword = () => {
     if (newKeyword && !keywords.includes(newKeyword)) {
       setKeywords([...keywords, newKeyword]);
@@ -414,6 +420,22 @@ const ContentGeneration = () => {
         toast.success("Aperçu de la vidéo généré avec succès");
       }
     }, 2000);
+  };
+
+  // Ajoutez cette nouvelle fonction
+  const handleGenerateVideoDescription = async () => {
+    if (keywords.length === 0) {
+      toast.error("Veuillez ajouter au moins un mot-clé");
+      return;
+    }
+
+    try {
+      const response = await generateVideoDescription({ keywords });
+      setPrompt(response.description);
+      toast.success(response.message || "Description générée avec succès");
+    } catch (error) {
+      toast.error("Erreur lors de la génération de la description");
+    }
   };
 
   const filterTemplatesByType = (contentType: string) => {
@@ -905,13 +927,17 @@ const ContentGeneration = () => {
                           <Button 
                             variant="outline"
                             className="w-full flex items-center justify-center gap-2"
-                            onClick={() => {
-                              // La logique de génération sera implémentée plus tard
-                              toast.info("Cette fonctionnalité sera bientôt disponible");
-                            }}
+                            onClick={handleGenerateVideoDescription}
+                            disabled={isGeneratingDescription || keywords.length === 0}
                           >
-                            <Wand2 className="h-4 w-4" />
-                            Générer la description à partir des mots-clés
+                            {isGeneratingDescription ? (
+                              <>Génération en cours...</>
+                            ) : (
+                              <>
+                                <Wand2 className="h-4 w-4" />
+                                Générer la description à partir des mots-clés
+                              </>
+                            )}
                           </Button>
                         </div>
                       </div>

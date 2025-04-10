@@ -146,6 +146,15 @@ interface PaginatedResponse<T> {
   };
 }
 
+export interface VideoDescriptionParams {
+  keywords: string[];
+}
+
+export interface VideoDescriptionResponse {
+  message: string;
+  description: string;
+}
+
 // Classe principale du service API
 class ApiService {
   private api: AxiosInstance;
@@ -348,6 +357,17 @@ class ApiService {
       return response.data;
     } catch (error) {
       console.error('Error generating image:', error);
+      throw error;
+    }
+  }
+
+  // Générer une description de vidéo
+  async generateVideoDescription(params: VideoDescriptionParams): Promise<VideoDescriptionResponse> {
+    try {
+      const response = await this.api.post<VideoDescriptionResponse>('/video/description', params);
+      return response.data;
+    } catch (error) {
+      console.error('Error generating video description:', error);
       throw error;
     }
   }
