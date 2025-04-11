@@ -225,6 +225,31 @@ class ApiService {
     });
   }
 
+  private handleAuthError(error: AxiosError): string {
+    if (error.response?.status === 400) {
+      const errorData = error.response.data as any;
+      
+      if (errorData.message) {
+        return errorData.message;
+      }
+
+      // Messages d'erreur spécifiques
+      switch (errorData.error) {
+        case 'Invalid login credentials':
+          return 'Email ou mot de passe incorrect';
+        case 'User already registered':
+          return 'Cet email est déjà utilisé';
+        case 'invalid_email':
+          return 'Format d\'email invalide';
+        case 'Password should be at least 6 characters.':
+          return 'Le mot de passe doit contenir au moins 6 caractères';
+        default:
+          return 'Une erreur est survenue lors de l\'authentification';
+      }
+    }
+    return error.message || 'Une erreur est survenue';
+  }
+
   // Gestion du token
   private setToken(token: string): void {
     this.token = token;
@@ -274,7 +299,13 @@ class ApiService {
       });
       return response.data;
     } catch (error) {
-      throw error;
+      const message = this.handleAuthError(error as AxiosError);
+      toast({
+        title: 'Erreur d\'inscription',
+        description: message,
+        variant: 'destructive'
+      });
+      throw new Error(message);
     }
   }
 
@@ -300,7 +331,13 @@ class ApiService {
       });
       return response.data;
     } catch (error) {
-      throw error;
+      const message = this.handleAuthError(error as AxiosError);
+      toast({
+        title: 'Erreur de connexion',
+        description: message,
+        variant: 'destructive'
+      });
+      throw new Error(message);
     }
   }
 
