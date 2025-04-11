@@ -329,6 +329,20 @@ class ApiService {
     }
   }
 
+  // Suppression de compte
+  async deleteAccount(userId: string): Promise<void> {
+    try {
+      await this.api.delete(`/auth/delete/${userId}`);
+      this.logout(); // Déconnexion après suppression
+      toast({
+        title: 'Compte supprimé',
+        description: 'Votre compte a été supprimé avec succès.',
+      });
+    } catch (error) {
+      throw error;
+    }
+  }
+
   // ==== CONTENT MANAGEMENT ====
   
   // Générer du contenu

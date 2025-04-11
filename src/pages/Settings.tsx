@@ -34,7 +34,7 @@ const Settings = () => {
   const [showOpenAIKey, setShowOpenAIKey] = useState(false);
   const [showSupabaseKey, setShowSupabaseKey] = useState(false);
   const [showSupabaseServiceRoleKey, setShowSupabaseServiceRoleKey] = useState(false);
-  const { appRole, userId } = useAuth(); // Récupérer le rôle de l'utilisateur et userId
+  const { appRole, userId, user } = useAuth(); // Récupérer le rôle de l'utilisateur et userId
   const isAdmin = appRole === 'admin'; // Vérifier si l'utilisateur est admin
 
   const [wordpressFields, setWordpressFields] = useState({ 
@@ -57,6 +57,7 @@ const Settings = () => {
 
   const [showConfirmation, setShowConfirmation] = useState(false); // State to toggle confirmation dialog
   const [currentForm, setCurrentForm] = useState<string | null>(null); // Track which form is being submitted
+  const [currentUserEmail, setCurrentUserEmail] = useState('');
 
   const { configs, updateConfig, fetchConfigs } = useConfig();
 
@@ -294,6 +295,26 @@ const Settings = () => {
     }
   };
 
+  const handleDeleteAccount = async () => {
+    try {
+      if (!user?.id) {
+        toast.error("Utilisateur non trouvé");
+        return;
+      }
+
+      // Vérification de l'email
+      if (currentUserEmail !== user?.email) {
+        toast.error("L'email ne correspond pas à votre compte");
+        return;
+      }
+
+      await apiService.deleteAccount(user.id);
+      // La redirection sera gérée par le logout dans apiService
+    } catch (error) {
+      toast.error("Erreur lors de la suppression du compte");
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       <Sidebar />
@@ -383,14 +404,30 @@ const Settings = () => {
                           <DialogHeader>
                             <DialogTitle>Confirmation suppression de compte</DialogTitle>
                             <DialogDescription>
-                              Cette action ne peut pas être annulée. Pour confirmer, veuillez entrer votre email.
+                              Cette action ne peut pas être annulée. Pour confirmer, veuillez entrer votre email : {user?.email}
                             </DialogDescription>
                           </DialogHeader>
+                          <div className="space-y-4">
+                            <Label htmlFor="email">Entrez votre email pour confirmer</Label>
+                            <Input 
+                              id="email" 
+                              type="email" 
+                              placeholder="nom@exemple.com" 
+                              value={currentUserEmail}
+                              onChange={(e) => setCurrentUserEmail(e.target.value)}
+                            />
+                          </div>
                           <DialogFooter>
                             <DialogClose asChild>
                               <Button variant="outline">Annuler</Button>
                             </DialogClose>
-                            <Button variant="destructive">Supprimer</Button>
+                            <Button 
+                              variant="destructive" 
+                              onClick={handleDeleteAccount}
+                              disabled={!currentUserEmail}
+                            >
+                              Supprimer
+                            </Button>
                           </DialogFooter>
                         </DialogContent>
                       </Dialog>
