@@ -73,6 +73,16 @@ const initialTones = [
 ];
 
 // Sample placeholders for generated content
+const placeholderText = `Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam euismod, nisl eget ultricies aliquam, nunc nisl aliquet nunc, vitae aliquam nisl nunc vitae nisl. Nullam euismod, nisl eget ultricies aliquam, nunc nisl aliquet nunc, vitae aliquam nisl nunc vitae nisl.
+
+Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.`;
+
+const placeholderImages = [
+  'https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?auto=format&fit=crop&w=600&h=400',
+  'https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?auto=format&fit=crop&w=600&h=400',
+  'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=600&h=400'
+];
+
 const placeholderVideo = 'https://images.unsplash.com/photo-1487058792275-0ad4aaf24ca7?auto=format&fit=crop&w=600&h=400';
 
 interface DynamicVariable {
@@ -279,12 +289,13 @@ const ContentGeneration = () => {
     
     try {
       if (activeTab === 'text') {
-        // Garder uniquement la logique d'appel à l'API
+        // Préparer les variables pour l'API texte
         const variablesObject: Record<string, string> = {};
         settings.dynamicVariables.forEach(variable => {
           variablesObject[variable.name] = variable.value;
         });
         
+        // Préparer les paramètres pour l'API texte
         const templateItem = templates.find(t => t.id === settings.template);
         
         const personalization: ContentPersonalization = {
@@ -317,7 +328,7 @@ const ContentGeneration = () => {
           toast.error("Aucun contenu n'a été généré");
         }
       } else if (activeTab === 'image') {
-        // Garder uniquement la logique d'appel à l'API
+        // Préparer les paramètres pour l'API d'image
         const imageParams: ImageGenerationParams = {
           prompt: prompt,
           keywords: keywords,
@@ -326,19 +337,88 @@ const ContentGeneration = () => {
           style: imageStyle
         };
         
-        const response = await generateImage(imageParams);
-        
+        try {
+          const response = await generateImage(imageParams);
+          
+          setGeneratedContent(prev => ({
+            ...prev,
+            image: {
+              type: 'image',
+              content: response.imageUrl
+            }
+          }));
+          
+          toast.success(response.message || "Image générée avec succès");
+        } catch (error) {
+          console.error("Erreur lors de la génération de l'image:", error);
+          toast.error("Erreur lors de la génération de l'image");
+          simulateImageGeneration();
+        }
+      } else if (activeTab === 'video') {
+        simulateGeneration();
+      }
+    } catch (error) {
+      console.error("Erreur lors de la génération du contenu:", error);
+      toast.error("Erreur lors de la génération du contenu");
+      
+      if (activeTab === 'video' && !prompt) {
+        return; // Ne pas simuler la génération si la description est vide
+      }
+      
+      // En cas d'erreur, simuler une réponse pour la démo
+      simulateGeneration();
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+  
+  // Simulation spécifique pour les images
+  const simulateImageGeneration = () => {
+    setTimeout(() => {
+      setGeneratedContent(prev => ({
+        ...prev,
+        image: {
+          type: 'image',
+          content: placeholderImages[Math.floor(Math.random() * placeholderImages.length)]
+        }
+      }));
+      toast.success("Image générée avec succès (simulation)");
+    }, 2000);
+  };
+  
+  // Fallback en cas d'échec de l'API
+  const simulateGeneration = () => {
+    if (!prompt && keywords.length === 0) {
+      toast.error("Veuillez ajouter un prompt ou des mots-clés");
+      return;
+    }
+    
+    setIsGenerating(true);
+    
+    // Simulate API call with timeout
+    setTimeout(() => {
+      setIsGenerating(false);
+      
+      // Generate different content based on active tab
+      if (activeTab === 'text') {
+        setGeneratedContent(prev => ({
+          ...prev,
+          text: {
+            type: 'text',
+            content: placeholderText
+          }
+        }));
+        toast.success("Texte généré avec succès");
+      } else if (activeTab === 'image') {
         setGeneratedContent(prev => ({
           ...prev,
           image: {
             type: 'image',
-            content: response.imageUrl
+            content: placeholderImages[Math.floor(Math.random() * placeholderImages.length)]
           }
         }));
-        
-        toast.success(response.message || "Image générée avec succès");
+        toast.success("Image générée avec succès");
       } else if (activeTab === 'video') {
-        // Conserver la simulation pour les vidéos
         setGeneratedContent(prev => ({
           ...prev,
           video: {
@@ -348,12 +428,7 @@ const ContentGeneration = () => {
         }));
         toast.success("Aperçu de la vidéo généré avec succès");
       }
-    } catch (error) {
-      console.error("Erreur lors de la génération du contenu:", error);
-      toast.error("Erreur lors de la génération du contenu");
-    } finally {
-      setIsGenerating(false);
-    }
+    }, 2000);
   };
 
   // Ajoutez cette nouvelle fonction
