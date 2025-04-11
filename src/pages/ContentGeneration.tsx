@@ -83,7 +83,8 @@ const placeholderImages = [
   'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=600&h=400'
 ];
 
-const placeholderVideo = 'https://images.unsplash.com/photo-1487058792275-0ad4aaf24ca7?auto=format&fit=crop&w=600&h=400';
+// Modifier la constante placeholderVideo avec une vraie URL de vidéo légère
+const placeholderVideo = 'https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4';
 
 interface DynamicVariable {
   id: string;
@@ -529,21 +530,21 @@ const ContentGeneration = () => {
             <h3 className="text-lg font-medium">Description de la vidéo générée</h3>
             <div className="p-2 bg-white border rounded-md shadow-sm">
               <div className="relative pt-[56.25%] bg-gray-100 rounded-md">
-                <img 
-                  src={content.content} 
-                  alt="Video preview" 
+                <video 
+                  src={content.content}
                   className="absolute inset-0 w-full h-full object-cover rounded-md"
-                />
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <Button variant="ghost" className="h-16 w-16 rounded-full bg-white/80">
-                    <FileVideo className="h-8 w-8" />
-                  </Button>
-                </div>
+                  controls
+                  poster="/video-placeholder.png"
+                >
+                  Votre navigateur ne supporte pas la lecture de vidéos.
+                </video>
               </div>
             </div>
             <div className="flex justify-end space-x-2">
-              {/* TODO: Enable the "Modifier" button functionality in the future */}
               <Button variant="outline" disabled>Personnaliser</Button>
+              <Button variant="outline" onClick={() => toast.info("Cette fonctionnalité sera bientôt disponible")}>
+                Entendre la vidéo
+              </Button>
               <Button>
                 <Download className="mr-2 h-4 w-4" />
                 Exporter
