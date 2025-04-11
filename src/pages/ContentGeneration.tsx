@@ -38,6 +38,9 @@ import Maintenance from '@/components/ui/Maintenance';
 // Ajoutez l'import du nouveau hook
 import { useVideoDescription, useVideoGeneration } from '@/hooks/useApi';
 
+// Ajouter l'import en haut du fichier
+import VideoPlayer from '@/components/video/VideoPlayer';
+
 // Sample template data
 const initialTemplates = [
   { id: 'blog', name: 'Article de blog', contentType: 'text' },
@@ -547,11 +550,13 @@ const ContentGeneration = () => {
           <div className="mt-6 space-y-4">
             <h3 className="text-lg font-medium">Vidéo générée</h3>
             <div className="p-2 bg-white border rounded-md shadow-sm">
-              <div className="relative pt-[56.25%] bg-gray-100 rounded-md">
-                <video 
-                  src={content.content}
-                  className="absolute inset-0 w-full h-full object-cover rounded-md"
-                  controls
+              <div className="relative rounded-md overflow-hidden">
+                <VideoPlayer 
+                  url={content.content}
+                  onError={(error) => {
+                    console.error('Erreur de lecture video:', error);
+                    toast.error("Erreur lors de la lecture de la vidéo");
+                  }}
                 />
               </div>
             </div>
