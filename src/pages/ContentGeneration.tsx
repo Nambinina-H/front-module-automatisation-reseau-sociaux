@@ -73,7 +73,7 @@ const initialTones = [
 ];
 
 // Sample placeholders for generated content
-const placeholderVideo = 'https://images.unsplash.com/photo-1487058792275-0ad4aaf24ca7?auto=format&fit=crop&w=600&h=400';
+const placeholderVideo = 'https://erbbhydiwleenlftidcc.supabase.co/storage/v1/object/public/media//1742918978790_0.8055742982050202.mp4';
 
 interface DynamicVariable {
   id: string;
