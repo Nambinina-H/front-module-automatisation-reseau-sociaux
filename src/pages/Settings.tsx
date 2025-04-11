@@ -22,6 +22,7 @@ import {
 import { useConfig, useAuth, useWordPressAuth } from '@/hooks/useApi';
 import { useSearchParams } from "react-router-dom"; // Import pour gérer les paramètres d'URL
 import { apiService } from '@/services/apiService';
+import { toast } from "sonner"; // Ajouter cet import
 
 const Settings = () => {
   const [email, setEmail] = useState('');
@@ -304,14 +305,14 @@ const Settings = () => {
 
       // Vérification de l'email
       if (currentUserEmail !== user?.email) {
-        toast.error("L'email ne correspond pas à votre compte");
+        toast.error(`L'email ne correspond pas à votre compte`);
         return;
       }
 
       await apiService.deleteAccount(user.id);
       // La redirection sera gérée par le logout dans apiService
-    } catch (error) {
-      toast.error("Erreur lors de la suppression du compte");
+    } catch (error: any) {
+      toast.error(error.message || "Erreur lors de la suppression du compte");
     }
   };
 
