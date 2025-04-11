@@ -35,6 +35,8 @@ const Logs = () => {
     wordpress_oauth_connect: 'Connexion WordPress OAuth réussie', // Added label
     wordpress_oauth_disconnect: 'Déconnexion WordPress réussie', // Added label
     change_password: 'Mot de passe modifié avec succès', // Ajout de cette ligne
+    delete_account: 'Suppression de compte', // Ajout de cette ligne
+    delete_own_account: 'Suppression de son propre compte' // Ajout de cette ligne
   };
 
   const actionColors = {
@@ -52,6 +54,8 @@ const Logs = () => {
     wordpress_oauth_connect: 'bg-green-100 text-green-800', // Added color
     wordpress_oauth_disconnect: 'bg-red-100 text-red-800', // Added color
     change_password: 'bg-blue-100 text-blue-800', // Ajout de cette ligne
+    delete_account: 'bg-red-100 text-red-800', // Ajout de cette ligne
+    delete_own_account: 'bg-red-100 text-red-800' // Ajout de cette ligne
   };
 
   const getDetails = (log) => {
@@ -150,6 +154,8 @@ const Logs = () => {
                       <SelectItem value="wordpress_oauth_connect">Connexion WordPress</SelectItem>
                       <SelectItem value="wordpress_oauth_disconnect">Déconnexion WordPress</SelectItem>
                       <SelectItem value="change_password">Changement de mot de passe</SelectItem>
+                      <SelectItem value="delete_account">Suppression de compte</SelectItem> {/* Ajout de cette ligne */}
+                      <SelectItem value="delete_own_account">Suppression de son propre compte</SelectItem> {/* Ajout de cette ligne */}
                     </SelectContent>
                   </Select>
                 </div>
