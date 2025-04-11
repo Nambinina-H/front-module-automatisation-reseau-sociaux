@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { format } from 'date-fns';
 import PostCard from '@/components/dashboard/PostCard';
@@ -77,13 +76,7 @@ const Publication1: React.FC<Publication1Props> = ({ posts, viewMode }) => {
               <TableCell className="text-right">
                 <div className="flex justify-end space-x-1">
                   <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                    <Edit size={14} />
-                  </Button>
-                  <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
                     <ExternalLink size={14} />
-                  </Button>
-                  <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-red-500 hover:text-red-700 hover:bg-red-50">
-                    <Trash2 size={14} />
                   </Button>
                 </div>
               </TableCell>

@@ -20,7 +20,7 @@ type Content = {
 
 const Publications = () => {
   const [activeTab, setActiveTab] = useState<string>('all');
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('list'); // Changé de 'grid' à 'list'
 
   // Données d'exemple - à remplacer par les vraies données de l'API
   const samplePosts: Content[] = [
