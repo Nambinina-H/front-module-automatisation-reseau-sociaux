@@ -86,7 +86,7 @@ const placeholderImages = [
   'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=600&h=400'
 ];
 
-const placeholderVideo = 'https://images.unsplash.com/photo-1487058792275-0ad4aaf24ca7?auto=format&fit=crop&w=600&h=400';
+const placeholderVideo = 'https://storage.cdn-luma.com/dream_machine/5324a5a3-de37-4e59-ac7d-b5cd8d11599e/23c0d48d-7ac0-4bdd-a085-059432a37756_output_f17d03509a49da73.mp4';
 
 interface DynamicVariable {
   id: string;
@@ -562,6 +562,20 @@ const ContentGeneration = () => {
             </div>
             <div className="flex justify-end space-x-2">
               <Button variant="outline" disabled>Personnaliser</Button>
+              <Button onClick={() => {
+                if (videoPlayerRef.current?.blobUrl) {
+                  const a = document.createElement('a');
+                  a.href = videoPlayerRef.current.blobUrl;
+                  a.download = `video-generee-${new Date().toISOString().slice(0, 10)}.mp4`;
+                  document.body.appendChild(a);
+                  a.click();
+                  document.body.removeChild(a);
+                  toast.success("Vidéo téléchargée avec succès");
+                }
+              }}>
+                <Download className="mr-2 h-4 w-4" />
+                Télécharger
+              </Button>
             </div>
           </div>
         );
