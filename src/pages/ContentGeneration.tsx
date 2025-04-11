@@ -275,6 +275,11 @@ const ContentGeneration = () => {
   };
   
   const handleGeneration = async () => {
+    if (activeTab === 'video' && !prompt) {
+      toast.error("Veuillez remplir la description de la vidéo");
+      return;
+    }
+
     if (!prompt && keywords.length === 0) {
       toast.error("Veuillez ajouter un prompt ou des mots-clés");
       return;
@@ -355,6 +360,10 @@ const ContentGeneration = () => {
     } catch (error) {
       console.error("Erreur lors de la génération du contenu:", error);
       toast.error("Erreur lors de la génération du contenu");
+      
+      if (activeTab === 'video' && !prompt) {
+        return; // Ne pas simuler la génération si la description est vide
+      }
       
       // En cas d'erreur, simuler une réponse pour la démo
       simulateGeneration();
@@ -517,7 +526,7 @@ const ContentGeneration = () => {
       case 'video':
         return (
           <div className="mt-6 space-y-4">
-            <h3 className="text-lg font-medium">Aperçu de la vidéo</h3>
+            <h3 className="text-lg font-medium">Description de la vidéo générée</h3>
             <div className="p-2 bg-white border rounded-md shadow-sm">
               <div className="relative pt-[56.25%] bg-gray-100 rounded-md">
                 <img 
@@ -924,6 +933,7 @@ const ContentGeneration = () => {
                               className="min-h-32"
                               value={prompt}
                               onChange={(e) => setPrompt(e.target.value)}
+                              required
                             />
                             <Button 
                               variant="outline"
