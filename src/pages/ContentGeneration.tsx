@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import Sidebar from '@/components/layout/Sidebar';
 import Navbar from '@/components/layout/Navbar';
@@ -20,6 +21,8 @@ import {
   Download, 
   AlertCircle, 
   Plus,
+  Play,
+  Pause,
 } from 'lucide-react';
 import {
   Dialog,
@@ -85,6 +88,13 @@ const placeholderImages = [
 
 const placeholderVideo = 'https://images.unsplash.com/photo-1487058792275-0ad4aaf24ca7?auto=format&fit=crop&w=600&h=400';
 
+// Nouvelles vidéos de démonstration
+const demoVideos = [
+  'https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
+  'https://storage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4',
+  'https://storage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+];
+
 interface DynamicVariable {
   id: string;
   name: string;
@@ -141,6 +151,10 @@ const ContentGeneration = () => {
   const [imageQuality, setImageQuality] = useState<string>('hd');
   const [imageSize, setImageSize] = useState<string>('1024x1024');
   const [imageStyle, setImageStyle] = useState<string>('natural');
+  
+  // Nouvel état pour la vidéo
+  const [isVideoPlaying, setIsVideoPlaying] = useState(false);
+  const [selectedDemoVideo, setSelectedDemoVideo] = useState('');
   
   // New state for template and tone management
   const [templates, setTemplates] = useState<Template[]>(initialTemplates);
@@ -355,7 +369,23 @@ const ContentGeneration = () => {
           simulateImageGeneration();
         }
       } else if (activeTab === 'video') {
-        simulateGeneration();
+        // Choisir aléatoirement une vidéo de démonstration
+        const randomVideo = demoVideos[Math.floor(Math.random() * demoVideos.length)];
+        setSelectedDemoVideo(randomVideo);
+        
+        // Simuler un délai de génération
+        setTimeout(() => {
+          setGeneratedContent(prev => ({
+            ...prev,
+            video: {
+              type: 'video',
+              content: randomVideo
+            }
+          }));
+          setIsGenerating(false);
+          toast.success("Vidéo générée avec succès");
+        }, 2000);
+        return; // Sortir de la fonction pour laisser le setTimeout s'exécuter
       }
     } catch (error) {
       console.error("Erreur lors de la génération du contenu:", error);
@@ -419,14 +449,18 @@ const ContentGeneration = () => {
         }));
         toast.success("Image générée avec succès");
       } else if (activeTab === 'video') {
+        // Choisir aléatoirement une vidéo de démonstration
+        const randomVideo = demoVideos[Math.floor(Math.random() * demoVideos.length)];
+        setSelectedDemoVideo(randomVideo);
+        
         setGeneratedContent(prev => ({
           ...prev,
           video: {
             type: 'video',
-            content: placeholderVideo
+            content: randomVideo
           }
         }));
-        toast.success("Aperçu de la vidéo généré avec succès");
+        toast.success("Vidéo générée avec succès");
       }
     }, 2000);
   };
@@ -444,6 +478,19 @@ const ContentGeneration = () => {
       toast.success(response.message || "Description générée avec succès");
     } catch (error) {
       toast.error("Erreur lors de la génération de la description");
+    }
+  };
+  
+  // Fonction pour basculer la lecture de la vidéo
+  const toggleVideoPlay = () => {
+    setIsVideoPlaying(!isVideoPlaying);
+    const videoElement = document.getElementById('generated-video') as HTMLVideoElement;
+    if (videoElement) {
+      if (isVideoPlaying) {
+        videoElement.pause();
+      } else {
+        videoElement.play();
+      }
     }
   };
 
@@ -526,25 +573,42 @@ const ContentGeneration = () => {
       case 'video':
         return (
           <div className="mt-6 space-y-4">
-            <h3 className="text-lg font-medium">Description de la vidéo générée</h3>
+            <h3 className="text-lg font-medium">Vidéo générée</h3>
             <div className="p-2 bg-white border rounded-md shadow-sm">
-              <div className="relative pt-[56.25%] bg-gray-100 rounded-md">
-                <img 
-                  src={content.content} 
-                  alt="Video preview" 
-                  className="absolute inset-0 w-full h-full object-cover rounded-md"
+              <div className="relative rounded-md overflow-hidden">
+                <video 
+                  id="generated-video"
+                  src={content.content}
+                  className="w-full h-auto"
+                  poster={placeholderVideo}
+                  controls={false}
+                  loop
+                  playsInline
+                  muted
                 />
                 <div className="absolute inset-0 flex items-center justify-center">
-                  <Button variant="ghost" className="h-16 w-16 rounded-full bg-white/80">
-                    <FileVideo className="h-8 w-8" />
+                  <Button 
+                    variant="outline" 
+                    className="h-16 w-16 rounded-full bg-black/50 border-0 hover:bg-black/70"
+                    onClick={toggleVideoPlay}
+                  >
+                    {isVideoPlaying ? (
+                      <Pause className="h-8 w-8 text-white" />
+                    ) : (
+                      <Play className="h-8 w-8 text-white ml-1" />
+                    )}
                   </Button>
+                </div>
+                <div className="absolute bottom-4 left-4 right-4 bg-black/60 text-white p-2 rounded">
+                  <p className="text-sm">Description: {prompt || "Vidéo générée à partir de mots-clés"}</p>
                 </div>
               </div>
             </div>
             <div className="flex justify-end space-x-2">
-              {/* TODO: Enable the "Modifier" button functionality in the future */}
               <Button variant="outline" disabled>Personnaliser</Button>
-              <Button>
+              <Button onClick={() => {
+                toast.success("Fonctionnalité d'exportation en cours de développement");
+              }}>
                 <Download className="mr-2 h-4 w-4" />
                 Exporter
               </Button>
@@ -1081,6 +1145,8 @@ const ContentGeneration = () => {
                       </CardContent>
                     </Card>
                   </div>
+                  
+                  {renderGeneratedContent()}
                 </TabsContent>
                 
               </div>
