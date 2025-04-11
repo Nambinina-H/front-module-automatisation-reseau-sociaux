@@ -68,6 +68,11 @@ const Settings = () => {
   const { changePassword, loading: passwordLoading } = useChangePassword();
   const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false);
 
+  // Ajouter ces états pour la visibilité des mots de passe
+  const [showOldPassword, setShowOldPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmNewPassword, setShowConfirmNewPassword] = useState(false);
+
   // Effet pour remplir les champs avec les données récupérées
   useEffect(() => {
     const wordPressConfig = configs.find(c => c.platform === 'wordPress');
@@ -409,30 +414,63 @@ const Settings = () => {
                     <h3 className="font-medium">Changer de mot de passe</h3>
                     <div className="space-y-2">
                       <label className="text-sm font-medium">Mot de passe actuel</label>
-                      <Input 
-                        type="password" 
-                        placeholder="••••••••" 
-                        value={oldPassword}
-                        onChange={(e) => setOldPassword(e.target.value)}
-                      />
+                      <div className="relative">
+                        <Input 
+                          type={showOldPassword ? "text" : "password"}
+                          placeholder="••••••••" 
+                          value={oldPassword}
+                          onChange={(e) => setOldPassword(e.target.value)}
+                        />
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                          onClick={() => setShowOldPassword(!showOldPassword)}
+                        >
+                          {showOldPassword ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
+                        </Button>
+                      </div>
                     </div>
                     <div className="space-y-2">
                       <label className="text-sm font-medium">Nouveau mot de passe</label>
-                      <Input 
-                        type="password" 
-                        placeholder="••••••••" 
-                        value={newPassword}
-                        onChange={(e) => setNewPassword(e.target.value)}
-                      />
+                      <div className="relative">
+                        <Input 
+                          type={showNewPassword ? "text" : "password"}
+                          placeholder="••••••••" 
+                          value={newPassword}
+                          onChange={(e) => setNewPassword(e.target.value)}
+                        />
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                          onClick={() => setShowNewPassword(!showNewPassword)}
+                        >
+                          {showNewPassword ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
+                        </Button>
+                      </div>
                     </div>
                     <div className="space-y-2">
                       <label className="text-sm font-medium">Confirmer le nouveau mot de passe</label>
-                      <Input 
-                        type="password" 
-                        placeholder="••••••••" 
-                        value={confirmNewPassword}
-                        onChange={(e) => setConfirmNewPassword(e.target.value)}
-                      />
+                      <div className="relative">
+                        <Input 
+                          type={showConfirmNewPassword ? "text" : "password"}
+                          placeholder="••••••••" 
+                          value={confirmNewPassword}
+                          onChange={(e) => setConfirmNewPassword(e.target.value)}
+                        />
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                          onClick={() => setShowConfirmNewPassword(!showConfirmNewPassword)}
+                        >
+                          {showConfirmNewPassword ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
+                        </Button>
+                      </div>
                     </div>
                     <Dialog open={isChangePasswordOpen} onOpenChange={setIsChangePasswordOpen}>
                       <DialogTrigger asChild>
