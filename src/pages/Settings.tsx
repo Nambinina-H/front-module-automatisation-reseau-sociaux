@@ -19,7 +19,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { useConfig, useAuth, useWordPressAuth } from '@/hooks/useApi';
+import { useConfig, useAuth, useWordPressAuth, useChangePassword } from '@/hooks/useApi';
 import { useSearchParams } from "react-router-dom"; // Import pour gérer les paramètres d'URL
 import { apiService } from '@/services/apiService';
 import { toast } from "sonner"; // Ajouter cet import
@@ -35,7 +35,7 @@ const Settings = () => {
   const [showOpenAIKey, setShowOpenAIKey] = useState(false);
   const [showSupabaseKey, setShowSupabaseKey] = useState(false);
   const [showSupabaseServiceRoleKey, setShowSupabaseServiceRoleKey] = useState(false);
-  const { appRole, userId, user } = useAuth(); // Récupérer le rôle de l'utilisateur et userId
+  const { appRole, userId, user, logout } = useAuth(); // Récupérer le rôle de l'utilisateur et userId
   const isAdmin = appRole === 'admin'; // Vérifier si l'utilisateur est admin
 
   const [wordpressFields, setWordpressFields] = useState({ 
@@ -61,6 +61,12 @@ const Settings = () => {
   const [currentUserEmail, setCurrentUserEmail] = useState('');
 
   const { configs, updateConfig, fetchConfigs } = useConfig();
+
+  const [oldPassword, setOldPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmNewPassword, setConfirmNewPassword] = useState('');
+  const { changePassword, loading: passwordLoading } = useChangePassword();
+  const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false);
 
   // Effet pour remplir les champs avec les données récupérées
   useEffect(() => {
@@ -316,6 +322,50 @@ const Settings = () => {
     }
   };
 
+  const handleChangePassword = async () => {
+    // Validation
+    if (!oldPassword || !newPassword || !confirmNewPassword) {
+      toast.error("Tous les champs sont requis");
+      return;
+    }
+
+    if (newPassword !== confirmNewPassword) {
+      toast.error("Les nouveaux mots de passe ne correspondent pas");
+      return;
+    }
+
+    if (newPassword.length < 6) {
+      toast.error("Le nouveau mot de passe doit contenir au moins 6 caractères");
+      return;
+    }
+
+    try {
+      await changePassword({
+        oldPassword,
+        newPassword
+      });
+      
+      // Réinitialiser les champs
+      setOldPassword('');
+      setNewPassword('');
+      setConfirmNewPassword('');
+      
+      // Fermer la boîte de dialogue
+      setIsChangePasswordOpen(false);
+
+      // Message de succès et déconnexion
+      toast.success("Mot de passe modifié avec succès. Veuillez vous reconnecter.");
+      
+      // Délai court avant la déconnexion pour permettre à l'utilisateur de voir le message
+      setTimeout(() => {
+        logout();
+      }, 1500);
+      
+    } catch (error) {
+      console.error('Erreur lors du changement de mot de passe:', error);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       <Sidebar />
@@ -359,17 +409,32 @@ const Settings = () => {
                     <h3 className="font-medium">Changer de mot de passe</h3>
                     <div className="space-y-2">
                       <label className="text-sm font-medium">Mot de passe actuel</label>
-                      <Input type="password" placeholder="••••••••" />
+                      <Input 
+                        type="password" 
+                        placeholder="••••••••" 
+                        value={oldPassword}
+                        onChange={(e) => setOldPassword(e.target.value)}
+                      />
                     </div>
                     <div className="space-y-2">
                       <label className="text-sm font-medium">Nouveau mot de passe</label>
-                      <Input type="password" placeholder="••••••••" />
+                      <Input 
+                        type="password" 
+                        placeholder="••••••••" 
+                        value={newPassword}
+                        onChange={(e) => setNewPassword(e.target.value)}
+                      />
                     </div>
                     <div className="space-y-2">
                       <label className="text-sm font-medium">Confirmer le nouveau mot de passe</label>
-                      <Input type="password" placeholder="••••••••" />
+                      <Input 
+                        type="password" 
+                        placeholder="••••••••" 
+                        value={confirmNewPassword}
+                        onChange={(e) => setConfirmNewPassword(e.target.value)}
+                      />
                     </div>
-                    <Dialog>
+                    <Dialog open={isChangePasswordOpen} onOpenChange={setIsChangePasswordOpen}>
                       <DialogTrigger asChild>
                         <Button>Mettre à jour le mot de passe</Button>
                       </DialogTrigger>
@@ -381,10 +446,18 @@ const Settings = () => {
                           </DialogDescription>
                         </DialogHeader>
                         <DialogFooter>
-                          <DialogClose asChild>
-                            <Button variant="outline">Annuler</Button>
-                          </DialogClose>
-                          <Button>Confirmer</Button>
+                          <Button 
+                            variant="outline" 
+                            onClick={() => setIsChangePasswordOpen(false)}
+                          >
+                            Annuler
+                          </Button>
+                          <Button 
+                            onClick={handleChangePassword}
+                            disabled={passwordLoading}
+                          >
+                            {passwordLoading ? 'Modification...' : 'Confirmer'}
+                          </Button>
                         </DialogFooter>
                       </DialogContent>
                     </Dialog>

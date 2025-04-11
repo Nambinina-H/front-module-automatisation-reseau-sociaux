@@ -155,6 +155,11 @@ export interface VideoDescriptionResponse {
   description: string;
 }
 
+interface ChangePasswordParams {
+  oldPassword: string;
+  newPassword: string;
+}
+
 // Classe principale du service API
 class ApiService {
   private api: AxiosInstance;
@@ -353,7 +358,8 @@ class ApiService {
       description: 'Vous avez été déconnecté avec succès.',
     });
 
-    window.location.href = '/';
+    // Rediriger vers la page d'authentification au lieu de la page d'accueil
+    window.location.href = '/auth';
   }
 
   // Récupérer le profil utilisateur
@@ -376,6 +382,25 @@ class ApiService {
         description: 'Votre compte a été supprimé avec succès.',
       });
     } catch (error) {
+      throw error;
+    }
+  }
+
+  // Changement de mot de passe
+  async changePassword(params: ChangePasswordParams): Promise<void> {
+    try {
+      const response = await this.api.put('/auth/change-password', params);
+      toast({
+        title: 'Succès',
+        description: 'Votre mot de passe a été modifié avec succès.',
+      });
+    } catch (error: any) {
+      const message = error.response?.data?.error || "Erreur lors du changement de mot de passe";
+      toast({
+        title: 'Erreur',
+        description: message,
+        variant: 'destructive'
+      });
       throw error;
     }
   }

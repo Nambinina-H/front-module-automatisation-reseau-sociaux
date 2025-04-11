@@ -351,3 +351,15 @@ export function useVideoDescription() {
     error
   };
 }
+
+export function useChangePassword() {
+  const { execute, loading, error } = useApi<void, ChangePasswordParams>(
+    apiService.changePassword.bind(apiService)
+  );
+
+  return {
+    changePassword: execute,
+    loading,
+    error
+  };
+}
