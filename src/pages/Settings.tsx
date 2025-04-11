@@ -479,9 +479,11 @@ const Settings = () => {
                       <DialogContent>
                         <DialogHeader>
                           <DialogTitle>Confirmation modification mot de passe</DialogTitle>
-                          <DialogDescription>
-                            Êtes-vous sûr de vouloir modifier votre mot de passe ?
-                          </DialogDescription>
+                            <DialogDescription>
+                              Êtes-vous sûr de vouloir modifier votre mot de passe ?
+                              <br />
+                              Après la modification, vous serez déconnecté et redirigé vers la page d'authentification.
+                            </DialogDescription>
                         </DialogHeader>
                         <DialogFooter>
                           <Button 
