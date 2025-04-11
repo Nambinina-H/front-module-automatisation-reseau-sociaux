@@ -2,6 +2,43 @@ import { useState, useCallback, useEffect } from 'react';
 import { apiService } from '@/services/apiService';
 import { User, Content, Log, LoginCredentials, RegisterCredentials, AuthResponse, ContentGenerationParams, PublishParams, ContentGenerationResponse, ImageGenerationParams, ImageGenerationResponse, ImmediatePublishParams, MediaUploadResponse, ApiConfig, ConfigKeys } from '@/services/apiService';
 import { toast } from '../components/ui/use-toast';
+
+interface PaginatedResponse<T> {
+  logs: T[];
+  pagination: {
+    page: number;
+    totalPages: number;
+    totalLogs: number;
+    hasNextPage: boolean;
+    hasPreviousPage: boolean;
+  };
+}
+
+interface VideoDescriptionParams {
+  videoUrl: string;
+  language?: string;
+}
+
+interface VideoDescriptionResponse {
+  description: string;
+}
+
+interface ChangePasswordParams {
+  oldPassword: string;
+  newPassword: string;
+}
+
+interface VideoGenerationParams {
+  prompt: string;
+  duration?: number;
+  style?: string;
+}
+
+interface VideoGenerationResponse {
+  videoUrl: string;
+  status: string;
+}
+
 export function useApi<T, P = any>(
   apiMethod: (params?: P) => Promise<T>,
   initialData?: T

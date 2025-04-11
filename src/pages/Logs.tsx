@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import Sidebar from '@/components/layout/Sidebar';
 import Navbar from '@/components/layout/Navbar';
@@ -8,7 +9,7 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { RefreshCw } from 'lucide-react';
 import { useLogs } from '@/hooks/useApi';
-import { Skeleton } from "@/components/ui/skeleton"; // Add this import
+import { Skeleton } from "@/components/ui/skeleton";
 
 const Logs = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -18,7 +19,7 @@ const Logs = () => {
 
   useEffect(() => {
     fetchLogs(currentPage);
-  }, [currentPage]); // Recharge les logs quand la page change
+  }, [currentPage, fetchLogs]); // Recharge les logs quand la page change
 
   const actionLabels = {
     create: 'Création d\'un utilisateur',
@@ -88,6 +89,10 @@ const Logs = () => {
     }
   };
 
+  const handleRefresh = () => {
+    fetchLogs(currentPage);
+  };
+
   const LogsSkeleton = () => (
     <tbody>
       {[...Array(10)].map((_, index) => (
@@ -130,7 +135,7 @@ const Logs = () => {
                 <div className="flex items-center gap-2">
                   <Button 
                     className="flex items-center gap-2"
-                    onClick={fetchLogs} // Add onClick handler to refresh logs
+                    onClick={handleRefresh} // Fixed: Use the handleRefresh function
                   >
                     <RefreshCw className="h-4 w-4" />
                   </Button>
