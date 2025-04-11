@@ -562,17 +562,6 @@ const ContentGeneration = () => {
             </div>
             <div className="flex justify-end space-x-2">
               <Button variant="outline" disabled>Personnaliser</Button>
-              <Button onClick={() => {
-                const link = document.createElement('a');
-                link.href = content.content;
-                link.download = `video-generee-${content.id}.mp4`;
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-              }}>
-                <Download className="mr-2 h-4 w-4" />
-                Exporter
-              </Button>
             </div>
           </div>
         );

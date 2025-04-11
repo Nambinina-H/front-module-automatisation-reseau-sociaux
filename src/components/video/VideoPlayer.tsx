@@ -1,4 +1,4 @@
-import React, { useState, useEffect, Suspense } from 'react';
+import React, { useState, Suspense } from 'react';
 import { cn } from '@/lib/utils';
 import { Loader2 } from 'lucide-react';
 
@@ -54,13 +54,6 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ url, onError, className }) =>
             onReady={handleReady}
             onError={handleError}
             className="rounded-md overflow-hidden"
-            config={{
-              file: {
-                attributes: {
-                  controlsList: 'nodownload',
-                }
-              }
-            }}
           />
         </Suspense>
       )}
