@@ -451,25 +451,41 @@ const ContentGeneration = () => {
       case 'video':
         return (
           <div className="mt-6 space-y-4">
-            <h3 className="text-lg font-medium">Description de la vidéo générée</h3>
+            <h3 className="text-lg font-medium">Vidéo générée</h3>
             <div className="p-2 bg-white border rounded-md shadow-sm">
               <div className="relative pt-[56.25%] bg-gray-100 rounded-md">
-                <img 
+                <video 
                   src={content.content} 
-                  alt="Video preview" 
-                  className="absolute inset-0 w-full h-full object-cover rounded-md"
-                />
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <Button variant="ghost" className="h-16 w-16 rounded-full bg-white/80">
-                    <FileVideo className="h-8 w-8" />
-                  </Button>
-                </div>
+                  className="absolute inset-0 w-full h-full object-contain rounded-md"
+                  controls
+                  controlsList="nodownload"
+                  preload="auto"
+                  autoPlay
+                  loop
+                  muted // ajout de muted pour permettre l'autoplay
+                >
+                  Votre navigateur ne supporte pas la lecture de vidéos.
+                </video>
               </div>
             </div>
             <div className="flex justify-end space-x-2">
-              {/* TODO: Enable the "Modifier" button functionality in the future */}
               <Button variant="outline" disabled>Personnaliser</Button>
-              <Button>
+              <Button onClick={() => {
+                fetch(content.content)
+                  .then(response => response.blob())
+                  .then(blob => {
+                    const url = window.URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.download = `video-generee-${new Date().toISOString().slice(0, 10)}.mp4`;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    window.URL.revokeObjectURL(url);
+                    toast.success("Vidéo téléchargée avec succès");
+                  })
+                  .catch(() => toast.error("Erreur lors du téléchargement de la vidéo"));
+              }}>
                 <Download className="mr-2 h-4 w-4" />
                 Exporter
               </Button>
