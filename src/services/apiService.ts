@@ -160,6 +160,18 @@ interface ChangePasswordParams {
   newPassword: string;
 }
 
+export interface VideoGenerationParams {
+  prompt: string;
+  resolution: string;
+  duration: string;
+}
+
+export interface VideoGenerationResponse {
+  message: string;
+  videoUrl: string;
+  id: string;
+}
+
 // Classe principale du service API
 class ApiService {
   private api: AxiosInstance;
@@ -444,6 +456,22 @@ class ApiService {
       return response.data;
     } catch (error) {
       console.error('Error generating video description:', error);
+      throw error;
+    }
+  }
+
+  async generateVideo(params: VideoGenerationParams): Promise<VideoGenerationResponse> {
+    try {
+      console.log('Envoi de la requête de génération vidéo avec les paramètres:', params);
+      const response = await this.api.post<VideoGenerationResponse>('/video/generate', params);
+      console.log('Réponse brute du serveur pour la génération vidéo:', response);
+      return response.data;
+    } catch (error) {
+      console.error('Erreur détaillée lors de la génération vidéo:', {
+        error,
+        message: error.message,
+        response: error.response?.data
+      });
       throw error;
     }
   }

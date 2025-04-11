@@ -363,3 +363,15 @@ export function useChangePassword() {
     error
   };
 }
+
+export function useVideoGeneration() {
+  const { execute, loading, error } = useApi<VideoGenerationResponse, VideoGenerationParams>(
+    apiService.generateVideo.bind(apiService)
+  );
+
+  return {
+    generateVideo: execute,
+    loading,
+    error
+  };
+}
