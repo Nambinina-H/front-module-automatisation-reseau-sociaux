@@ -388,8 +388,21 @@ const ContentGeneration = () => {
               ))}
             </div>
             <div className="flex justify-end space-x-2">
-              {/* TODO: Enable the "Modifier" button functionality in the future */}
-              <Button variant="outline" disabled>Modifier</Button>
+              {/* Remplacer "Modifier" par "Personnaliser" et activer le bouton */}
+              <Button 
+                variant="outline" 
+                onClick={() => {
+                  setPrompt(`Modifie le texte ci-dessous : \n\n ${content.content} `);
+                  // Faire défiler vers le haut jusqu'à la zone de prompt
+                  const promptElement = document.getElementById('prompt');
+                  if (promptElement) {
+                    promptElement.scrollIntoView({ behavior: 'smooth' });
+                    promptElement.focus();
+                  }
+                }}
+              >
+                Personnaliser
+              </Button>
               <Button onClick={() => {
                 // Créer un blob et télécharger le contenu
                 const blob = new Blob([content.content], { type: 'text/plain' });
