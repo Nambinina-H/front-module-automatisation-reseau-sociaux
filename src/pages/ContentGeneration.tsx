@@ -547,7 +547,7 @@ const ContentGeneration = () => {
                       </div>
                       
                       <div className="space-y-2">
-                        <Label htmlFor="prompt">Prompt / Instructions</Label>
+                        <Label htmlFor="prompt">Prompt / Instructions (optionnel)</Label>
                         <Textarea 
                           id="prompt"
                           placeholder="Décrivez le contenu que vous souhaitez générer..."
