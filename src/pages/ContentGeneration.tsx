@@ -256,6 +256,15 @@ const ContentGeneration = () => {
       return;
     }
     
+    // Vérification des variables dynamiques pour la génération de texte
+    if (activeTab === 'text' && settings.dynamicVariables.length > 0) {
+      const emptyVariables = settings.dynamicVariables.filter(variable => !variable.value.trim());
+      if (emptyVariables.length > 0) {
+        toast.error(`Veuillez remplir toutes les variables dynamiques (${emptyVariables.map(v => v.name).join(', ')})`);
+        return;
+      }
+    }
+    
     setIsGenerating(true);
     
     try {
@@ -995,22 +1004,44 @@ const ContentGeneration = () => {
 
                       <div className="space-y-2">
                         <Label>Variables dynamiques</Label>
+                        <p className="text-sm text-gray-500 mb-2">
+                          Les variables dynamiques permettent de personnaliser votre contenu (ex: [Nom], [Date], etc.)
+                        </p>
                         {settings.dynamicVariables.map(variable => (
-                          <div key={variable.id} className="flex gap-2 items-center">
-                            <Input 
-                              value={variable.value} 
-                              onChange={(e) => handleVariableChange(variable.id, e.target.value)}
-                            />
-                            <Button variant="outline" onClick={() => handleRemoveVariable(variable.id)}>Supprimer</Button>
+                          <div key={variable.id} className="flex gap-2 items-center mb-2">
+                            <div className="grid grid-cols-3 gap-2 flex-1">
+                              <div className="flex items-center">
+                                <Label className="text-sm truncate" title={variable.name}>
+                                  {variable.name}
+                                </Label>
+                              </div>
+                              <Input 
+                                value={variable.value} 
+                                onChange={(e) => handleVariableChange(variable.id, e.target.value)}
+                                placeholder={`Valeur pour ${variable.name}`}
+                                className="col-span-2"
+                                required
+                              />
+                            </div>
+                            <Button variant="outline" size="icon" onClick={() => handleRemoveVariable(variable.id)}>
+                              <span className="sr-only">Supprimer</span>
+                              &times;
+                            </Button>
                           </div>
                         ))}
-                        <div className="flex gap-2">
-                          <Input 
-                            placeholder="Ajouter une variable" 
-                            value={newVariableName}
-                            onChange={(e) => setNewVariableName(e.target.value)}
-                          />
-                          <Button onClick={handleAddVariable} disabled={!newVariableName}>Ajouter</Button>
+                        <div className="pt-2 border-t mt-2">
+                          <Label className="text-sm mb-2 block">Ajouter une nouvelle variable</Label>
+                          <div className="flex gap-2">
+                            <Input 
+                              placeholder="Nom de la variable" 
+                              value={newVariableName}
+                              onChange={(e) => setNewVariableName(e.target.value)}
+                              className="flex-1"
+                            />
+                            <Button onClick={handleAddVariable} disabled={!newVariableName} size="sm">
+                              Ajouter
+                            </Button>
+                          </div>
                         </div>
                       </div>
                     </CardContent>
