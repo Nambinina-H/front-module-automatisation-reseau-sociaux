@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import Sidebar from '@/components/layout/Sidebar';
 import Navbar from '@/components/layout/Navbar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -32,12 +32,13 @@ import {
   DialogClose,
 } from "@/components/ui/dialog";
 import { useContent } from '@/hooks/useApi';
-import { ContentGenerationParams, ContentPersonalization, VideoGenerationParams, VideoDescriptionParams } from '@/services/apiService';
+import { ContentGenerationParams, ContentPersonalization } from '@/services/apiService';
 import Maintenance from '@/components/ui/Maintenance';
 
+// Ajoutez l'import du nouveau hook
 import { useVideoDescription, useVideoGeneration } from '@/hooks/useApi';
-import VideoPlayer from '@/components/video/VideoPlayer';
 
+// Sample template data
 const initialTemplates = [
   { id: 'blog', name: 'Article de blog', contentType: 'text' },
   { id: 'social', name: 'Légende pour réseaux sociaux', contentType: 'text' },
@@ -48,6 +49,7 @@ const initialTemplates = [
   { id: 'tutorial', name: 'Tutoriel', contentType: 'video' }
 ];
 
+// Initial tones
 const initialTones = [
   { id: 'professional', name: 'Professionnel' },
   { id: 'casual', name: 'Décontracté' },
@@ -70,6 +72,7 @@ const initialTones = [
   { id: 'neutral', name: 'Neutre' }
 ];
 
+// Sample placeholders for generated content
 const placeholderText = `Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam euismod, nisl eget ultricies aliquam, nunc nisl aliquet nunc, vitae aliquam nisl nunc vitae nisl. Nullam euismod, nisl eget ultricies aliquam, nunc nisl aliquet nunc, vitae aliquam nisl nunc vitae nisl.
 
 Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.`;
@@ -80,7 +83,7 @@ const placeholderImages = [
   'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=600&h=400'
 ];
 
-const placeholderVideo = 'https://storage.cdn-luma.com/dream_machine/5324a5a3-de37-4e59-ac7d-b5cd8d11599e/23c0d48d-7ac0-4bdd-a085-059432a37756_output_f17d03509a49da73.mp4';
+const placeholderVideo = 'https://images.unsplash.com/photo-1487058792275-0ad4aaf24ca7?auto=format&fit=crop&w=600&h=400';
 
 interface DynamicVariable {
   id: string;
@@ -120,16 +123,6 @@ interface ImageGenerationResponse {
   imageUrl: string;
 }
 
-interface VideoGenerationParams {
-  prompt: string;
-  resolution: string;
-  duration: number;
-}
-
-interface VideoDescriptionParams {
-  keywords: string[];
-}
-
 const ContentGeneration = () => {
   const [activeTab, setActiveTab] = useState('text');
   const [prompt, setPrompt] = useState('');
@@ -144,18 +137,22 @@ const ContentGeneration = () => {
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [filePreview, setFilePreview] = useState<string | null>(null);
   
+  // Image generation specific state
   const [imageQuality, setImageQuality] = useState<string>('hd');
   const [imageSize, setImageSize] = useState<string>('1024x1024');
   const [imageStyle, setImageStyle] = useState<string>('natural');
   
+  // New state for template and tone management
   const [templates, setTemplates] = useState<Template[]>(initialTemplates);
   const [tones, setTones] = useState<Tone[]>(initialTones);
   const [newTemplateName, setNewTemplateName] = useState('');
   const [newTemplateType, setNewTemplateType] = useState('text');
   const [newToneName, setNewToneName] = useState('');
   
+  // Variable management
   const [newVariableName, setNewVariableName] = useState('');
   
+  // Content settings
   const [settings, setSettings] = useState<ContentSettings>({
     tone: 'professional',
     length: 75,
@@ -168,17 +165,18 @@ const ContentGeneration = () => {
     ]
   });
 
+  // Utiliser le hook useContent pour la génération de contenu
   const { 
     generateContent,
     generateImage,
     loading: { generate: isApiGenerating, generateImage: isApiImageGenerating }
   } = useContent();
   
+  // Ajoutez le hook pour la génération de description vidéo
   const { generateVideoDescription, loading: isGeneratingDescription } = useVideoDescription();
   const [resolution, setResolution] = useState('1080p');
   const [duration, setDuration] = useState('5');
   const { generateVideo, loading: videoGenerating } = useVideoGeneration();
-  const videoPlayerRef = useRef<any>(null);
 
   const addKeyword = () => {
     if (newKeyword && !keywords.includes(newKeyword)) {
@@ -196,6 +194,7 @@ const ContentGeneration = () => {
     if (file) {
       setUploadedFile(file);
       
+      // Create preview URL
       const preview = URL.createObjectURL(file);
       setFilePreview(preview);
       
@@ -212,6 +211,7 @@ const ContentGeneration = () => {
     });
   };
   
+  // Add new template
   const handleAddTemplate = () => {
     if (newTemplateName.trim() === '') {
       toast.error('Le nom du modèle ne peut pas être vide');
@@ -229,6 +229,7 @@ const ContentGeneration = () => {
     toast.success('Nouveau modèle ajouté');
   };
   
+  // Add new tone
   const handleAddTone = () => {
     if (newToneName.trim() === '') {
       toast.error('Le nom du ton ne peut pas être vide');
@@ -245,6 +246,7 @@ const ContentGeneration = () => {
     toast.success('Nouveau ton ajouté');
   };
   
+  // Add new variable
   const handleAddVariable = () => {
     if (newVariableName.trim() === '') {
       toast.error('Le nom de la variable ne peut pas être vide');
@@ -266,6 +268,7 @@ const ContentGeneration = () => {
     toast.success('Nouvelle variable ajoutée');
   };
   
+  // Remove variable
   const handleRemoveVariable = (id: string) => {
     setSettings({
       ...settings,
@@ -289,11 +292,13 @@ const ContentGeneration = () => {
     
     try {
       if (activeTab === 'text') {
+        // Préparer les variables pour l'API texte
         const variablesObject: Record<string, string> = {};
         settings.dynamicVariables.forEach(variable => {
           variablesObject[variable.name] = variable.value;
         });
         
+        // Préparer les paramètres pour l'API texte
         const templateItem = templates.find(t => t.id === settings.template);
         
         const personalization: ContentPersonalization = {
@@ -326,6 +331,7 @@ const ContentGeneration = () => {
           toast.error("Aucun contenu n'a été généré");
         }
       } else if (activeTab === 'image') {
+        // Préparer les paramètres pour l'API d'image
         const imageParams: ImageGenerationParams = {
           prompt: prompt,
           keywords: keywords,
@@ -349,7 +355,7 @@ const ContentGeneration = () => {
         } catch (error) {
           console.error("Erreur lors de la génération de l'image:", error);
           toast.error("Erreur lors de la génération de l'image");
-          simulateGeneration();
+          simulateImageGeneration();
         }
       } else if (activeTab === 'video') {
         if (!prompt) {
@@ -361,16 +367,14 @@ const ContentGeneration = () => {
           console.log('Début de la génération de vidéo avec les paramètres:', {
             prompt,
             resolution,
-            duration: Number(duration)
+            duration: `${duration}s`
           });
 
-          const videoParams: VideoGenerationParams = {
+          const response = await generateVideo({
             prompt,
             resolution,
-            duration: Number(duration)
-          };
-
-          const response = await generateVideo(videoParams);
+            duration: `${duration}s`
+          });
 
           console.log('Réponse de la génération de vidéo:', response);
   
@@ -378,15 +382,17 @@ const ContentGeneration = () => {
             ...prev,
             video: {
               type: 'video',
-              content: response.videoUrl
+              content: response.videoUrl,
+              id: response.id
             }
           }));
 
           console.log('Contenu vidéo mis à jour:', {
-            videoUrl: response.videoUrl
+            videoUrl: response.videoUrl,
+            videoId: response.id
           });
           
-          toast.success("Vidéo générée avec succès");
+          toast.success(response.message || "Vidéo générée avec succès");
         } catch (error) {
           console.error("Erreur détaillée lors de la génération de la vidéo:", error);
           toast.error("Erreur lors de la génération de la vidéo");
@@ -394,7 +400,7 @@ const ContentGeneration = () => {
       }
     } catch (error) {
       console.error("Erreur lors de la génération du contenu:", error);
-      toast.error("Erreur lors de la génération du contenu");
+      toast.error("Erreur lors de la génération de la vidéo");
     } finally {
       setIsGenerating(false);
     }
@@ -408,9 +414,11 @@ const ContentGeneration = () => {
     
     setIsGenerating(true);
     
+    // Simulate API call with timeout
     setTimeout(() => {
       setIsGenerating(false);
       
+      // Generate different content based on active tab
       if (activeTab === 'text') {
         setGeneratedContent(prev => ({
           ...prev,
@@ -442,6 +450,7 @@ const ContentGeneration = () => {
     }, 2000);
   };
 
+  // Ajoutez cette nouvelle fonction
   const handleGenerateVideoDescription = async () => {
     if (keywords.length === 0) {
       toast.error("Veuillez ajouter au moins un mot-clé");
@@ -449,10 +458,9 @@ const ContentGeneration = () => {
     }
 
     try {
-      const params: VideoDescriptionParams = { keywords };
-      const response = await generateVideoDescription(params);
+      const response = await generateVideoDescription({ keywords });
       setPrompt(response.description);
-      toast.success("Description générée avec succès");
+      toast.success(response.message || "Description générée avec succès");
     } catch (error) {
       toast.error("Erreur lors de la génération de la description");
     }
@@ -477,8 +485,10 @@ const ContentGeneration = () => {
               ))}
             </div>
             <div className="flex justify-end space-x-2">
+              {/* TODO: Enable the "Modifier" button functionality in the future */}
               <Button variant="outline" disabled>Modifier</Button>
               <Button onClick={() => {
+                // Créer un blob et télécharger le contenu
                 const blob = new Blob([content.content], { type: 'text/plain' });
                 const url = window.URL.createObjectURL(blob);
                 const a = document.createElement('a');
@@ -508,6 +518,7 @@ const ContentGeneration = () => {
               />
             </div>
             <div className="flex justify-end space-x-2">
+              {/* TODO: Enable the "Modifier" button functionality in the future */}
               <Button variant="outline" disabled>Modifier</Button>
               <Button onClick={() => {
                 fetch(content.content)
@@ -536,13 +547,11 @@ const ContentGeneration = () => {
           <div className="mt-6 space-y-4">
             <h3 className="text-lg font-medium">Vidéo générée</h3>
             <div className="p-2 bg-white border rounded-md shadow-sm">
-              <div className="relative rounded-md overflow-hidden">
-                <VideoPlayer 
-                  url={content.content}
-                  onError={(error) => {
-                    console.error('Erreur de lecture video:', error);
-                    toast.error("Erreur lors de la lecture de la vidéo");
-                  }}
+              <div className="relative pt-[56.25%] bg-gray-100 rounded-md">
+                <video 
+                  src={content.content}
+                  className="absolute inset-0 w-full h-full object-cover rounded-md"
+                  controls
                 />
               </div>
             </div>
@@ -551,14 +560,13 @@ const ContentGeneration = () => {
               <Button onClick={() => {
                 const link = document.createElement('a');
                 link.href = content.content;
-                link.download = `video-generee-${new Date().toISOString().slice(0, 10)}.mp4`;
+                link.download = `video-generee-${content.id}.mp4`;
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
-                toast.success("Vidéo téléchargée avec succès");
               }}>
                 <Download className="mr-2 h-4 w-4" />
-                Télécharger
+                Exporter
               </Button>
             </div>
           </div>
@@ -823,6 +831,54 @@ const ContentGeneration = () => {
                         </div>
                       </div>
                       
+                      {/* <Separator className="my-4" /> */}
+                      
+                      {/* <div className="space-y-2">
+                        <Label className="flex items-center gap-2">
+                          Image personnalisée
+                          <AlertCircle className="h-4 w-4 text-gray-400" />
+                        </Label>
+                        <div className="border-2 border-dashed rounded-md p-6 text-center">
+                          {filePreview ? (
+                            <div className="space-y-2">
+                              <img 
+                                src={filePreview} 
+                                alt="Uploaded preview" 
+                                className="mx-auto max-h-[200px] rounded-md"
+                              />
+                              <Button 
+                                variant="outline" 
+                                onClick={() => {
+                                  setUploadedFile(null);
+                                  setFilePreview(null);
+                                }}
+                              >
+                                Supprimer et télécharger un autre
+                              </Button>
+                            </div>
+                          ) : (
+                            <>
+                              <Upload className="h-10 w-10 text-gray-400 mx-auto mb-2" />
+                              <p className="text-sm text-gray-500 mb-2">
+                                Téléchargez une image pour l'intégrer ou la modifier
+                              </p>
+                              <label htmlFor="image-upload">
+                                <Button variant="outline" className="cursor-pointer" asChild>
+                                  <span>Parcourir les fichiers</span>
+                                </Button>
+                              </label>
+                              <input
+                                id="image-upload"
+                                type="file"
+                                accept="image/*"
+                                className="hidden"
+                                onChange={handleFileUpload}
+                              />
+                            </>
+                          )}
+                        </div>
+                      </div> */}
+                      
                       <div className="space-y-2">
                         <Label>Mots-clés</Label>
                         <div className="flex gap-2">
@@ -1004,6 +1060,7 @@ const ContentGeneration = () => {
                       </CardContent>
                     </Card>
                     
+                    {/* Nouvelle carte pour la génération audio */}
                     <Card>
                       <CardHeader>
                         <CardTitle>Génération d'Audio</CardTitle>
