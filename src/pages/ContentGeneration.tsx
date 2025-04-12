@@ -36,7 +36,7 @@ import { ContentGenerationParams, ContentPersonalization } from '@/services/apiS
 import Maintenance from '@/components/ui/Maintenance';
 
 // Ajoutez l'import du nouveau hook
-import { useVideoDescription, useVideoGeneration } from '@/hooks/useApi';
+import { useVideoDescription } from '@/hooks/useApi';
 
 // Sample template data
 const initialTemplates = [
@@ -174,9 +174,6 @@ const ContentGeneration = () => {
   
   // Ajoutez le hook pour la génération de description vidéo
   const { generateVideoDescription, loading: isGeneratingDescription } = useVideoDescription();
-  const [resolution, setResolution] = useState('1080p');
-  const [duration, setDuration] = useState('5');
-  const { generateVideo, loading: videoGenerating } = useVideoGeneration();
 
   const addKeyword = () => {
     if (newKeyword && !keywords.includes(newKeyword)) {
@@ -358,54 +355,38 @@ const ContentGeneration = () => {
           simulateImageGeneration();
         }
       } else if (activeTab === 'video') {
-        if (!prompt) {
-          toast.error("Veuillez remplir la description de la vidéo");
-          return;
-        }
-  
-        try {
-          console.log('Début de la génération de vidéo avec les paramètres:', {
-            prompt,
-            resolution,
-            duration: `${duration}s`
-          });
-
-          const response = await generateVideo({
-            prompt,
-            resolution,
-            duration: `${duration}s`
-          });
-
-          console.log('Réponse de la génération de vidéo:', response);
-  
-          setGeneratedContent(prev => ({
-            ...prev,
-            video: {
-              type: 'video',
-              content: response.videoUrl,
-              id: response.id
-            }
-          }));
-
-          console.log('Contenu vidéo mis à jour:', {
-            videoUrl: response.videoUrl,
-            videoId: response.id
-          });
-          
-          toast.success(response.message || "Vidéo générée avec succès");
-        } catch (error) {
-          console.error("Erreur détaillée lors de la génération de la vidéo:", error);
-          toast.error("Erreur lors de la génération de la vidéo");
-        }
+        simulateGeneration();
       }
     } catch (error) {
       console.error("Erreur lors de la génération du contenu:", error);
-      toast.error("Erreur lors de la génération de la vidéo");
+      toast.error("Erreur lors de la génération du contenu");
+      
+      if (activeTab === 'video' && !prompt) {
+        return; // Ne pas simuler la génération si la description est vide
+      }
+      
+      // En cas d'erreur, simuler une réponse pour la démo
+      simulateGeneration();
     } finally {
       setIsGenerating(false);
     }
   };
-
+  
+  // Simulation spécifique pour les images
+  const simulateImageGeneration = () => {
+    setTimeout(() => {
+      setGeneratedContent(prev => ({
+        ...prev,
+        image: {
+          type: 'image',
+          content: placeholderImages[Math.floor(Math.random() * placeholderImages.length)]
+        }
+      }));
+      toast.success("Image générée avec succès (simulation)");
+    }, 2000);
+  };
+  
+  // Fallback en cas d'échec de l'API
   const simulateGeneration = () => {
     if (!prompt && keywords.length === 0) {
       toast.error("Veuillez ajouter un prompt ou des mots-clés");
@@ -545,26 +526,25 @@ const ContentGeneration = () => {
       case 'video':
         return (
           <div className="mt-6 space-y-4">
-            <h3 className="text-lg font-medium">Vidéo générée</h3>
+            <h3 className="text-lg font-medium">Description de la vidéo générée</h3>
             <div className="p-2 bg-white border rounded-md shadow-sm">
               <div className="relative pt-[56.25%] bg-gray-100 rounded-md">
-                <video 
-                  src={content.content}
+                <img 
+                  src={content.content} 
+                  alt="Video preview" 
                   className="absolute inset-0 w-full h-full object-cover rounded-md"
-                  controls
                 />
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <Button variant="ghost" className="h-16 w-16 rounded-full bg-white/80">
+                    <FileVideo className="h-8 w-8" />
+                  </Button>
+                </div>
               </div>
             </div>
             <div className="flex justify-end space-x-2">
+              {/* TODO: Enable the "Modifier" button functionality in the future */}
               <Button variant="outline" disabled>Personnaliser</Button>
-              <Button onClick={() => {
-                const link = document.createElement('a');
-                link.href = content.content;
-                link.download = `video-generee-${content.id}.mp4`;
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-              }}>
+              <Button>
                 <Download className="mr-2 h-4 w-4" />
                 Exporter
               </Button>
