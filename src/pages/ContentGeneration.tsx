@@ -40,13 +40,46 @@ import { useVideoDescription } from '@/hooks/useApi';
 
 // Sample template data
 const initialTemplates = [
+  // Modèles WordPress
+  { id: 'wordpress_article', name: 'Article WordPress', contentType: 'text' },
+  { id: 'wordpress_seo', name: 'Contenu SEO WordPress', contentType: 'text' },
+  { id: 'wordpress_page', name: 'Page WordPress', contentType: 'text' },
+  { id: 'wordpress_product_description', name: 'Description de produit WordPress', contentType: 'text' },
+
+  // Modèles Facebook
+  { id: 'facebook_post', name: 'Publication Facebook', contentType: 'text' },
+  { id: 'facebook_ad', name: 'Annonce Facebook', contentType: 'text' },
+  { id: 'facebook_event', name: 'Événement Facebook', contentType: 'text' },
+
+  // Modèles Instagram
+  { id: 'instagram_caption', name: 'Légende Instagram', contentType: 'text' },
+  { id: 'instagram_ad', name: 'Annonce Instagram', contentType: 'text' },
+  { id: 'instagram_story', name: 'Story Instagram', contentType: 'text' },
+
+  // Modèles LinkedIn
+  { id: 'linkedin_post', name: 'Publication LinkedIn', contentType: 'text' },
+  { id: 'linkedin_article', name: 'Article LinkedIn', contentType: 'text' },
+  { id: 'linkedin_ad', name: 'Annonce LinkedIn', contentType: 'text' },
+
+  // Modèles Twitter
+  { id: 'twitter_tweet', name: 'Tweet', contentType: 'text' },
+  { id: 'twitter_thread', name: 'Thread Twitter', contentType: 'text' },
+  { id: 'twitter_ad', name: 'Annonce Twitter', contentType: 'text' },
+
+  // Autres modèles
   { id: 'blog', name: 'Article de blog', contentType: 'text' },
-  { id: 'social', name: 'Légende pour réseaux sociaux', contentType: 'text' },
   { id: 'newsletter', name: 'Newsletter', contentType: 'text' },
+  { id: 'social', name: 'Légende pour réseaux sociaux', contentType: 'text' },
   { id: 'infographic', name: 'Infographie', contentType: 'image' },
   { id: 'banner', name: 'Bannière sociale', contentType: 'image' },
   { id: 'promo', name: 'Vidéo promotionnelle', contentType: 'video' },
-  { id: 'tutorial', name: 'Tutoriel', contentType: 'video' }
+  { id: 'tutorial', name: 'Tutoriel', contentType: 'video' },
+  { id: 'press_release', name: 'Communiqué de presse', contentType: 'text' },
+  { id: 'case_study', name: 'Étude de cas', contentType: 'text' },
+  { id: 'faq', name: 'FAQ', contentType: 'text' },
+  { id: 'product_review', name: 'Avis sur un produit', contentType: 'text' },
+  { id: 'how_to_guide', name: 'Guide pratique', contentType: 'text' },
+  { id: 'email_marketing', name: 'Email marketing', contentType: 'text' }
 ];
 
 // Initial tones
@@ -353,6 +386,19 @@ const ContentGeneration = () => {
     return templates.filter(template => template.contentType === contentType);
   };
 
+  const filterTemplatesByCategory = () => {
+    return {
+      WordPress: templates.filter(template => template.id.startsWith('wordpress')),
+      Facebook: templates.filter(template => template.id.startsWith('facebook')),
+      Instagram: templates.filter(template => template.id.startsWith('instagram')),
+      LinkedIn: templates.filter(template => template.id.startsWith('linkedin')),
+      Twitter: templates.filter(template => template.id.startsWith('twitter')),
+      Autres: templates.filter(template => 
+        !['wordpress', 'facebook', 'instagram', 'linkedin', 'twitter'].some(prefix => template.id.startsWith(prefix))
+      )
+    };
+  };
+
   const renderGeneratedContent = () => {
     const content = generatedContent[activeTab];
     if (!content) return null;
@@ -567,10 +613,15 @@ const ContentGeneration = () => {
                             <SelectValue placeholder="Sélectionner un modèle" />
                           </SelectTrigger>
                           <SelectContent>
-                            {filterTemplatesByType('text').map(template => (
-                              <SelectItem key={template.id} value={template.id}>
-                                {template.name}
-                              </SelectItem>
+                            {Object.entries(filterTemplatesByCategory()).map(([category, templates]) => (
+                              <React.Fragment key={category}>
+                                <div className="px-2 py-1 text-sm font-semibold text-gray-500">{category}</div>
+                                {templates.map(template => (
+                                  <SelectItem key={template.id} value={template.id}>
+                                    {template.name}
+                                  </SelectItem>
+                                ))}
+                              </React.Fragment>
                             ))}
                           </SelectContent>
                         </Select>
