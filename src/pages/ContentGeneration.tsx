@@ -29,71 +29,71 @@ import Maintenance from '@/components/ui/Maintenance';
 // Ajoutez l'import du nouveau hook
 import { useVideoDescription } from '@/hooks/useApi';
 
-// Sample template data
+// Sample template data - triés alphabétiquement dans chaque catégorie
 const initialTemplates = [
-  // Modèles WordPress
+  // Modèles WordPress (triés alphabétiquement)
   { id: 'wordpress_article', name: 'Article WordPress', contentType: 'text' },
-  { id: 'wordpress_seo', name: 'Contenu SEO WordPress', contentType: 'text' },
   { id: 'wordpress_page', name: 'Page WordPress', contentType: 'text' },
   { id: 'wordpress_product_description', name: 'Description de produit WordPress', contentType: 'text' },
+  { id: 'wordpress_seo', name: 'Contenu SEO WordPress', contentType: 'text' },
 
-  // Modèles Facebook
-  { id: 'facebook_post', name: 'Publication Facebook', contentType: 'text' },
+  // Modèles Facebook (triés alphabétiquement)
   { id: 'facebook_ad', name: 'Annonce Facebook', contentType: 'text' },
   { id: 'facebook_event', name: 'Événement Facebook', contentType: 'text' },
+  { id: 'facebook_post', name: 'Publication Facebook', contentType: 'text' },
 
-  // Modèles Instagram
-  { id: 'instagram_caption', name: 'Légende Instagram', contentType: 'text' },
+  // Modèles Instagram (triés alphabétiquement)
   { id: 'instagram_ad', name: 'Annonce Instagram', contentType: 'text' },
+  { id: 'instagram_caption', name: 'Légende Instagram', contentType: 'text' },
   { id: 'instagram_story', name: 'Story Instagram', contentType: 'text' },
 
-  // Modèles LinkedIn
-  { id: 'linkedin_post', name: 'Publication LinkedIn', contentType: 'text' },
-  { id: 'linkedin_article', name: 'Article LinkedIn', contentType: 'text' },
+  // Modèles LinkedIn (triés alphabétiquement)
   { id: 'linkedin_ad', name: 'Annonce LinkedIn', contentType: 'text' },
+  { id: 'linkedin_article', name: 'Article LinkedIn', contentType: 'text' },
+  { id: 'linkedin_post', name: 'Publication LinkedIn', contentType: 'text' },
 
-  // Modèles Twitter
-  { id: 'twitter_tweet', name: 'Tweet', contentType: 'text' },
-  { id: 'twitter_thread', name: 'Thread Twitter', contentType: 'text' },
+  // Modèles Twitter (triés alphabétiquement)
   { id: 'twitter_ad', name: 'Annonce Twitter', contentType: 'text' },
+  { id: 'twitter_thread', name: 'Thread Twitter', contentType: 'text' },
+  { id: 'twitter_tweet', name: 'Tweet', contentType: 'text' },
 
-  // Autres modèles
+  // Autres modèles (triés alphabétiquement)
   { id: 'blog', name: 'Article de blog', contentType: 'text' },
-  { id: 'newsletter', name: 'Newsletter', contentType: 'text' },
-  { id: 'social', name: 'Légende pour réseaux sociaux', contentType: 'text' },
-  { id: 'infographic', name: 'Infographie', contentType: 'image' },
   { id: 'banner', name: 'Bannière sociale', contentType: 'image' },
-  { id: 'promo', name: 'Vidéo promotionnelle', contentType: 'video' },
-  { id: 'tutorial', name: 'Tutoriel', contentType: 'video' },
-  { id: 'press_release', name: 'Communiqué de presse', contentType: 'text' },
   { id: 'case_study', name: 'Étude de cas', contentType: 'text' },
+  { id: 'email_marketing', name: 'Email marketing', contentType: 'text' },
   { id: 'faq', name: 'FAQ', contentType: 'text' },
-  { id: 'product_review', name: 'Avis sur un produit', contentType: 'text' },
   { id: 'how_to_guide', name: 'Guide pratique', contentType: 'text' },
-  { id: 'email_marketing', name: 'Email marketing', contentType: 'text' }
+  { id: 'infographic', name: 'Infographie', contentType: 'image' },
+  { id: 'newsletter', name: 'Newsletter', contentType: 'text' },
+  { id: 'press_release', name: 'Communiqué de presse', contentType: 'text' },
+  { id: 'product_review', name: 'Avis sur un produit', contentType: 'text' },
+  { id: 'promo', name: 'Vidéo promotionnelle', contentType: 'video' },
+  { id: 'social', name: 'Légende pour réseaux sociaux', contentType: 'text' },
+  { id: 'tutorial', name: 'Tutoriel', contentType: 'video' }
 ];
 
-// Initial tones
+// Initial tones - triés alphabétiquement par nom
 const initialTones = [
-  { id: 'professional', name: 'Professionnel' },
-  { id: 'casual', name: 'Décontracté' },
-  { id: 'friendly', name: 'Amical' },
-  { id: 'formal', name: 'Formel' },
-  { id: 'humorous', name: 'Humoristique' },
-  { id: 'inspirational', name: 'Inspirant' },
-  { id: 'informative', name: 'Informatif' },
-  { id: 'persuasive', name: 'Persuasif' },
-  { id: 'empathetic', name: 'Empathique' },
   { id: 'authoritative', name: 'Autoritaire' },
-  { id: 'playful', name: 'Ludique' },
-  { id: 'urgent', name: 'Urgent' },
-  { id: 'confident', name: 'Confiant' },
-  { id: 'enthusiastic', name: 'Enthousiaste' },
-  { id: 'sarcastic', name: 'Sarcastique' },
-  { id: 'motivational', name: 'Motivant' },
   { id: 'calm', name: 'Calme' },
+  { id: 'confident', name: 'Confiant' },
+  { id: 'casual', name: 'Décontracté' },
+  { id: 'empathetic', name: 'Empathique' },
+  { id: 'enthusiastic', name: 'Enthousiaste' },
+  { id: 'formal', name: 'Formel' },
+  { id: 'friendly', name: 'Amical' },
+  { id: 'humorous', name: 'Humoristique' },
+  { id: 'informative', name: 'Informatif' },
+  { id: 'inspirational', name: 'Inspirant' },
+  { id: 'motivational', name: 'Motivant' },
+  { id: 'neutral', name: 'Neutre' },
   { id: 'optimistic', name: 'Optimiste' },
-  { id: 'neutral', name: 'Neutre' }
+  { id: 'persuasive', name: 'Persuasif' },
+  { id: 'playful', name: 'Ludique' },
+  { id: 'professional', name: 'Professionnel' },
+  { id: 'sarcastic', name: 'Sarcastique' },
+  { id: 'urgent', name: 'Urgent' }
 ];
 
 interface DynamicVariable {
@@ -696,9 +696,9 @@ const ContentGeneration = () => {
                         </div>
                       </div>
                       
-                      {/* <Separator className="my-4" /> */}
+                      <Separator className="my-4" />
                       
-                      {/* <div className="space-y-2">
+                      <div className="space-y-2">
                         <Label className="flex items-center gap-2">
                           Image personnalisée
                           <AlertCircle className="h-4 w-4 text-gray-400" />
@@ -742,7 +742,7 @@ const ContentGeneration = () => {
                             </>
                           )}
                         </div>
-                      </div> */}
+                      </div>
                       
                       <div className="space-y-2">
                         <Label>Mots-clés</Label>
