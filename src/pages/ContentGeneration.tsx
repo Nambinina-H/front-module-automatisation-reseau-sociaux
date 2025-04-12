@@ -19,7 +19,9 @@ import {
   Upload, 
   Download, 
   AlertCircle, 
+  HelpCircle,
 } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useContent } from '@/hooks/useApi';
 import { ContentGenerationParams, ContentPersonalization } from '@/services/apiService';
 import Maintenance from '@/components/ui/Maintenance';
@@ -164,11 +166,7 @@ const ContentGeneration = () => {
     length: 75,
     keywords: [],
     template: '',
-    dynamicVariables: [
-      { id: '1', name: 'Nom', value: 'Votre Entreprise' },
-      { id: '2', name: 'Date', value: new Date().toLocaleDateString() },
-      { id: '3', name: 'Lieu', value: 'Paris' }
-    ]
+    dynamicVariables: [] // Suppression des variables dynamiques par défaut
   });
 
   // Utiliser le hook useContent pour la génération de contenu
@@ -1003,10 +1001,22 @@ const ContentGeneration = () => {
                       </div>
 
                       <div className="space-y-2">
-                        <Label>Variables dynamiques</Label>
-                        <p className="text-sm text-gray-500 mb-2">
-                          Les variables dynamiques permettent de personnaliser votre contenu (ex: [Nom], [Date], etc.)
-                        </p>
+                        <div className="flex items-center gap-2">
+                          <Label>Variables dynamiques</Label>
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <HelpCircle className="h-4 w-4 text-gray-400 cursor-help" />
+                              </TooltipTrigger>
+                              <TooltipContent className="max-w-xs">
+                                <p className="text-sm text-gray-500">
+                                  Les variables dynamiques permettent de personnaliser votre contenu. Entrez le nom de la variable. Après avoir ajouté la variable, 
+                                  vous pourrez définir sa valeur qui sera utilisée dans le contenu généré.
+                                </p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                        </div>
                         {settings.dynamicVariables.map(variable => (
                           <div key={variable.id} className="flex gap-2 items-center mb-2">
                             <div className="grid grid-cols-3 gap-2 flex-1">
