@@ -19,18 +19,7 @@ import {
   Upload, 
   Download, 
   AlertCircle, 
-  Plus,
 } from 'lucide-react';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-  DialogFooter,
-  DialogClose,
-} from "@/components/ui/dialog";
 import { useContent } from '@/hooks/useApi';
 import { ContentGenerationParams, ContentPersonalization } from '@/services/apiService';
 import Maintenance from '@/components/ui/Maintenance';
@@ -162,11 +151,9 @@ const ContentGeneration = () => {
   const [imageSize, setImageSize] = useState<string>('1024x1024');
   const [imageStyle, setImageStyle] = useState<string>('natural');
   
-  // New state for template and tone management
-  const [templates, setTemplates] = useState<Template[]>(initialTemplates);
+  // Conserver les templates mais supprimer les états liés à l'ajout de templates personnalisés
+  const [templates] = useState<Template[]>(initialTemplates);
   const [tones, setTones] = useState<Tone[]>(initialTones);
-  const [newTemplateName, setNewTemplateName] = useState('');
-  const [newTemplateType, setNewTemplateType] = useState('text');
   
   // Variable management
   const [newVariableName, setNewVariableName] = useState('');
@@ -225,24 +212,6 @@ const ContentGeneration = () => {
         variable.id === id ? { ...variable, value } : variable
       )
     });
-  };
-  
-  // Add new template
-  const handleAddTemplate = () => {
-    if (newTemplateName.trim() === '') {
-      toast.error('Le nom du modèle ne peut pas être vide');
-      return;
-    }
-    
-    const newTemplate = {
-      id: Date.now().toString(),
-      name: newTemplateName,
-      contentType: newTemplateType
-    };
-    
-    setTemplates([...templates, newTemplate]);
-    setNewTemplateName('');
-    toast.success('Nouveau modèle ajouté');
   };
   
   // Add new variable
@@ -547,62 +516,7 @@ const ContentGeneration = () => {
                     </CardHeader>
                     <CardContent className="space-y-4">
                       <div className="space-y-2">
-                        <div className="flex justify-between items-center">
-                          <Label htmlFor="template">Modèle</Label>
-                          <Dialog>
-                            <DialogTrigger asChild>
-                              <Button variant="outline" size="sm" className="h-8">
-                                <Plus className="h-3.5 w-3.5 mr-1" />
-                                Ajouter
-                              </Button>
-                            </DialogTrigger>
-                            <DialogContent className="sm:max-w-[425px]">
-                              <DialogHeader>
-                                <DialogTitle>Ajouter un nouveau modèle</DialogTitle>
-                                <DialogDescription>
-                                  Créez un nouveau modèle pour la génération de contenu.
-                                </DialogDescription>
-                              </DialogHeader>
-                              <div className="grid gap-4 py-4">
-                                <div className="grid grid-cols-4 items-center gap-4">
-                                  <Label htmlFor="templateName" className="text-right">
-                                    Nom
-                                  </Label>
-                                  <Input
-                                    id="templateName"
-                                    value={newTemplateName}
-                                    onChange={(e) => setNewTemplateName(e.target.value)}
-                                    className="col-span-3"
-                                  />
-                                </div>
-                                <div className="grid grid-cols-4 items-center gap-4">
-                                  <Label htmlFor="templateType" className="text-right">
-                                    Type
-                                  </Label>
-                                  <Select 
-                                    value={newTemplateType} 
-                                    onValueChange={setNewTemplateType}
-                                  >
-                                    <SelectTrigger className="col-span-3">
-                                      <SelectValue placeholder="Sélectionner un type" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                      <SelectItem value="text">Texte</SelectItem>
-                                      <SelectItem value="image">Image</SelectItem>
-                                      <SelectItem value="video">Vidéo</SelectItem>
-                                    </SelectContent>
-                                  </Select>
-                                </div>
-                              </div>
-                              <DialogFooter>
-                                <DialogClose asChild>
-                                  <Button variant="outline">Annuler</Button>
-                                </DialogClose>
-                                <Button onClick={handleAddTemplate}>Ajouter</Button>
-                              </DialogFooter>
-                            </DialogContent>
-                          </Dialog>
-                        </div>
+                        <Label htmlFor="template">Modèle</Label>
                         <Select 
                           onValueChange={(value) => setSettings({...settings, template: value})}
                           value={settings.template}
