@@ -382,10 +382,8 @@ const ContentGeneration = () => {
     }
   };
 
-  const filterTemplatesByType = (contentType: string) => {
-    return templates.filter(template => template.contentType === contentType);
-  };
-
+  // Suppression de la fonction filterTemplatesByType qui n'est pas utilisée
+  
   const filterTemplatesByCategory = () => {
     return {
       WordPress: templates.filter(template => template.id.startsWith('wordpress')),
