@@ -134,7 +134,6 @@ const ContentGeneration = () => {
   const [tones, setTones] = useState<Tone[]>(initialTones);
   const [newTemplateName, setNewTemplateName] = useState('');
   const [newTemplateType, setNewTemplateType] = useState('text');
-  const [newToneName, setNewToneName] = useState('');
   
   // Variable management
   const [newVariableName, setNewVariableName] = useState('');
@@ -211,23 +210,6 @@ const ContentGeneration = () => {
     setTemplates([...templates, newTemplate]);
     setNewTemplateName('');
     toast.success('Nouveau modèle ajouté');
-  };
-  
-  // Add new tone
-  const handleAddTone = () => {
-    if (newToneName.trim() === '') {
-      toast.error('Le nom du ton ne peut pas être vide');
-      return;
-    }
-    
-    const newTone = {
-      id: Date.now().toString(),
-      name: newToneName
-    };
-    
-    setTones([...tones, newTone]);
-    setNewToneName('');
-    toast.success('Nouveau ton ajouté');
   };
   
   // Add new variable
