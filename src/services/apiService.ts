@@ -586,9 +586,23 @@ class ApiService {
   }
 
   // Publier sur Twitter
-  async publishToTwitter(content: string): Promise<any> {
+  async publishToTwitter(content: string, mediaFile?: File): Promise<any> {
     try {
-      const response = await this.api.post('/oauth/twitter/publish', { content });
+      let response;
+      if (mediaFile) {
+        const formData = new FormData();
+        formData.append('content', content);
+        formData.append('media', mediaFile);
+
+        response = await this.api.post('/oauth/twitter/publish', formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        });
+      } else {
+        response = await this.api.post('/oauth/twitter/publish', { content });
+      }
+
       toast({
         title: 'Publication réussie',
         description: 'Le contenu a été publié avec succès sur Twitter!',

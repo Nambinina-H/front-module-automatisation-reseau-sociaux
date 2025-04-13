@@ -212,7 +212,7 @@ const PostCreator: React.FC<PostCreatorProps> = ({ className }) => {
       return;
     }
 
-    if (selectedPlatform === 'twitter' && contentType === 'text') {
+    if (selectedPlatform === 'twitter') {
       if (!content || content.length > 280) {
         toast({
           title: "Erreur",
@@ -223,7 +223,14 @@ const PostCreator: React.FC<PostCreatorProps> = ({ className }) => {
       }
 
       try {
-        await publishToTwitter(content);
+        if (contentType.includes('image') && imageFile) {
+          await publishToTwitter(content, imageFile);
+        } else if (contentType.includes('video') && videoFile) {
+          await publishToTwitter(content, videoFile);
+        } else {
+          await publishToTwitter(content);
+        }
+
         toast({
           title: "Publication réussie",
           description: "Votre contenu a été publié avec succès sur Twitter!",
