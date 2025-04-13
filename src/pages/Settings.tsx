@@ -371,6 +371,72 @@ const Settings = () => {
     }
   };
 
+  const handleTwitterConnect = async () => {
+    try {
+      const response = await apiService.getTwitterAuthUrl();
+      console.log("URL d'autorisation Twitter obtenue :", response.url);
+  
+      const authWindow = window.open(response.url, "_blank", "width=600,height=700");
+      if (!authWindow) {
+        setErrorMessage("Impossible d'ouvrir la fenêtre d'autorisation.");
+        return;
+      }
+  
+      let isCodeSent = false;
+      const interval = setInterval(async () => {
+        try {
+          if (!authWindow || authWindow.closed) {
+            clearInterval(interval);
+            console.log("Fenêtre fermée par l'utilisateur.");
+            return;
+          }
+  
+          const currentUrl = authWindow.location.href;
+          console.log("URL actuelle :", currentUrl);
+  
+          if (currentUrl.includes("code=") && !isCodeSent) {
+            isCodeSent = true;
+            clearInterval(interval);
+  
+            const urlParams = new URLSearchParams(new URL(currentUrl).search);
+            const code = urlParams.get("code");
+            const state = urlParams.get("state");
+  
+            if (code && state) {
+              console.log("Code et state reçus :", { code, state });
+              try {
+                const response = await apiService.sendTwitterCode(code, state);
+                console.log("Réponse de l'API Twitter :", response);
+  
+                // Rafraîchir les configurations ou mettre à jour l'état
+                await fetchConfigs();
+                toast.success(response.message || "Connexion Twitter réussie");
+              } catch (error) {
+                console.error("Erreur lors de l'envoi du code Twitter :", error);
+                setErrorMessage(error.response?.data?.error || "Erreur lors de la connexion à Twitter");
+              } finally {
+                authWindow.close();
+                console.log("Fenêtre d'autorisation Twitter fermée.");
+              }
+            }
+          }
+  
+          if (currentUrl.includes("error=access_denied")) {
+            clearInterval(interval);
+            authWindow.close();
+            console.log("Connexion refusée par l'utilisateur.");
+            setErrorMessage("Connexion refusée par l'utilisateur.");
+          }
+        } catch (error) {
+          // Ignorer les erreurs de cross-origin jusqu'à ce que l'URL soit accessible
+        }
+      }, 1000);
+    } catch (error) {
+      console.error("Erreur lors de la connexion à Twitter :", error);
+      setErrorMessage(error.message || "Une erreur est survenue.");
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       <Sidebar />
@@ -604,6 +670,20 @@ const Settings = () => {
                         <p className="text-sm text-muted-foreground mb-4">
                           Intégrez vos réseaux sociaux via des webhooks Make.com.
                         </p>
+                      </div>
+                      <div className="border rounded-lg p-4">
+                        <h3 className="text-lg font-medium mb-2">Twitter</h3>
+                        <p className="text-sm text-muted-foreground mb-4">
+                          Connectez-vous avec votre compte Twitter pour automatiser vos publications.
+                        </p>
+                        <Button 
+                          variant="outline" 
+                          onClick={handleTwitterConnect} 
+                          disabled={authLoading}
+                        >
+                          <PlatformIcon platform="twitter" size={24} className="mr-2" />
+                          {authLoading ? "Chargement..." : "Connecter"}
+                        </Button>
                       </div>
                     </div>
                   </div>

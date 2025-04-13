@@ -363,3 +363,17 @@ export function useChangePassword() {
     error
   };
 }
+
+export function useTwitterAuth() {
+  const { execute: getAuthUrl, loading: authLoading } = useApi(apiService.getTwitterAuthUrl.bind(apiService));
+  const { execute: sendCode, loading: callbackLoading } = useApi(apiService.sendTwitterCode.bind(apiService));
+
+  return {
+    getAuthUrl,
+    sendCode,
+    loading: {
+      auth: authLoading,
+      callback: callbackLoading,
+    },
+  };
+}

@@ -697,6 +697,33 @@ class ApiService {
       throw error;
     }
   }
+
+  // Obtenir l'URL d'autorisation Twitter
+  async getTwitterAuthUrl(): Promise<{ url: string }> {
+    try {
+      const response = await this.api.get<{ url: string }>('/oauth/twitter/auth-url');
+      return response.data;
+    } catch (error) {
+      console.error("Erreur lors de la récupération de l'URL d'autorisation Twitter:", error);
+      throw error;
+    }
+  }
+
+  // Envoyer le code et le state pour finaliser l'authentification
+  async sendTwitterCode(code: string, state: string): Promise<{ message: string; username: string }> {
+    try {
+      console.log("Envoi du code et du state à l'API Twitter :", { code, state });
+      const response = await this.api.get<{ message: string; username: string }>(
+        '/oauth/twitter/callback',
+        { params: { code, state } }
+      );
+      console.log("Réponse de l'API Twitter après envoi :", response.data);
+      return response.data;
+    } catch (error) {
+      console.error("Erreur lors de l'envoi du code Twitter :", error);
+      throw error;
+    }
+  }
 }
 
 // Export d'une instance unique du service API
