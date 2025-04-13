@@ -37,8 +37,7 @@ const Logs = () => {
     change_password: 'Mot de passe modifié avec succès', // Ajout de cette ligne
     delete_account: 'Suppression de compte', // Ajout de cette ligne
     delete_own_account: 'Suppression de son propre compte', // Ajout de cette ligne
-    twitter_oauth_connect: 'Connexion Twitter OAuth réussie',
-    twitter_oauth_disconnect: 'Déconnexion Twitter réussie',
+    twitter_publish: 'Publication sur Twitter', // Ajout de cette ligne
   };
 
   const actionColors = {
@@ -58,8 +57,7 @@ const Logs = () => {
     change_password: 'bg-blue-100 text-blue-800', // Ajout de cette ligne
     delete_account: 'bg-red-100 text-red-800', // Ajout de cette ligne
     delete_own_account: 'bg-red-100 text-red-800', // Ajout de cette ligne
-    twitter_oauth_connect: 'bg-green-100 text-green-800',
-    twitter_oauth_disconnect: 'bg-red-100 text-red-800',
+    twitter_publish: 'bg-blue-100 text-blue-800', // Ajout de cette ligne
   };
 
   const getDetails = (log) => {
@@ -160,8 +158,7 @@ const Logs = () => {
                       <SelectItem value="change_password">Changement de mot de passe</SelectItem>
                       <SelectItem value="delete_account">Suppression de compte</SelectItem> {/* Ajout de cette ligne */}
                       <SelectItem value="delete_own_account">Suppression de son propre compte</SelectItem> {/* Ajout de cette ligne */}
-                      <SelectItem value="twitter_oauth_connect">Connexion Twitter OAuth</SelectItem>
-                      <SelectItem value="twitter_oauth_disconnect">Déconnexion Twitter</SelectItem>
+                      <SelectItem value="twitter_publish">Publication sur Twitter</SelectItem> {/* Ajout de cette ligne */}
                     </SelectContent>
                   </Select>
                 </div>
