@@ -724,6 +724,25 @@ class ApiService {
       throw error;
     }
   }
+
+  async disconnectTwitter(): Promise<any> {
+    try {
+      const response = await this.api.post('/oauth/twitter/disconnect');
+      toast({
+        title: 'Succès',
+        description: 'Twitter déconnecté',
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Erreur lors de la déconnexion de Twitter:", error);
+      toast({
+        title: 'Erreur',
+        description: 'Erreur lors de la déconnexion de Twitter',
+        variant: 'destructive',
+      });
+      throw error;
+    }
+  }
 }
 
 // Export d'une instance unique du service API

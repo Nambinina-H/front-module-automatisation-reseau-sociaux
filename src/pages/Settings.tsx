@@ -73,6 +73,25 @@ const Settings = () => {
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmNewPassword, setShowConfirmNewPassword] = useState(false);
 
+  // Ajouter l'état pour Twitter
+  const [isTwitterConnected, setIsTwitterConnected] = useState(false);
+  const [twitterFields, setTwitterFields] = useState({
+    twitterId: '',
+    twitterUsername: '',
+  });
+
+  // Effet pour vérifier si Twitter est connecté en se basant sur twitterClientConfig
+  useEffect(() => {
+    const twitterClientConfig = configs.find(c => c.platform === 'twitterClient' && c.user_id === userId);
+    if (twitterClientConfig?.keys) {
+      setTwitterFields({
+        twitterId: twitterClientConfig.keys.twitterId || '',
+        twitterUsername: twitterClientConfig.keys.twitterUsername || '',
+      });
+      setIsTwitterConnected(!!twitterClientConfig.keys.twitterId && !!twitterClientConfig.keys.twitterUsername);
+    }
+  }, [configs, userId]);
+
   // Effet pour remplir les champs avec les données récupérées
   useEffect(() => {
     const wordPressConfig = configs.find(c => c.platform === 'wordPress');
@@ -437,6 +456,18 @@ const Settings = () => {
     }
   };
 
+  // Fonction pour déconnecter Twitter
+  const handleTwitterDisconnect = async () => {
+    try {
+      await apiService.disconnectTwitter();
+      await fetchConfigs(); // Recharger les configs après déconnexion
+      setTwitterFields({ twitterId: '', twitterUsername: '' });
+      setIsTwitterConnected(false);
+    } catch (error) {
+      console.error("Erreur lors de la déconnexion de Twitter:", error);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       <Sidebar />
@@ -665,25 +696,41 @@ const Settings = () => {
                           {authLoading ? "Chargement..." : isWordPressConnected ? "Se déconnecter" : "Connecter"}
                         </Button>
                       </div>
-                      <div className="border rounded-lg p-4">
-                        <h3 className="text-lg font-medium mb-2">Autres plateformes via Make.com</h3>
-                        <p className="text-sm text-muted-foreground mb-4">
-                          Intégrez vos réseaux sociaux via des webhooks Make.com.
-                        </p>
-                      </div>
+                      
                       <div className="border rounded-lg p-4">
                         <h3 className="text-lg font-medium mb-2">Twitter</h3>
                         <p className="text-sm text-muted-foreground mb-4">
                           Connectez-vous avec votre compte Twitter pour automatiser vos publications.
                         </p>
-                        <Button 
-                          variant="outline" 
-                          onClick={handleTwitterConnect} 
-                          disabled={authLoading}
-                        >
-                          <PlatformIcon platform="twitter" size={24} className="mr-2" />
-                          {authLoading ? "Chargement..." : "Connecter"}
-                        </Button>
+                        {isTwitterConnected ? (
+                          <div className="space-y-2">
+                            <p>Twitter ID : {twitterFields.twitterId}</p>
+                            <p>Nom d'utilisateur : {twitterFields.twitterUsername}</p>
+                            <Button 
+                              variant="outline" 
+                              onClick={handleTwitterDisconnect} 
+                              disabled={authLoading}
+                            >
+                              <PlatformIcon platform="twitter" size={24} className="mr-2" />
+                              Se déconnecter
+                            </Button>
+                          </div>
+                        ) : (
+                          <Button 
+                            variant="outline" 
+                            onClick={handleTwitterConnect} 
+                            disabled={authLoading}
+                          >
+                            <PlatformIcon platform="twitter" size={24} className="mr-2" />
+                            Connecter
+                          </Button>
+                        )}
+                      </div>
+                      <div className="border rounded-lg p-4">
+                        <h3 className="text-lg font-medium mb-2">Autres plateformes via Make.com</h3>
+                        <p className="text-sm text-muted-foreground mb-4">
+                          Intégrez vos réseaux sociaux via des webhooks Make.com.
+                        </p>
                       </div>
                     </div>
                   </div>
