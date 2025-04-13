@@ -17,7 +17,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { toast } from '@/hooks/use-toast';
 import { Button as ShadcnButton } from '@/components/ui/button';
 import { Checkbox } from "@/components/ui/checkbox";
-import { usePublishNow, useUploadMedia, usePublishToWordPress } from '@/hooks/useApi';
+import { usePublishNow, useUploadMedia, usePublishToWordPress, usePublishToTwitter } from '@/hooks/useApi';
 
 type ContentType = 'text' | 'text-image' | 'text-video' | 'image' | 'video';
 
@@ -55,6 +55,7 @@ const PostCreator: React.FC<PostCreatorProps> = ({ className }) => {
   const { publishNow, loading } = usePublishNow();
   const { uploadMedia } = useUploadMedia();
   const { publishToWordPress, loading: wordpressLoading } = usePublishToWordPress();
+  const { publishToTwitter, loading: twitterLoading } = usePublishToTwitter();
   const [title, setTitle] = useState<string>(''); // Add state for title
   
   interface ImmediatePublishParams {
@@ -208,6 +209,28 @@ const PostCreator: React.FC<PostCreatorProps> = ({ className }) => {
         description: "Veuillez sélectionner une plateforme",
         variant: "destructive"
       });
+      return;
+    }
+
+    if (selectedPlatform === 'twitter' && contentType === 'text') {
+      if (!content || content.length > 280) {
+        toast({
+          title: "Erreur",
+          description: "Le contenu doit être non vide et ne pas dépasser 280 caractères pour Twitter.",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      try {
+        await publishToTwitter(content);
+        toast({
+          title: "Publication réussie",
+          description: "Votre contenu a été publié avec succès sur Twitter!",
+        });
+      } catch (error) {
+        console.error("Erreur lors de la publication sur Twitter:", error);
+      }
       return;
     }
 

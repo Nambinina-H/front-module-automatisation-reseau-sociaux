@@ -377,3 +377,15 @@ export function useTwitterAuth() {
     },
   };
 }
+
+export function usePublishToTwitter() {
+  const { execute, loading, error } = useApi<any, string>(
+    apiService.publishToTwitter.bind(apiService)
+  );
+
+  return {
+    publishToTwitter: execute,
+    loading,
+    error,
+  };
+}

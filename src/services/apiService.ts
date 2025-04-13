@@ -585,6 +585,26 @@ class ApiService {
     }
   }
 
+  // Publier sur Twitter
+  async publishToTwitter(content: string): Promise<any> {
+    try {
+      const response = await this.api.post('/oauth/twitter/publish', { content });
+      toast({
+        title: 'Publication réussie',
+        description: 'Le contenu a été publié avec succès sur Twitter!',
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Erreur lors de la publication sur Twitter:', error);
+      toast({
+        title: 'Erreur',
+        description: 'Une erreur est survenue lors de la publication sur Twitter.',
+        variant: 'destructive',
+      });
+      throw error;
+    }
+  }
+
   // ==== LOGS ====
   
   // Récupérer les logs
