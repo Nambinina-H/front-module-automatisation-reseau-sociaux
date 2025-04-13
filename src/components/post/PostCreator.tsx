@@ -224,10 +224,13 @@ const PostCreator: React.FC<PostCreatorProps> = ({ className }) => {
 
       try {
         if (contentType.includes('image') && imageFile) {
+          console.log('Envoi de texte + image à Twitter:', { content, imageFile });
           await publishToTwitter(content, imageFile);
         } else if (contentType.includes('video') && videoFile) {
+          console.log('Envoi de texte + vidéo à Twitter:', { content, videoFile });
           await publishToTwitter(content, videoFile);
         } else {
+          console.log('Envoi de texte uniquement à Twitter:', { content });
           await publishToTwitter(content);
         }
 

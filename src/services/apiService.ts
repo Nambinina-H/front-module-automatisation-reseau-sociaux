@@ -591,8 +591,14 @@ class ApiService {
       let response;
       if (mediaFile) {
         const formData = new FormData();
-        formData.append('content', content);
-        formData.append('media', mediaFile);
+        formData.append('content', content); // Assurez-vous que le champ est nommé "content"
+        formData.append('media', mediaFile); // Assurez-vous que le champ est nommé "media"
+
+        // Log pour vérifier le contenu du FormData
+        console.log('FormData envoyé à Twitter:', {
+          content,
+          media: mediaFile.name,
+        });
 
         response = await this.api.post('/oauth/twitter/publish', formData, {
           headers: {
