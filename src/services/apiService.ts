@@ -616,11 +616,21 @@ class ApiService {
       return response.data;
     } catch (error) {
       console.error('Erreur lors de la publication sur Twitter:', error);
-      toast({
-        title: 'Erreur',
-        description: 'Une erreur est survenue lors de la publication sur Twitter.',
-        variant: 'destructive',
-      });
+    
+      if (error.response?.status === 429 && error.response?.data?.retryAfter) {
+        toast({
+          title: 'Limite atteinte',
+          description: `Vous avez atteint la limite quotidienne de publications. Réessayez après ${error.response.data.retryAfter}.`,
+          variant: 'destructive',
+        });
+      } else {
+        toast({
+          title: 'Erreur',
+          description: 'Une erreur est survenue lors de la publication sur Twitter.',
+          variant: 'destructive',
+        });
+      }
+    
       throw error;
     }
   }
