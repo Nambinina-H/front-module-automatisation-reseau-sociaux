@@ -166,7 +166,7 @@ class ApiService {
   private token: string | null = null;
 
   constructor() {
-    const baseURL = import.meta.env.VITE_REACT_APP_BACKEND_URL || 'https://backend-module-generation-contenu.up.railway.app/';
+    const baseURL = import.meta.env.VITE_REACT_APP_BACKEND_URL || 'http://localhost:3001/';
     
     this.api = axios.create({
       baseURL,
@@ -589,25 +589,28 @@ class ApiService {
   async publishToTwitter(content: string, mediaFile?: File): Promise<any> {
     try {
       let response;
-      if (mediaFile) {
-        const formData = new FormData();
-        formData.append('content', content); // Assurez-vous que le champ est nommé "content"
-        formData.append('media', mediaFile); // Assurez-vous que le champ est nommé "media"
+      const formData = new FormData();
 
-        // Log pour vérifier le contenu du FormData
+      // Ajout du contenu texte
+      formData.append('content', content);
+
+      // Ajout du fichier média si présent
+      if (mediaFile) {
+        formData.append('media', mediaFile);
         console.log('FormData envoyé à Twitter:', {
           content,
           media: mediaFile.name,
         });
-
-        response = await this.api.post('/oauth/twitter/publish', formData, {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
-        });
       } else {
-        response = await this.api.post('/oauth/twitter/publish', { content });
+        console.log('FormData envoyé à Twitter (sans média):', { content });
       }
+
+      // Envoi de la requête
+      response = await this.api.post('/oauth/twitter/publish', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
 
       toast({
         title: 'Publication réussie',
@@ -616,7 +619,7 @@ class ApiService {
       return response.data;
     } catch (error) {
       console.error('Erreur lors de la publication sur Twitter:', error);
-    
+
       if (error.response?.status === 429 && error.response?.data?.retryAfter) {
         toast({
           title: 'Limite atteinte',
@@ -630,7 +633,7 @@ class ApiService {
           variant: 'destructive',
         });
       }
-    
+
       throw error;
     }
   }

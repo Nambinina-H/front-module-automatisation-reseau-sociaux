@@ -379,8 +379,8 @@ export function useTwitterAuth() {
 }
 
 export function usePublishToTwitter() {
-  const { execute, loading, error } = useApi<any, string>(
-    apiService.publishToTwitter.bind(apiService)
+  const { execute, loading, error } = useApi<any, { content: string; mediaFile?: File }>(
+    ({ content, mediaFile }) => apiService.publishToTwitter(content, mediaFile)
   );
 
   return {
