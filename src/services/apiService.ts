@@ -589,28 +589,25 @@ class ApiService {
   async publishToTwitter(content: string, mediaFile?: File): Promise<any> {
     try {
       let response;
-      const formData = new FormData();
-
-      // Ajout du contenu texte
-      formData.append('content', content);
-
-      // Ajout du fichier média si présent
       if (mediaFile) {
-        formData.append('media', mediaFile);
+        const formData = new FormData();
+        formData.append('content', content); // Assurez-vous que le champ est nommé "content"
+        formData.append('media', mediaFile); // Assurez-vous que le champ est nommé "media"
+
+        // Log pour vérifier le contenu du FormData
         console.log('FormData envoyé à Twitter:', {
           content,
           media: mediaFile.name,
         });
-      } else {
-        console.log('FormData envoyé à Twitter (sans média):', { content });
-      }
 
-      // Envoi de la requête
-      response = await this.api.post('/oauth/twitter/publish', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
+        response = await this.api.post('/oauth/twitter/publish', formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        });
+      } else {
+        response = await this.api.post('/oauth/twitter/publish', { content });
+      }
 
       toast({
         title: 'Publication réussie',
@@ -619,7 +616,7 @@ class ApiService {
       return response.data;
     } catch (error) {
       console.error('Erreur lors de la publication sur Twitter:', error);
-
+    
       if (error.response?.status === 429 && error.response?.data?.retryAfter) {
         toast({
           title: 'Limite atteinte',
@@ -633,7 +630,7 @@ class ApiService {
           variant: 'destructive',
         });
       }
-
+    
       throw error;
     }
   }

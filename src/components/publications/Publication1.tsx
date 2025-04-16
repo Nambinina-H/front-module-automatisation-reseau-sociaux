@@ -1,6 +1,5 @@
 import React from 'react';
 import { format } from 'date-fns';
-import PostCard from '@/components/dashboard/PostCard';
 import { 
   Table, 
   TableHeader, 
@@ -12,13 +11,13 @@ import {
 import PlatformIcon from '@/components/common/PlatformIcon';
 import Badge from '@/components/common/Badge';
 import { Button } from '@/components/ui/button';
-import { Edit, Trash2, ExternalLink } from 'lucide-react';
+import { ExternalLink } from 'lucide-react';
 
 type Content = {
   id: string;
   title: string;
   content: string;
-  platforms: Array<'linkedin' | 'instagram' | 'twitter' | 'facebook'>;
+  platform: 'linkedin' | 'instagram' | 'twitter' | 'facebook';
   keywords: string[];
   scheduledDate: Date;
   status: 'scheduled' | 'published' | 'draft';
@@ -26,29 +25,16 @@ type Content = {
 
 interface Publication1Props {
   posts: Content[];
-  viewMode: 'grid' | 'list';
 }
 
-const Publication1: React.FC<Publication1Props> = ({ posts, viewMode }) => {
-  if (viewMode === 'grid') {
-    return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {posts.map((post) => (
-          <div key={post.id} className="fade-in">
-            <PostCard {...post} />
-          </div>
-        ))}
-      </div>
-    );
-  }
-
+const Publication1: React.FC<Publication1Props> = ({ posts }) => {
   return (
     <div className="rounded-md border">
       <Table>
         <TableHeader>
           <TableRow>
             <TableHead className="w-[250px]">Titre</TableHead>
-            <TableHead>Plateformes</TableHead>
+            <TableHead>Plateforme</TableHead>
             <TableHead>Statut</TableHead>
             <TableHead>Date</TableHead>
             <TableHead className="text-right">Actions</TableHead>
@@ -59,16 +45,10 @@ const Publication1: React.FC<Publication1Props> = ({ posts, viewMode }) => {
             <TableRow key={post.id}>
               <TableCell className="font-medium">{post.title}</TableCell>
               <TableCell>
-                <div className="flex space-x-1">
-                  {post.platforms.map((platform) => (
-                    <PlatformIcon key={platform} platform={platform} size={18} />
-                  ))}
-                </div>
+                <PlatformIcon platform={post.platform} size={18} />
               </TableCell>
               <TableCell>
-                <Badge
-                  variant={post.status === 'published' ? 'default' : 'secondary'}
-                >
+                <Badge variant={post.status === 'published' ? 'default' : 'secondary'}>
                   {post.status === 'published' ? 'Publié' : 'Planifié'}
                 </Badge>
               </TableCell>
