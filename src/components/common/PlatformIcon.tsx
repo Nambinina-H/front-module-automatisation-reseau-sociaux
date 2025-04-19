@@ -1,6 +1,6 @@
-
 import React from 'react';
-import { Facebook, Instagram, Linkedin, Twitter, FileCode } from 'lucide-react';
+import { Facebook, Instagram, Linkedin, Twitter } from 'lucide-react';
+import { FaWordpress } from 'react-icons/fa'; // Import FaWordpress from react-icons/fa
 import { cn } from '@/lib/utils';
 
 type PlatformType = 'linkedin' | 'instagram' | 'twitter' | 'facebook' | 'wordpress';
@@ -31,7 +31,8 @@ const PlatformIcon: React.FC<PlatformIconProps> = ({
     case 'facebook':
       return <Facebook {...iconProps} className={cn('text-socialBlue-facebook', className)} />;
     case 'wordpress':
-      return <FileCode {...iconProps} className={cn('text-blue-600', className)} />;
+      // Utiliser l'icône FaWordpress de react-icons à la place de FileCode
+      return <FaWordpress {...iconProps} className={cn('text-[#21759b]', className)} />; // Couleur officielle WordPress #21759b
     default:
       return null;
   }

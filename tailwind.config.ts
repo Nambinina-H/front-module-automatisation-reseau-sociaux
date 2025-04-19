@@ -1,4 +1,3 @@
-
 import type { Config } from "tailwindcss";
 
 export default {
@@ -58,6 +57,7 @@ export default {
           instagram: '#E1306C',
           facebook: '#4267B2',
           twitter: '#1DA1F2',
+          wordpress: '#21759b', // Ajouter la couleur WordPress officielle
         }
 			},
 			borderRadius: {
