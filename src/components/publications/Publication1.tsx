@@ -1,5 +1,4 @@
 import React from 'react';
-import { format, parseISO } from 'date-fns';
 import PlatformIcon from '@/components/common/PlatformIcon';
 import Badge from '@/components/common/Badge';
 import { Button } from '@/components/ui/button';
@@ -98,10 +97,10 @@ const Publication1: React.FC<Publication1Props> = ({ posts, isLoading = false })
                   </td>
                   <td className="px-4 py-2 border-b text-center">
                     {post.published_at ? 
-                      format(parseISO(post.published_at), 'dd/MM/yyyy HH:mm') : 
+                      new Date(post.published_at).toLocaleString() : 
                       post.schedule_time ? 
-                        format(parseISO(post.schedule_time), 'dd/MM/yyyy HH:mm') :
-                        format(parseISO(post.created_at), 'dd/MM/yyyy HH:mm')
+                        new Date(post.schedule_time).toLocaleString() :
+                        new Date(post.created_at).toLocaleString()
                     }
                   </td>
                   <td className="px-4 py-2 border-b text-center">
