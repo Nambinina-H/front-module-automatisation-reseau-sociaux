@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Legend } from 'recharts';
@@ -14,60 +13,68 @@ const AnalyticsOverview: React.FC<AnalyticsOverviewProps> = ({ className }) => {
   const data = [
     {
       name: 'Lun',
+      wordpress: 6,
+      facebook: 3,
+      twitter: 2,
       linkedin: 4,
       instagram: 5,
-      twitter: 2,
-      facebook: 3,
     },
     {
       name: 'Mar',
+      wordpress: 4,
+      facebook: 2,
+      twitter: 6,
       linkedin: 3,
       instagram: 4,
-      twitter: 6,
-      facebook: 2,
     },
     {
       name: 'Mer',
+      wordpress: 5,
+      facebook: 3,
+      twitter: 4,
       linkedin: 5,
       instagram: 6,
-      twitter: 4,
-      facebook: 3,
     },
     {
       name: 'Jeu',
+      wordpress: 4,
+      facebook: 5,
+      twitter: 3,
       linkedin: 7,
       instagram: 4,
-      twitter: 3,
-      facebook: 5,
     },
     {
       name: 'Ven',
+      wordpress: 7,
+      facebook: 4,
+      twitter: 5,
       linkedin: 6,
       instagram: 8,
-      twitter: 5,
-      facebook: 4,
     },
     {
       name: 'Sam',
+      wordpress: 3,
+      facebook: 1,
+      twitter: 2,
       linkedin: 4,
       instagram: 5,
-      twitter: 2,
-      facebook: 1,
     },
     {
       name: 'Dim',
+      wordpress: 1,
+      facebook: 0,
+      twitter: 1,
       linkedin: 2,
       instagram: 3,
-      twitter: 1,
-      facebook: 0,
     },
   ];
 
   const stats = [
-    { platform: 'linkedin', label: 'LinkedIn', value: 32, growth: '+12%' },
-    { platform: 'instagram', label: 'Instagram', value: 45, growth: '+23%' },
-    { platform: 'twitter', label: 'Twitter', value: 27, growth: '+5%' },
-    { platform: 'facebook', label: 'Facebook', value: 19, growth: '-3%' },
+    { platform: 'wordpress', label: 'WordPress', value: 30 },
+    { platform: 'facebook', label: 'Facebook', value: 19 },
+    { platform: 'twitter', label: 'Twitter', value: 27 },
+    { platform: 'linkedin', label: 'LinkedIn', value: 32 },
+    { platform: 'instagram', label: 'Instagram', value: 45 },
   ];
 
   return (
@@ -76,17 +83,11 @@ const AnalyticsOverview: React.FC<AnalyticsOverviewProps> = ({ className }) => {
         <CardTitle className="text-xl font-medium">Analytics</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="grid grid-cols-4 gap-4 mb-6">
+        <div className="grid grid-cols-5 gap-4 mb-6">
           {stats.map((stat) => (
             <div key={stat.platform} className="flex flex-col items-center justify-center p-3 bg-gray-50 rounded-lg">
               <PlatformIcon platform={stat.platform as any} size={24} />
               <p className="mt-2 text-2xl font-semibold">{stat.value}</p>
-              <p className={cn(
-                'text-xs font-medium',
-                stat.growth.startsWith('+') ? 'text-green-600' : 'text-red-600'
-              )}>
-                {stat.growth}
-              </p>
               <p className="text-xs text-gray-500 mt-1">Publications</p>
             </div>
           ))}
@@ -114,10 +115,11 @@ const AnalyticsOverview: React.FC<AnalyticsOverviewProps> = ({ className }) => {
                 }}
               />
               <Legend />
+              <Bar dataKey="wordpress" fill="#21759b" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="facebook" fill="#4267B2" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="twitter" fill="#1DA1F2" radius={[4, 4, 0, 0]} />
               <Bar dataKey="linkedin" fill="#0072b1" radius={[4, 4, 0, 0]} />
               <Bar dataKey="instagram" fill="#E1306C" radius={[4, 4, 0, 0]} />
-              <Bar dataKey="twitter" fill="#1DA1F2" radius={[4, 4, 0, 0]} />
-              <Bar dataKey="facebook" fill="#4267B2" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>

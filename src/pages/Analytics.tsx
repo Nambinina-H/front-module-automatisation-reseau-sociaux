@@ -19,65 +19,65 @@ const Analytics = () => {
   const weeklyData = [
     {
       name: 'Lun',
+      wordpress: 6,
+      facebook: 3,
+      twitter: 2,
       linkedin: 4,
       instagram: 5,
-      twitter: 2,
-      facebook: 3,
-      wordpress: 6,
       total: 20,
     },
     {
       name: 'Mar',
+      wordpress: 4,
+      facebook: 2,
+      twitter: 6,
       linkedin: 3,
       instagram: 4,
-      twitter: 6,
-      facebook: 2,
-      wordpress: 4,
       total: 19,
     },
     {
       name: 'Mer',
+      wordpress: 5,
+      facebook: 3,
+      twitter: 4,
       linkedin: 5,
       instagram: 6,
-      twitter: 4,
-      facebook: 3,
-      wordpress: 5,
       total: 23,
     },
     {
       name: 'Jeu',
+      wordpress: 4,
+      facebook: 5,
+      twitter: 3,
       linkedin: 7,
       instagram: 4,
-      twitter: 3,
-      facebook: 5,
-      wordpress: 4,
       total: 23,
     },
     {
       name: 'Ven',
+      wordpress: 7,
+      facebook: 4,
+      twitter: 5,
       linkedin: 6,
       instagram: 8,
-      twitter: 5,
-      facebook: 4,
-      wordpress: 7,
       total: 30,
     },
     {
       name: 'Sam',
+      wordpress: 3,
+      facebook: 1,
+      twitter: 2,
       linkedin: 4,
       instagram: 5,
-      twitter: 2,
-      facebook: 1,
-      wordpress: 3,
       total: 15,
     },
     {
       name: 'Dim',
+      wordpress: 1,
+      facebook: 0,
+      twitter: 1,
       linkedin: 2,
       instagram: 3,
-      twitter: 1,
-      facebook: 0,
-      wordpress: 1,
       total: 7,
     },
   ];
@@ -86,20 +86,20 @@ const Analytics = () => {
     const day = format(subDays(new Date(), 29 - i), 'dd/MM');
     return {
       name: day,
+      wordpress: Math.floor(Math.random() * 7) + 1,
+      facebook: Math.floor(Math.random() * 6) + 1,
+      twitter: Math.floor(Math.random() * 8) + 1,
       linkedin: Math.floor(Math.random() * 10) + 1,
       instagram: Math.floor(Math.random() * 10) + 1,
-      twitter: Math.floor(Math.random() * 8) + 1,
-      facebook: Math.floor(Math.random() * 6) + 1,
-      wordpress: Math.floor(Math.random() * 7) + 1,
     };
   });
   
   const platformDistribution = [
+    { name: 'WordPress', value: 20, color: '#21759b' },
+    { name: 'Facebook', value: 8, color: '#4267B2' },
+    { name: 'Twitter', value: 12, color: '#1DA1F2' },
     { name: 'LinkedIn', value: 35, color: '#0072b1' },
     { name: 'Instagram', value: 25, color: '#E1306C' },
-    { name: 'Twitter', value: 12, color: '#1DA1F2' },
-    { name: 'Facebook', value: 8, color: '#4267B2' },
-    { name: 'WordPress', value: 20, color: '#21759b' },
   ];
   
   const keywordPerformance = [
@@ -145,11 +145,11 @@ const Analytics = () => {
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
             {[
-              { platform: 'linkedin', label: 'LinkedIn', value: 35, growth: '+12%' },
-              { platform: 'instagram', label: 'Instagram', value: 25, growth: '+23%' },
-              { platform: 'twitter', label: 'Twitter', value: 12, growth: '+5%' },
-              { platform: 'facebook', label: 'Facebook', value: 8, growth: '-3%' },
-              { platform: 'wordpress', label: 'WordPress', value: 20, growth: '+15%' },
+              { platform: 'wordpress', label: 'WordPress', value: 20 },
+              { platform: 'facebook', label: 'Facebook', value: 8 },
+              { platform: 'twitter', label: 'Twitter', value: 12 },
+              { platform: 'linkedin', label: 'LinkedIn', value: 35 },
+              { platform: 'instagram', label: 'Instagram', value: 25 },
             ].map((stat) => (
               <Card key={stat.platform} className="hover:shadow-md transition-shadow">
                 <CardContent className="p-6">
@@ -157,9 +157,7 @@ const Analytics = () => {
                     <div>
                       <p className="text-sm font-medium text-gray-500">{stat.label}</p>
                       <p className="text-2xl font-bold mt-1">{stat.value}%</p>
-                      <p className={`text-xs font-medium mt-1 ${stat.growth.startsWith('+') ? 'text-green-600' : 'text-red-600'}`}>
-                        {stat.growth} depuis le mois dernier
-                      </p>
+                      <p className="text-xs text-gray-500 mt-1">Publications</p>
                     </div>
                     <PlatformIcon platform={stat.platform as any} size={24} />
                   </div>
@@ -208,11 +206,11 @@ const Analytics = () => {
                           }}
                         />
                         <Legend />
+                        <Bar dataKey="wordpress" fill="#21759b" radius={[4, 4, 0, 0]} />
+                        <Bar dataKey="facebook" fill="#4267B2" radius={[4, 4, 0, 0]} />
+                        <Bar dataKey="twitter" fill="#1DA1F2" radius={[4, 4, 0, 0]} />
                         <Bar dataKey="linkedin" fill="#0072b1" radius={[4, 4, 0, 0]} />
                         <Bar dataKey="instagram" fill="#E1306C" radius={[4, 4, 0, 0]} />
-                        <Bar dataKey="twitter" fill="#1DA1F2" radius={[4, 4, 0, 0]} />
-                        <Bar dataKey="facebook" fill="#4267B2" radius={[4, 4, 0, 0]} />
-                        <Bar dataKey="wordpress" fill="#21759b" radius={[4, 4, 0, 0]} />
                       </BarChart>
                     </ResponsiveContainer>
                   </div>
@@ -244,6 +242,10 @@ const Analytics = () => {
                         <Legend />
                         <Line type="monotone" dataKey="total" stroke="#6366F1" strokeWidth={2} dot={false} />
                         <Line type="monotone" dataKey="wordpress" stroke="#21759b" strokeWidth={1.5} dot={false} />
+                        <Line type="monotone" dataKey="facebook" stroke="#4267B2" strokeWidth={1.5} dot={false} />
+                        <Line type="monotone" dataKey="twitter" stroke="#1DA1F2" strokeWidth={1.5} dot={false} />
+                        <Line type="monotone" dataKey="linkedin" stroke="#0072b1" strokeWidth={1.5} dot={false} />
+                        <Line type="monotone" dataKey="instagram" stroke="#E1306C" strokeWidth={1.5} dot={false} />
                       </LineChart>
                     </ResponsiveContainer>
                   </div>
@@ -299,11 +301,11 @@ const Analytics = () => {
                         <BarChart
                           layout="vertical"
                           data={[
+                            { name: 'WordPress', value: 70 },
+                            { name: 'Facebook', value: 35 },
+                            { name: 'Twitter', value: 42 },
                             { name: 'LinkedIn', value: 78 },
                             { name: 'Instagram', value: 65 },
-                            { name: 'Twitter', value: 42 },
-                            { name: 'Facebook', value: 35 },
-                            { name: 'WordPress', value: 70 },
                           ]}
                           margin={{ top: 10, right: 10, left: 70, bottom: 20 }}
                         >
