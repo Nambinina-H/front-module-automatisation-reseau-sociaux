@@ -14,11 +14,15 @@ export function usePublications() {
   });
   const [activeStatus, setActiveStatus] = useState<string | null>(null);
   const [activePlatform, setActivePlatform] = useState<string | null>(null);
+  const [activeStartDate, setActiveStartDate] = useState<string | null>(null);
+  const [activeEndDate, setActiveEndDate] = useState<string | null>(null);
 
   const fetchPublications = async (
     page: number = 1, 
     status: string | null = null,
-    platform: string | null = null
+    platform: string | null = null,
+    startDate: string | null = null,
+    endDate: string | null = null
   ) => {
     setLoading(true);
     try {
@@ -33,8 +37,19 @@ export function usePublications() {
         params.platform = platform;
       }
       
-      setActiveStatus(status); // Stocker le statut actif
-      setActivePlatform(platform); // Stocker la plateforme active
+      if (startDate) {
+        params.startDate = startDate;
+      }
+      
+      if (endDate) {
+        params.endDate = endDate;
+      }
+      
+      // Stocker les filtres actifs
+      setActiveStatus(status);
+      setActivePlatform(platform);
+      setActiveStartDate(startDate);
+      setActiveEndDate(endDate);
       
       const response = await apiService.getUserPublications(page, 10, params);
       setPublications(response.publications);
@@ -64,22 +79,26 @@ export function usePublications() {
 
   const nextPage = () => {
     if (pagination.hasNextPage) {
-      fetchPublications(pagination.page + 1, activeStatus, activePlatform);
+      fetchPublications(pagination.page + 1, activeStatus, activePlatform, activeStartDate, activeEndDate);
     }
   };
 
   const previousPage = () => {
     if (pagination.hasPreviousPage) {
-      fetchPublications(pagination.page - 1, activeStatus, activePlatform);
+      fetchPublications(pagination.page - 1, activeStatus, activePlatform, activeStartDate, activeEndDate);
     }
   };
 
   const filterByStatus = (status: string | null) => {
-    fetchPublications(1, status === 'all' ? null : status, activePlatform);
+    fetchPublications(1, status === 'all' ? null : status, activePlatform, activeStartDate, activeEndDate);
   };
 
   const filterByPlatform = (platform: string | null) => {
-    fetchPublications(1, activeStatus, platform === '' ? null : platform);
+    fetchPublications(1, activeStatus, platform === '' ? null : platform, activeStartDate, activeEndDate);
+  };
+
+  const filterByDateRange = (startDate: string | null, endDate: string | null) => {
+    fetchPublications(1, activeStatus, activePlatform, startDate, endDate);
   };
 
   return {
@@ -92,7 +111,10 @@ export function usePublications() {
     previousPage,
     filterByStatus,
     filterByPlatform,
+    filterByDateRange,
     activeStatus,
-    activePlatform
+    activePlatform,
+    activeStartDate,
+    activeEndDate
   };
 }

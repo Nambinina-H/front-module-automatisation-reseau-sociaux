@@ -17,9 +17,15 @@ const Publications = () => {
     nextPage, 
     previousPage,
     filterByStatus,
-    filterByPlatform 
+    filterByPlatform,
+    filterByDateRange 
   } = usePublications();
 
+  // Initialiser les filtres
+  const [platformFilter, setPlatformFilter] = useState('');
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
+  
   // Lorsque l'onglet change, filtrer les publications
   const handleTabChange = (value: string) => {
     setActiveTab(value);
@@ -42,9 +48,6 @@ const Publications = () => {
     // Appliquer le filtre
     filterByStatus(statusFilter);
   };
-
-  // Initialiser avec le filtre platforme également
-  const [platformFilter, setPlatformFilter] = useState('');
   
   // Gérer le changement de la plateforme
   const handlePlatformChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -53,6 +56,24 @@ const Publications = () => {
     
     // Appliquer le filtre par plateforme
     filterByPlatform(platform);
+  };
+  
+  // Gérer le changement de date de début
+  const handleStartDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newStartDate = e.target.value;
+    setStartDate(newStartDate);
+    
+    // Appliquer le filtre de date
+    filterByDateRange(newStartDate || null, endDate || null);
+  };
+  
+  // Gérer le changement de date de fin
+  const handleEndDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newEndDate = e.target.value;
+    setEndDate(newEndDate);
+    
+    // Appliquer le filtre de date
+    filterByDateRange(startDate || null, newEndDate || null);
   };
 
   return (
@@ -89,11 +110,22 @@ const Publications = () => {
                 </div>
                 <div>
                   <label className="block text-sm font-medium mb-1">Date de début</label>
-                  <input type="date" className="w-full p-2 border rounded" />
+                  <input 
+                    type="date" 
+                    className="w-full p-2 border rounded"
+                    value={startDate}
+                    onChange={handleStartDateChange}
+                  />
                 </div>
                 <div>
                   <label className="block text-sm font-medium mb-1">Date de fin</label>
-                  <input type="date" className="w-full p-2 border rounded" />
+                  <input 
+                    type="date" 
+                    className="w-full p-2 border rounded"
+                    value={endDate}
+                    onChange={handleEndDateChange}
+                    min={startDate} // Empêcher de sélectionner une date antérieure à la date de début
+                  />
                 </div>
               </div>
             </CardContent>
