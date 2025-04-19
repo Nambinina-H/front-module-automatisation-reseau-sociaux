@@ -16,7 +16,8 @@ const Publications = () => {
     pagination, 
     nextPage, 
     previousPage,
-    filterByStatus 
+    filterByStatus,
+    filterByPlatform 
   } = usePublications();
 
   // Lorsque l'onglet change, filtrer les publications
@@ -47,9 +48,11 @@ const Publications = () => {
   
   // Gérer le changement de la plateforme
   const handlePlatformChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setPlatformFilter(e.target.value);
-    // Implémenter le filtrage par plateforme si nécessaire
-    // Pour l'instant, nous nous concentrons sur le filtrage par statut
+    const platform = e.target.value;
+    setPlatformFilter(platform);
+    
+    // Appliquer le filtre par plateforme
+    filterByPlatform(platform);
   };
 
   return (

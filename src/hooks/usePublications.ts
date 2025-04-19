@@ -13,17 +13,28 @@ export function usePublications() {
     hasPreviousPage: false
   });
   const [activeStatus, setActiveStatus] = useState<string | null>(null);
+  const [activePlatform, setActivePlatform] = useState<string | null>(null);
 
-  const fetchPublications = async (page: number = 1, status: string | null = null) => {
+  const fetchPublications = async (
+    page: number = 1, 
+    status: string | null = null,
+    platform: string | null = null
+  ) => {
     setLoading(true);
     try {
       // Construire les paramètres de requête
       const params: Record<string, any> = { page };
+      
       if (status) {
         params.status = status;
       }
       
+      if (platform) {
+        params.platform = platform;
+      }
+      
       setActiveStatus(status); // Stocker le statut actif
+      setActivePlatform(platform); // Stocker la plateforme active
       
       const response = await apiService.getUserPublications(page, 10, params);
       setPublications(response.publications);
@@ -53,18 +64,22 @@ export function usePublications() {
 
   const nextPage = () => {
     if (pagination.hasNextPage) {
-      fetchPublications(pagination.page + 1, activeStatus);
+      fetchPublications(pagination.page + 1, activeStatus, activePlatform);
     }
   };
 
   const previousPage = () => {
     if (pagination.hasPreviousPage) {
-      fetchPublications(pagination.page - 1, activeStatus);
+      fetchPublications(pagination.page - 1, activeStatus, activePlatform);
     }
   };
 
   const filterByStatus = (status: string | null) => {
-    fetchPublications(1, status === 'all' ? null : status);
+    fetchPublications(1, status === 'all' ? null : status, activePlatform);
+  };
+
+  const filterByPlatform = (platform: string | null) => {
+    fetchPublications(1, activeStatus, platform === '' ? null : platform);
   };
 
   return {
@@ -76,6 +91,8 @@ export function usePublications() {
     nextPage,
     previousPage,
     filterByStatus,
-    activeStatus
+    filterByPlatform,
+    activeStatus,
+    activePlatform
   };
 }
