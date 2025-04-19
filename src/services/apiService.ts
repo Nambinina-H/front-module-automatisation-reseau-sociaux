@@ -160,6 +160,33 @@ interface ChangePasswordParams {
   newPassword: string;
 }
 
+export interface Publication {
+  id: string;
+  user_id: string;
+  content_url: string;
+  platform: string;
+  type: string;
+  status: string;
+  content_preview: string;
+  schedule_time: string | null;
+  published_at: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface PublicationsResponse {
+  message: string;
+  publications: Publication[];
+  pagination: {
+    page: number;
+    limit: number;
+    totalPublications: number;
+    totalPages: number;
+    hasNextPage: boolean;
+    hasPreviousPage: boolean;
+  };
+}
+
 // Classe principale du service API
 class ApiService {
   private api: AxiosInstance;
@@ -790,6 +817,16 @@ class ApiService {
         description: 'Erreur lors de la déconnexion de Twitter',
         variant: 'destructive',
       });
+      throw error;
+    }
+  }
+
+  // Récupérer les publications de l'utilisateur
+  async getUserPublications(page: number = 1, limit: number = 10): Promise<PublicationsResponse> {
+    try {
+      const response = await this.api.get<PublicationsResponse>(`/publications/user?page=${page}&limit=${limit}`);
+      return response.data;
+    } catch (error) {
       throw error;
     }
   }

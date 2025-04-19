@@ -5,88 +5,20 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import Publication1 from '@/components/publications/Publication1';
 import { Button } from '@/components/ui/button';
-
-// Types fictifs pour l'exemple
-type Content = {
-  id: string;
-  title: string;
-  content: string;
-  platform: 'linkedin' | 'instagram' | 'twitter' | 'facebook';
-  keywords: string[];
-  scheduledDate: Date;
-  status: 'scheduled' | 'published' | 'draft';
-};
+import { usePublications } from '@/hooks/usePublications';
 
 const Publications = () => {
   const [activeTab, setActiveTab] = useState<string>('all');
-
-  // Données d'exemple - à remplacer par les vraies données de l'API
-  const samplePosts: Content[] = [
-    {
-      id: '1',
-      title: 'Lancement de notre nouveau produit',
-      content: 'Nous sommes ravis de vous annoncer le lancement de notre nouveau produit innovant qui va révolutionner votre quotidien...',
-      platform: 'linkedin',
-      keywords: ['lancement', 'produit', 'innovation'],
-      scheduledDate: new Date('2023-06-15T10:00:00'),
-      status: 'published',
-    },
-    {
-      id: '2',
-      title: 'Astuces pour améliorer votre productivité',
-      content: 'Découvrez nos 5 astuces pour améliorer votre productivité au travail et atteindre vos objectifs plus rapidement...',
-      platform: 'instagram',
-      keywords: ['productivité', 'travail', 'astuces'],
-      scheduledDate: new Date('2023-06-17T14:30:00'),
-      status: 'scheduled',
-    },
-    {
-      id: '3',
-      title: 'Événement annuel de networking',
-      content: 'Rejoignez-nous pour notre événement annuel de networking où vous pourrez rencontrer des professionnels de votre secteur...',
-      platform: 'linkedin',
-      keywords: ['événement', 'networking', 'rencontre'],
-      scheduledDate: new Date('2023-06-10T18:00:00'),
-      status: 'published',
-    },
-    {
-      id: '4',
-      title: 'Comment optimiser votre présence sur LinkedIn',
-      content: 'Les meilleurs conseils pour optimiser votre profil LinkedIn et augmenter votre visibilité professionnelle...',
-      platform: 'linkedin',
-      keywords: ['linkedin', 'réseau', 'professionnel'],
-      scheduledDate: new Date('2023-06-20T09:00:00'),
-      status: 'scheduled',
-    },
-    {
-      id: '5',
-      title: 'Tendances marketing pour 2023',
-      content: 'Découvrez les tendances marketing qui vont dominer en 2023 et comment les intégrer dans votre stratégie...',
-      platform: 'twitter',
-      keywords: ['marketing', 'tendances', '2023'],
-      scheduledDate: new Date('2023-06-05T11:00:00'),
-      status: 'published',
-    },
-    {
-      id: '6',
-      title: 'Étude de cas : Comment nous avons augmenté nos conversions de 200%',
-      content: 'Une analyse détaillée de notre stratégie qui a permis d\'augmenter nos conversions de manière significative...',
-      platform: 'linkedin',
-      keywords: ['étude', 'cas', 'conversion'],
-      scheduledDate: new Date('2023-06-25T16:00:00'),
-      status: 'scheduled',
-    },
-  ];
+  const { publications, loading, error, pagination, nextPage, previousPage } = usePublications();
 
   // Filtres en fonction du statut (publié/planifié)
   const filteredPosts = activeTab === 'all' 
-    ? samplePosts 
-    : samplePosts.filter(post => post.status === activeTab);
+    ? publications 
+    : publications.filter(post => post.status === activeTab);
 
   return (
     <div className="min-h-screen bg-gray-50">
       <Sidebar />
-      
       <div className="ml-16 md:ml-60 transition-all duration-300">
         <Navbar />
         
@@ -130,17 +62,48 @@ const Publications = () => {
               <TabsTrigger value="scheduled">Planifiés</TabsTrigger>
             </TabsList>
             
-            <TabsContent value="all" className="mt-4">
-              <Publication1 posts={filteredPosts} />
-            </TabsContent>
+            {error ? (
+              <div className="p-8 text-center text-red-500">
+                {error}
+              </div>
+            ) : (
+              <>
+                <TabsContent value="all" className="mt-4">
+                  <Publication1 posts={filteredPosts} isLoading={loading} />
+                </TabsContent>
+                
+                <TabsContent value="published" className="mt-4">
+                  <Publication1 posts={filteredPosts} isLoading={loading} />
+                </TabsContent>
+                
+                <TabsContent value="scheduled" className="mt-4">
+                  <Publication1 posts={filteredPosts} isLoading={loading} />
+                </TabsContent>
+              </>
+            )}
             
-            <TabsContent value="published" className="mt-4">
-              <Publication1 posts={filteredPosts} />
-            </TabsContent>
-            
-            <TabsContent value="scheduled" className="mt-4">
-              <Publication1 posts={filteredPosts} />
-            </TabsContent>
+            {/* Pagination */}
+            {!loading && !error && publications.length > 0 && (
+              <div className="flex justify-between mt-4">
+                <Button 
+                  variant="outline" 
+                  onClick={previousPage}
+                  disabled={!pagination.hasPreviousPage}
+                >
+                  Précédent
+                </Button>
+                <span className="py-2">
+                  Page {pagination.page} sur {pagination.totalPages}
+                </span>
+                <Button 
+                  variant="outline" 
+                  onClick={nextPage}
+                  disabled={!pagination.hasNextPage}
+                >
+                  Suivant
+                </Button>
+              </div>
+            )}
           </Tabs>
         </main>
       </div>
