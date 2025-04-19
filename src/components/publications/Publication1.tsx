@@ -21,6 +21,7 @@ type Content = {
   keywords: string[];
   scheduledDate: Date;
   status: 'scheduled' | 'published' | 'draft';
+  type: 'text' | 'image' | 'video';
 };
 
 interface Publication1Props {
@@ -33,8 +34,9 @@ const Publication1: React.FC<Publication1Props> = ({ posts }) => {
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead className="w-[250px]">Titre</TableHead>
+            <TableHead className="w-[250px]">Aperçu du contenu</TableHead>
             <TableHead>Plateforme</TableHead>
+            <TableHead>Type</TableHead>
             <TableHead>Statut</TableHead>
             <TableHead>Date</TableHead>
             <TableHead className="text-right">Actions</TableHead>
@@ -47,6 +49,7 @@ const Publication1: React.FC<Publication1Props> = ({ posts }) => {
               <TableCell>
                 <PlatformIcon platform={post.platform} size={18} />
               </TableCell>
+              <TableCell>{post.type}</TableCell>
               <TableCell>
                 <Badge variant={post.status === 'published' ? 'default' : 'secondary'}>
                   {post.status === 'published' ? 'Publié' : 'Planifié'}
