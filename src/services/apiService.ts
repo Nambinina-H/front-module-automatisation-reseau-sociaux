@@ -822,9 +822,21 @@ class ApiService {
   }
 
   // Récupérer les publications de l'utilisateur
-  async getUserPublications(page: number = 1, limit: number = 10): Promise<PublicationsResponse> {
+  async getUserPublications(page: number = 1, limit: number = 10, additionalParams: Record<string, any> = {}): Promise<PublicationsResponse> {
     try {
-      const response = await this.api.get<PublicationsResponse>(`/publications/user?page=${page}&limit=${limit}`);
+      // Construire les paramètres de requête
+      const params = {
+        page,
+        limit,
+        ...additionalParams
+      };
+      
+      // Convertir l'objet params en string de query
+      const queryString = Object.entries(params)
+        .map(([key, value]) => `${key}=${value}`)
+        .join('&');
+      
+      const response = await this.api.get<PublicationsResponse>(`/publications/user?${queryString}`);
       return response.data;
     } catch (error) {
       throw error;

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Sidebar from '@/components/layout/Sidebar';
 import Navbar from '@/components/layout/Navbar';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
@@ -9,12 +9,48 @@ import { usePublications } from '@/hooks/usePublications';
 
 const Publications = () => {
   const [activeTab, setActiveTab] = useState<string>('all');
-  const { publications, loading, error, pagination, nextPage, previousPage } = usePublications();
+  const { 
+    publications, 
+    loading, 
+    error, 
+    pagination, 
+    nextPage, 
+    previousPage,
+    filterByStatus 
+  } = usePublications();
 
-  // Filtres en fonction du statut (publié/planifié)
-  const filteredPosts = activeTab === 'all' 
-    ? publications 
-    : publications.filter(post => post.status === activeTab);
+  // Lorsque l'onglet change, filtrer les publications
+  const handleTabChange = (value: string) => {
+    setActiveTab(value);
+    
+    // Mapper la valeur de l'onglet au statut API
+    let statusFilter = null;
+    switch(value) {
+      case 'published':
+        statusFilter = 'published';
+        break;
+      case 'scheduled':
+        statusFilter = 'scheduled';
+        break;
+      case 'all':
+      default:
+        statusFilter = null;
+        break;
+    }
+    
+    // Appliquer le filtre
+    filterByStatus(statusFilter);
+  };
+
+  // Initialiser avec le filtre platforme également
+  const [platformFilter, setPlatformFilter] = useState('');
+  
+  // Gérer le changement de la plateforme
+  const handlePlatformChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setPlatformFilter(e.target.value);
+    // Implémenter le filtrage par plateforme si nécessaire
+    // Pour l'instant, nous nous concentrons sur le filtrage par statut
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -35,7 +71,11 @@ const Publications = () => {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                   <label className="block text-sm font-medium mb-1">Plateforme</label>
-                  <select className="w-full p-2 border rounded">
+                  <select 
+                    className="w-full p-2 border rounded"
+                    value={platformFilter}
+                    onChange={handlePlatformChange}
+                  >
                     <option value="">Toutes les plateformes</option>
                     <option value="facebook">Facebook</option>
                     <option value="instagram">Instagram</option>
@@ -61,7 +101,12 @@ const Publications = () => {
               <CardTitle>Publications</CardTitle>
             </CardHeader>
             <CardContent>
-              <Tabs defaultValue="all" className="mb-6" onValueChange={setActiveTab}>
+              <Tabs 
+                defaultValue="all" 
+                className="mb-6" 
+                value={activeTab}
+                onValueChange={handleTabChange}
+              >
                 <TabsList>
                   <TabsTrigger value="all">Tous</TabsTrigger>
                   <TabsTrigger value="published">Publiés</TabsTrigger>
@@ -75,15 +120,15 @@ const Publications = () => {
                 ) : (
                   <>
                     <TabsContent value="all" className="mt-4">
-                      <Publication1 posts={filteredPosts} isLoading={loading} />
+                      <Publication1 posts={publications} isLoading={loading} />
                     </TabsContent>
                     
                     <TabsContent value="published" className="mt-4">
-                      <Publication1 posts={filteredPosts} isLoading={loading} />
+                      <Publication1 posts={publications} isLoading={loading} />
                     </TabsContent>
                     
                     <TabsContent value="scheduled" className="mt-4">
-                      <Publication1 posts={filteredPosts} isLoading={loading} />
+                      <Publication1 posts={publications} isLoading={loading} />
                     </TabsContent>
                   </>
                 )}

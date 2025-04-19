@@ -12,11 +12,20 @@ export function usePublications() {
     hasNextPage: false,
     hasPreviousPage: false
   });
+  const [activeStatus, setActiveStatus] = useState<string | null>(null);
 
-  const fetchPublications = async (page: number = 1) => {
+  const fetchPublications = async (page: number = 1, status: string | null = null) => {
     setLoading(true);
     try {
-      const response = await apiService.getUserPublications(page);
+      // Construire les paramètres de requête
+      const params: Record<string, any> = { page };
+      if (status) {
+        params.status = status;
+      }
+      
+      setActiveStatus(status); // Stocker le statut actif
+      
+      const response = await apiService.getUserPublications(page, 10, params);
       setPublications(response.publications);
       setPagination({
         page: response.pagination.page,
@@ -44,14 +53,18 @@ export function usePublications() {
 
   const nextPage = () => {
     if (pagination.hasNextPage) {
-      fetchPublications(pagination.page + 1);
+      fetchPublications(pagination.page + 1, activeStatus);
     }
   };
 
   const previousPage = () => {
     if (pagination.hasPreviousPage) {
-      fetchPublications(pagination.page - 1);
+      fetchPublications(pagination.page - 1, activeStatus);
     }
+  };
+
+  const filterByStatus = (status: string | null) => {
+    fetchPublications(1, status === 'all' ? null : status);
   };
 
   return {
@@ -61,6 +74,8 @@ export function usePublications() {
     pagination,
     fetchPublications,
     nextPage,
-    previousPage
+    previousPage,
+    filterByStatus,
+    activeStatus
   };
 }
