@@ -346,13 +346,11 @@ const PostCreator: React.FC<PostCreatorProps> = ({ className }) => {
       ];
     }
 
-    // Configuration par défaut pour les autres cas
+    // Configuration par défaut pour les autres cas (comme Facebook)
     return [
       { value: 'text', label: 'Texte uniquement' },
       { value: 'text-image', label: 'Texte et image' },
-      { value: 'text-video', label: 'Texte et vidéo' },
-      { value: 'image', label: 'Image uniquement' },
-      { value: 'video', label: 'Vidéo uniquement' }
+      { value: 'text-video', label: 'Texte et vidéo' }
     ];
   };
 

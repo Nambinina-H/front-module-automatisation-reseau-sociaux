@@ -55,56 +55,67 @@ const Publications = () => {
             </CardContent>
           </Card>
           
-          <Tabs defaultValue="all" className="mb-6" onValueChange={setActiveTab}>
-            <TabsList>
-              <TabsTrigger value="all">Tous</TabsTrigger>
-              <TabsTrigger value="published">Publiés</TabsTrigger>
-              <TabsTrigger value="scheduled">Planifiés</TabsTrigger>
-            </TabsList>
-            
-            {error ? (
-              <div className="p-8 text-center text-red-500">
-                {error}
-              </div>
-            ) : (
-              <>
-                <TabsContent value="all" className="mt-4">
-                  <Publication1 posts={filteredPosts} isLoading={loading} />
-                </TabsContent>
+          <Card>
+            <CardHeader>
+              <CardTitle>Publications</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Tabs defaultValue="all" className="mb-6" onValueChange={setActiveTab}>
+                <TabsList>
+                  <TabsTrigger value="all">Tous</TabsTrigger>
+                  <TabsTrigger value="published">Publiés</TabsTrigger>
+                  <TabsTrigger value="scheduled">Planifiés</TabsTrigger>
+                </TabsList>
                 
-                <TabsContent value="published" className="mt-4">
-                  <Publication1 posts={filteredPosts} isLoading={loading} />
-                </TabsContent>
+                {error ? (
+                  <div className="p-8 text-center text-red-500">
+                    {error}
+                  </div>
+                ) : (
+                  <>
+                    <TabsContent value="all" className="mt-4">
+                      <Publication1 posts={filteredPosts} isLoading={loading} />
+                    </TabsContent>
+                    
+                    <TabsContent value="published" className="mt-4">
+                      <Publication1 posts={filteredPosts} isLoading={loading} />
+                    </TabsContent>
+                    
+                    <TabsContent value="scheduled" className="mt-4">
+                      <Publication1 posts={filteredPosts} isLoading={loading} />
+                    </TabsContent>
+                  </>
+                )}
                 
-                <TabsContent value="scheduled" className="mt-4">
-                  <Publication1 posts={filteredPosts} isLoading={loading} />
-                </TabsContent>
-              </>
-            )}
-            
-            {/* Pagination */}
-            {!loading && !error && publications.length > 0 && (
-              <div className="flex justify-between mt-4">
-                <Button 
-                  variant="outline" 
-                  onClick={previousPage}
-                  disabled={!pagination.hasPreviousPage}
-                >
-                  Précédent
-                </Button>
-                <span className="py-2">
-                  Page {pagination.page} sur {pagination.totalPages}
-                </span>
-                <Button 
-                  variant="outline" 
-                  onClick={nextPage}
-                  disabled={!pagination.hasNextPage}
-                >
-                  Suivant
-                </Button>
-              </div>
-            )}
-          </Tabs>
+                {/* Pagination */}
+                {!loading && !error && publications.length > 0 && (
+                  <div className="flex justify-between items-center mt-4">
+                    <div className="text-sm text-gray-600">
+                      Page <span className="font-medium">{pagination.page}</span> sur{' '}
+                      <span className="font-medium">{pagination.totalPages}</span> |{' '}
+                      Total : <span className="font-medium">{publications.length}</span> publications
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Button 
+                        variant="outline" 
+                        onClick={previousPage}
+                        disabled={!pagination.hasPreviousPage || loading}
+                      >
+                        Précédent
+                      </Button>
+                      <Button 
+                        variant="outline"
+                        onClick={nextPage}
+                        disabled={!pagination.hasNextPage || loading}
+                      >
+                        Suivant
+                      </Button>
+                    </div>
+                  </div>
+                )}
+              </Tabs>
+            </CardContent>
+          </Card>
         </main>
       </div>
     </div>
