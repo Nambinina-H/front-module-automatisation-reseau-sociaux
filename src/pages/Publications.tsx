@@ -37,10 +37,11 @@ const Publications = () => {
                   <label className="block text-sm font-medium mb-1">Plateforme</label>
                   <select className="w-full p-2 border rounded">
                     <option value="">Toutes les plateformes</option>
-                    <option value="linkedin">LinkedIn</option>
-                    <option value="twitter">Twitter</option>
                     <option value="facebook">Facebook</option>
                     <option value="instagram">Instagram</option>
+                    <option value="linkedin">LinkedIn</option>
+                    <option value="twitter">Twitter</option>
+                    <option value="wordpress">WordPress</option>
                   </select>
                 </div>
                 <div>
