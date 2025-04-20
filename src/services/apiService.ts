@@ -187,13 +187,25 @@ export interface PublicationsResponse {
   };
 }
 
+export interface VideoGenerationParams {
+  prompt: string;
+  resolution: string;
+  duration: string;
+}
+
+export interface VideoGenerationResponse {
+  message: string;
+  videoUrl: string;
+  id: string;
+}
+
 // Classe principale du service API
 class ApiService {
   private api: AxiosInstance;
   private token: string | null = null;
 
   constructor() {
-    const baseURL = import.meta.env.VITE_REACT_APP_BACKEND_URL || 'https://backend-module-generation-contenu.up.railway.app/';
+    const baseURL = import.meta.env.VITE_REACT_APP_BACKEND_URL || 'http://localhost:3001/';
     
     this.api = axios.create({
       baseURL,
@@ -471,6 +483,21 @@ class ApiService {
       return response.data;
     } catch (error) {
       console.error('Error generating video description:', error);
+      throw error;
+    }
+  }
+
+  // Générer une vidéo
+  async generateVideo(params: VideoGenerationParams): Promise<VideoGenerationResponse> {
+    try {
+      const response = await this.api.post<VideoGenerationResponse>('/video/generate', params);
+      toast({
+        title: 'Vidéo générée',
+        description: 'La vidéo a été générée avec succès!',
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error generating video:', error);
       throw error;
     }
   }

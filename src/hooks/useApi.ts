@@ -1,6 +1,12 @@
 import { useState, useCallback, useEffect } from 'react';
 import { apiService } from '@/services/apiService';
-import { User, Content, Log, LoginCredentials, RegisterCredentials, AuthResponse, ContentGenerationParams, PublishParams, ContentGenerationResponse, ImageGenerationParams, ImageGenerationResponse, ImmediatePublishParams, MediaUploadResponse, ApiConfig, ConfigKeys } from '@/services/apiService';
+import { 
+  User, Content, Log, LoginCredentials, RegisterCredentials, AuthResponse, 
+  ContentGenerationParams, PublishParams, ContentGenerationResponse, 
+  ImageGenerationParams, ImageGenerationResponse, ImmediatePublishParams, 
+  MediaUploadResponse, ApiConfig, ConfigKeys, VideoGenerationParams, 
+  VideoGenerationResponse 
+} from '@/services/apiService';
 import { toast } from '../components/ui/use-toast';
 export function useApi<T, P = any>(
   apiMethod: (params?: P) => Promise<T>,
@@ -108,6 +114,12 @@ export function useContent() {
   } = useApi<ImageGenerationResponse, ImageGenerationParams>(apiService.generateImage.bind(apiService));
 
   const {
+    execute: executeGenerateVideo,
+    loading: generateVideoLoading,
+    error: generateVideoError
+  } = useApi<VideoGenerationResponse, VideoGenerationParams>(apiService.generateVideo.bind(apiService));
+
+  const {
     execute: executeUpdate,
     loading: updateLoading,
     error: updateError
@@ -133,6 +145,7 @@ export function useContent() {
     contentList,
     generateContent: executeGenerate,
     generateImage: executeGenerateImage,
+    generateVideo: executeGenerateVideo,
     updateContent: executeUpdate,
     deleteContent,
     fetchContentList,
@@ -140,6 +153,7 @@ export function useContent() {
       list: listLoading,
       generate: generateLoading,
       generateImage: generateImageLoading,
+      generateVideo: generateVideoLoading,
       update: updateLoading,
       delete: deleteLoading
     },
@@ -147,6 +161,7 @@ export function useContent() {
       list: listError,
       generate: generateError,
       generateImage: generateImageError,
+      generateVideo: generateVideoError,
       update: updateError,
       delete: deleteError
     }

@@ -23,7 +23,7 @@ import {
 } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useContent } from '@/hooks/useApi';
-import { ContentGenerationParams, ContentPersonalization } from '@/services/apiService';
+import { ContentGenerationParams, ContentPersonalization, VideoGenerationParams } from '@/services/apiService';
 import Maintenance from '@/components/ui/Maintenance';
 
 // Ajoutez l'import du nouveau hook
@@ -169,11 +169,19 @@ const ContentGeneration = () => {
     dynamicVariables: [] // Suppression des variables dynamiques par défaut
   });
 
+  const [videoDuration, setVideoDuration] = useState<string>("5");
+  const [videoResolution, setVideoResolution] = useState<string>("720p");
+
   // Utiliser le hook useContent pour la génération de contenu
   const { 
     generateContent,
     generateImage,
-    loading: { generate: isApiGenerating, generateImage: isApiImageGenerating }
+    generateVideo,
+    loading: { 
+      generate: isApiGenerating, 
+      generateImage: isApiImageGenerating,
+      generateVideo: isApiVideoGenerating 
+    }
   } = useContent();
   
   // Ajoutez le hook pour la génération de description vidéo
@@ -332,7 +340,34 @@ const ContentGeneration = () => {
           toast.error("Erreur lors de la génération de l'image");
         }
       } else if (activeTab === 'video') {
-        // Supprimer l'appel à simulateGeneration
+        if (!prompt) {
+          toast.error("Veuillez entrer une description pour la vidéo");
+          return;
+        }
+        
+        // Préparer les paramètres pour l'API de vidéo
+        const videoParams: VideoGenerationParams = {
+          prompt: prompt,
+          resolution: videoResolution,
+          duration: `${videoDuration}s`
+        };
+        
+        try {
+          const response = await generateVideo(videoParams);
+          
+          setGeneratedContent(prev => ({
+            ...prev,
+            video: {
+              type: 'video',
+              content: response.videoUrl
+            }
+          }));
+          
+          toast.success(response.message || "Vidéo générée avec succès");
+        } catch (error) {
+          console.error("Erreur lors de la génération de la vidéo:", error);
+          toast.error("Erreur lors de la génération de la vidéo");
+        }
       }
     } catch (error) {
       console.error("Erreur lors de la génération du contenu:", error);
@@ -461,27 +496,38 @@ const ContentGeneration = () => {
       case 'video':
         return (
           <div className="mt-6 space-y-4">
-            <h3 className="text-lg font-medium">Description de la vidéo générée</h3>
+            <h3 className="text-lg font-medium">Vidéo générée</h3>
             <div className="p-2 bg-white border rounded-md shadow-sm">
               <div className="relative pt-[56.25%] bg-gray-100 rounded-md">
-                <img 
+                <video 
                   src={content.content} 
-                  alt="Video preview" 
-                  className="absolute inset-0 w-full h-full object-cover rounded-md"
+                  className="absolute inset-0 w-full h-full rounded-md" 
+                  controls
+                  poster="/video-placeholder.png"
                 />
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <Button variant="ghost" className="h-16 w-16 rounded-full bg-white/80">
-                    <FileVideo className="h-8 w-8" />
-                  </Button>
-                </div>
               </div>
             </div>
             <div className="flex justify-end space-x-2">
-              {/* TODO: Enable the "Modifier" button functionality in the future */}
-              <Button variant="outline" disabled>Personnaliser</Button>
-              <Button>
+              <Button 
+                onClick={() => {
+                  fetch(content.content)
+                    .then(response => response.blob())
+                    .then(blob => {
+                      const url = window.URL.createObjectURL(blob);
+                      const link = document.createElement('a');
+                      link.href = url;
+                      link.download = `video-generee-${new Date().toISOString().slice(0, 10)}.mp4`;
+                      document.body.appendChild(link);
+                      link.click();
+                      document.body.removeChild(link);
+                      window.URL.revokeObjectURL(url);
+                      toast.success("Vidéo téléchargée avec succès");
+                    })
+                    .catch(() => toast.error("Erreur lors du téléchargement de la vidéo"));
+                }}
+              >
                 <Download className="mr-2 h-4 w-4" />
-                Exporter
+                Télécharger
               </Button>
             </div>
           </div>
@@ -845,7 +891,10 @@ const ContentGeneration = () => {
                           <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-2">
                               <Label htmlFor="duration" className="text-sm">Durée</Label>
-                              <Select defaultValue="5">
+                              <Select 
+                                value={videoDuration}
+                                onValueChange={setVideoDuration}
+                              >
                                 <SelectTrigger>
                                   <SelectValue placeholder="Durée" />
                                 </SelectTrigger>
@@ -858,7 +907,10 @@ const ContentGeneration = () => {
                             
                             <div className="space-y-2">
                               <Label htmlFor="resolution" className="text-sm">Résolution</Label>
-                              <Select defaultValue="720p">
+                              <Select 
+                                value={videoResolution}
+                                onValueChange={setVideoResolution}
+                              >
                                 <SelectTrigger>
                                   <SelectValue placeholder="Résolution" />
                                 </SelectTrigger>
@@ -909,10 +961,10 @@ const ContentGeneration = () => {
                         <div className="pt-4">
                           <Button 
                             onClick={handleGeneration} 
-                            disabled={isGenerating}
+                            disabled={isGenerating || isApiVideoGenerating}
                             className="w-full"
                           >
-                            {isGenerating ? (
+                            {isGenerating || isApiVideoGenerating ? (
                               <>Génération en cours...</>
                             ) : (
                               <>
