@@ -32,6 +32,9 @@ import { useVideoDescription } from '@/hooks/useApi';
 // Ajoutez l'import du composant VideoTest
 import VideoTest from '@/components/test/VideoTest';
 
+// Ajout du nouvel import
+import { useAudioDescription } from '@/hooks/useApi';
+
 // Sample template data - triés alphabétiquement dans chaque catégorie
 const initialTemplates = [
   // Modèles WordPress (triés alphabétiquement)
@@ -174,6 +177,9 @@ const ContentGeneration = () => {
 
   const [videoDuration, setVideoDuration] = useState<string>("5");
   const [videoResolution, setVideoResolution] = useState<string>("720p");
+  
+  // Ajout de l'état manquant pour l'audio
+  const [audioPrompt, setAudioPrompt] = useState<string>('');
 
   // Utiliser le hook useContent pour la génération de contenu
   const { 
@@ -189,6 +195,9 @@ const ContentGeneration = () => {
   
   // Ajoutez le hook pour la génération de description vidéo
   const { generateVideoDescription, loading: isGeneratingDescription } = useVideoDescription();
+
+  // Ajout du nouveau hook
+  const { generateAudioDescription, loading: isGeneratingAudioDescription } = useAudioDescription();
 
   const addKeyword = () => {
     if (newKeyword && !keywords.includes(newKeyword)) {
@@ -465,6 +474,22 @@ const ContentGeneration = () => {
       toast.success(response.message || "Description générée avec succès");
     } catch (error) {
       toast.error("Erreur lors de la génération de la description");
+    }
+  };
+
+  // Fonction pour générer la description audio à partir de la vidéo
+  const handleGenerateAudioFromVideo = async () => {
+    if (!prompt) {
+      toast.error("La description de la vidéo est vide");
+      return;
+    }
+
+    try {
+      const response = await generateAudioDescription({ content: prompt });
+      setAudioPrompt(response.description);
+      toast.success(response.message || "Description audio générée avec succès");
+    } catch (error) {
+      toast.error("Erreur lors de la génération de la description audio");
     }
   };
 
@@ -1035,6 +1060,8 @@ const ContentGeneration = () => {
                             id="audioPrompt"
                             placeholder="Décrivez l'audio que vous souhaitez générer..."
                             className="min-h-32"
+                            value={audioPrompt}
+                            onChange={(e) => setAudioPrompt(e.target.value)}
                           />
                         </div>
                         
@@ -1051,13 +1078,17 @@ const ContentGeneration = () => {
                           <Button 
                             className="w-full"
                             variant="outline"
-                            disabled={!prompt} // Désactivé si la description de la vidéo est vide
-                            onClick={() => {
-                              toast.info("Génération de description audio à partir de la vidéo en développement");
-                            }}
+                            disabled={!prompt || isGeneratingAudioDescription}
+                            onClick={handleGenerateAudioFromVideo}
                           >
-                            <Wand2 className="mr-2 h-4 w-4" />
-                            Générer la description à partir de la vidéo
+                            {isGeneratingAudioDescription ? (
+                              <>Génération en cours...</>
+                            ) : (
+                              <>
+                                <Wand2 className="mr-2 h-4 w-4" />
+                                Générer la description à partir de la vidéo
+                              </>
+                            )}
                           </Button>
                           
                           <Button 

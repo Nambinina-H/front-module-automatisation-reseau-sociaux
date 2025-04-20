@@ -404,3 +404,15 @@ export function usePublishToTwitter() {
     error,
   };
 }
+
+export function useAudioDescription() {
+  const { execute, loading, error } = useApi<AudioDescriptionResponse, AudioDescriptionParams>(
+    apiService.generateAudioDescription.bind(apiService)
+  );
+
+  return {
+    generateAudioDescription: execute,
+    loading,
+    error
+  };
+}

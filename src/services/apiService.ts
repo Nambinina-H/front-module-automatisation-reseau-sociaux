@@ -155,6 +155,15 @@ export interface VideoDescriptionResponse {
   description: string;
 }
 
+export interface AudioDescriptionParams {
+  content: string;
+}
+
+export interface AudioDescriptionResponse {
+  message: string;
+  description: string;
+}
+
 interface ChangePasswordParams {
   oldPassword: string;
   newPassword: string;
@@ -205,7 +214,7 @@ class ApiService {
   private token: string | null = null;
 
   constructor() {
-    const baseURL = import.meta.env.VITE_REACT_APP_BACKEND_URL || 'https://backend-module-generation-contenu.up.railway.app/';
+    const baseURL = import.meta.env.VITE_REACT_APP_BACKEND_URL || 'http://localhost:3001/';
     
     this.api = axios.create({
       baseURL,
@@ -483,6 +492,17 @@ class ApiService {
       return response.data;
     } catch (error) {
       console.error('Error generating video description:', error);
+      throw error;
+    }
+  }
+
+  // Générer une description audio à partir d'une vidéo
+  async generateAudioDescription(params: AudioDescriptionParams): Promise<AudioDescriptionResponse> {
+    try {
+      const response = await this.api.post<AudioDescriptionResponse>('/audio/description', params);
+      return response.data;
+    } catch (error) {
+      console.error('Error generating audio description:', error);
       throw error;
     }
   }
