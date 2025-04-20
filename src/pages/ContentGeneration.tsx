@@ -352,8 +352,11 @@ const ContentGeneration = () => {
           duration: `${videoDuration}s`
         };
         
+        console.log("Envoi des paramètres vidéo:", videoParams);
+        
         try {
           const response = await generateVideo(videoParams);
+          console.log("Réponse de l'API vidéo:", response);
           
           setGeneratedContent(prev => ({
             ...prev,
@@ -362,6 +365,12 @@ const ContentGeneration = () => {
               content: response.videoUrl
             }
           }));
+          
+          console.log("Video URL reçue:", response.videoUrl);
+          console.log("Contenu généré mis à jour:", {
+            type: 'video',
+            content: response.videoUrl
+          });
           
           toast.success(response.message || "Vidéo générée avec succès");
         } catch (error) {
@@ -504,15 +513,30 @@ const ContentGeneration = () => {
                   className="absolute inset-0 w-full h-full rounded-md" 
                   controls
                   poster="/video-placeholder.png"
+                  onError={(e) => {
+                    console.error("Erreur lors du chargement de la vidéo:", e);
+                    console.log("URL de la vidéo qui a échoué:", content.content);
+                  }}
+                  onLoadedData={() => console.log("Vidéo chargée avec succès")}
                 />
               </div>
+            </div>
+            <div className="p-2 bg-gray-100 rounded-md text-xs overflow-auto">
+              <p>URL vidéo: {content.content}</p>
             </div>
             <div className="flex justify-end space-x-2">
               <Button 
                 onClick={() => {
                   fetch(content.content)
-                    .then(response => response.blob())
+                    .then(response => {
+                      console.log("Réponse fetch:", response);
+                      if (!response.ok) {
+                        throw new Error(`Erreur HTTP: ${response.status}`);
+                      }
+                      return response.blob();
+                    })
                     .then(blob => {
+                      console.log("Blob vidéo:", blob);
                       const url = window.URL.createObjectURL(blob);
                       const link = document.createElement('a');
                       link.href = url;
@@ -523,7 +547,10 @@ const ContentGeneration = () => {
                       window.URL.revokeObjectURL(url);
                       toast.success("Vidéo téléchargée avec succès");
                     })
-                    .catch(() => toast.error("Erreur lors du téléchargement de la vidéo"));
+                    .catch((error) => {
+                      console.error("Erreur lors du téléchargement:", error);
+                      toast.error("Erreur lors du téléchargement de la vidéo");
+                    });
                 }}
               >
                 <Download className="mr-2 h-4 w-4" />
