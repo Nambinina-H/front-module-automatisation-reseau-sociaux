@@ -1047,7 +1047,19 @@ const ContentGeneration = () => {
                           />
                         </div>
                         
-                        <div className="pt-4">
+                        <div className="pt-4 space-y-4">
+                          <Button 
+                            className="w-full"
+                            variant="outline"
+                            disabled={!prompt} // Désactivé si la description de la vidéo est vide
+                            onClick={() => {
+                              toast.info("Génération de description audio à partir de la vidéo en développement");
+                            }}
+                          >
+                            <Wand2 className="mr-2 h-4 w-4" />
+                            Générer la description à partir de la vidéo
+                          </Button>
+                          
                           <Button 
                             className="w-full"
                             onClick={() => {
