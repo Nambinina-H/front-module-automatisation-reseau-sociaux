@@ -117,6 +117,7 @@ export interface ConfigKeys {
   linkedin?: string;
   instagram?: string;
   twitter?: string;
+  webhookURL?: string;  // Ajouter la propriété webhookURL pour Make.com client
 }
 
 export interface ApiConfig {
@@ -781,6 +782,15 @@ class ApiService {
   async updateConfig(id: string, keys: ConfigKeys): Promise<ApiConfig> {
     try {
       const response = await this.api.put<{message: string; data: ApiConfig}>(`/api/config/update/${id}`, { keys });
+      return response.data.data;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async createConfig(params: { platform: string; keys: ConfigKeys }): Promise<ApiConfig> {
+    try {
+      const response = await this.api.post<{message: string; data: ApiConfig}>('/api/config/add', params);
       return response.data.data;
     } catch (error) {
       throw error;

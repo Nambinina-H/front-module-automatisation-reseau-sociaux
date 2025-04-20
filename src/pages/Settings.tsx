@@ -55,12 +55,17 @@ const Settings = () => {
     blogUrl: '',
     blogId: '',
   });
+  // Ajouter un nouvel état pour Make.com client
+  const [makePlatformFields, setMakePlatformFields] = useState({
+    webhookURL: ''
+  });
+  const [isMakeConfigured, setIsMakeConfigured] = useState(false);
 
   const [showConfirmation, setShowConfirmation] = useState(false); // State to toggle confirmation dialog
   const [currentForm, setCurrentForm] = useState<string | null>(null); // Track which form is being submitted
   const [currentUserEmail, setCurrentUserEmail] = useState('');
 
-  const { configs, updateConfig, fetchConfigs } = useConfig();
+  const { configs, updateConfig, fetchConfigs, createConfig } = useConfig();
 
   const [oldPassword, setOldPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
@@ -99,6 +104,8 @@ const Settings = () => {
     const supabaseConfig = configs.find(c => c.platform === 'supabase');
     const makeConfig = configs.find(c => c.platform === 'make');
     const wordPressClientConfig = configs.find(c => c.platform === 'wordPressClient' && c.user_id === userId);
+    // Récupérer la configuration Make.com client
+    const makeClientConfig = configs.find(c => c.platform === 'makeClient' && c.user_id === userId);
 
     if (wordPressConfig?.keys) {
       setWordpressFields({
@@ -137,6 +144,14 @@ const Settings = () => {
         blogId: wordPressClientConfig.keys.blog_id || '',
       });
       console.log('WordPress Client Config:', wordPressClientConfig); // Debugging
+    }
+
+    // Initialiser l'état avec la configuration Make.com client si elle existe
+    if (makeClientConfig?.keys) {
+      setMakePlatformFields({
+        webhookURL: makeClientConfig.keys.webhookURL || '',
+      });
+      setIsMakeConfigured(!!makeClientConfig.keys.webhookURL);
     }
   }, [configs, userId]);
 
@@ -468,6 +483,37 @@ const Settings = () => {
     }
   };
 
+  // Gestionnaire pour sauvegarder la configuration Make.com client
+  const handleSaveMakeConfig = async () => {
+    try {
+      // Vérifier si la configuration existe déjà
+      const makeClientConfig = configs.find(c => c.platform === 'makeClient' && c.user_id === userId);
+      
+      if (makeClientConfig) {
+        // Mettre à jour la configuration existante
+        await updateConfig(makeClientConfig.id, {
+          webhookURL: makePlatformFields.webhookURL
+        });
+      } else {
+        // Créer une nouvelle configuration
+        await createConfig('makeClient', {
+          webhookURL: makePlatformFields.webhookURL
+        });
+      }
+      
+      // Mettre à jour l'état
+      setIsMakeConfigured(true);
+      
+      // Rafraîchir les configurations
+      await fetchConfigs();
+      
+      toast.success("Configuration Make.com enregistrée avec succès");
+    } catch (error) {
+      console.error("Erreur lors de l'enregistrement de la configuration Make.com:", error);
+      toast.error("Erreur lors de l'enregistrement de la configuration");
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       <Sidebar />
@@ -731,7 +777,49 @@ const Settings = () => {
                         <p className="text-sm text-muted-foreground mb-4">
                           Intégrez vos réseaux sociaux via des webhooks Make.com.
                         </p>
+                        
+                        {isMakeConfigured ? (
+                          <div className="space-y-4">
+                            <div className="flex items-center gap-2">
+                              <p>Webhook URL: {makePlatformFields.webhookURL}</p>
+                            </div>
+                            <Button 
+                              variant="outline" 
+                              onClick={() => setIsMakeConfigured(false)}
+                            >
+                              Modifier
+                            </Button>
+                          </div>
+                        ) : (
+                          <form
+                            className="space-y-4"
+                            onSubmit={(e) => {
+                              e.preventDefault();
+                              handleSaveMakeConfig();
+                            }}
+                          >
+                            <div className="space-y-2">
+                              <Label>Webhook URL</Label>
+                              <Input
+                                type="text"
+                                placeholder="URL du webhook Make.com"
+                                value={makePlatformFields.webhookURL}
+                                onChange={(e) =>
+                                  setMakePlatformFields({
+                                    ...makePlatformFields,
+                                    webhookURL: e.target.value,
+                                  })
+                                }
+                                required
+                              />
+                            </div>
+                            <div className="flex justify-end">
+                              <Button type="submit">Enregistrer</Button>
+                            </div>
+                          </form>
+                        )}
                       </div>
+                      
                     </div>
                   </div>
                 </CardContent>

@@ -312,6 +312,29 @@ export function useConfig() {
     }
   }, []);
 
+  const createConfig = useCallback(async (platform: string, keys: ConfigKeys) => {
+    try {
+      setLoading(true);
+      const newConfig = await apiService.createConfig({ platform, keys });
+      setConfigs(prevConfigs => [...prevConfigs, newConfig]);
+      toast({
+        title: 'Configuration créée',
+        description: 'La configuration a été créée avec succès.',
+      });
+      return newConfig;
+    } catch (err) {
+      setError(err instanceof Error ? err : new Error(String(err)));
+      toast({
+        title: 'Erreur',
+        description: 'Impossible de créer la configuration.',
+        variant: 'destructive',
+      });
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
   useEffect(() => {
     fetchConfigs();
   }, [fetchConfigs]);
@@ -319,9 +342,10 @@ export function useConfig() {
   return {
     configs,
     updateConfig,
+    createConfig,
     loading,
     error,
-    fetchConfigs  // Ajout de l'exposition de fetchConfigs
+    fetchConfigs
   };
 }
 
