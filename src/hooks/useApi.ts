@@ -416,3 +416,15 @@ export function useAudioDescription() {
     error
   };
 }
+
+export function useAddAudioToVideo() {
+  const { execute, loading, error } = useApi<AddAudioToVideoResponse, {videoId: string, params: AddAudioToVideoParams}>(
+    ({videoId, params}) => apiService.addAudioToVideo(videoId, params)
+  );
+
+  return {
+    addAudioToVideo: execute,
+    loading,
+    error
+  };
+}

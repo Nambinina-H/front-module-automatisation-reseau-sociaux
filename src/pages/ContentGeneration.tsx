@@ -35,6 +35,9 @@ import VideoTest from '@/components/test/VideoTest';
 // Ajout du nouvel import
 import { useAudioDescription } from '@/hooks/useApi';
 
+// Importation du hook pour l'ajout d'audio à la vidéo
+import { useAddAudioToVideo } from '@/hooks/useApi';
+
 // Sample template data - triés alphabétiquement dans chaque catégorie
 const initialTemplates = [
   // Modèles WordPress (triés alphabétiquement)
@@ -181,6 +184,15 @@ const ContentGeneration = () => {
   // Ajout de l'état manquant pour l'audio
   const [audioPrompt, setAudioPrompt] = useState<string>('');
 
+  // Ajouter cette variable manquante pour le prompt négatif
+  const [negativePrompt, setNegativePrompt] = useState<string>('');
+  
+  // Ajouter cet état pour stocker l'ID de la vidéo générée
+  const [generatedVideoId, setGeneratedVideoId] = useState<string | null>(null);
+
+  // Ajouter l'état pour le chargement lors de l'ajout d'audio
+  const [isAddingAudio, setIsAddingAudio] = useState<boolean>(false);
+
   // Utiliser le hook useContent pour la génération de contenu
   const { 
     generateContent,
@@ -198,6 +210,9 @@ const ContentGeneration = () => {
 
   // Ajout du nouveau hook
   const { generateAudioDescription, loading: isGeneratingAudioDescription } = useAudioDescription();
+
+  // Importation du hook pour l'ajout d'audio à la vidéo
+  const { addAudioToVideo, loading: isAudioLoading } = useAddAudioToVideo();
 
   const addKeyword = () => {
     if (newKeyword && !keywords.includes(newKeyword)) {
@@ -431,6 +446,9 @@ const ContentGeneration = () => {
           const response = await generateVideo(videoParams);
           console.log("Réponse de l'API vidéo:", response);
           
+          // Stocker l'ID de la vidéo générée
+          setGeneratedVideoId(response.id);
+          
           // Stocker l'URL de la vidéo et démarrer la vérification de disponibilité
           const videoUrl = response.videoUrl;
           
@@ -506,6 +524,59 @@ const ContentGeneration = () => {
         !['wordpress', 'facebook', 'instagram', 'linkedin', 'twitter'].some(prefix => template.id.startsWith(prefix))
       )
     };
+  };
+
+  // Fonction pour ajouter de l'audio à la vidéo
+  const handleAddAudioToVideo = async () => {
+    if (!generatedVideoId) {
+      toast.error("Aucune vidéo n'a été générée. Veuillez d'abord générer une vidéo.");
+      return;
+    }
+    
+    if (!audioPrompt) {
+      toast.error("Veuillez entrer une description pour l'audio");
+      return;
+    }
+    
+    try {
+      // Indiquer que l'opération est en cours
+      setIsAddingAudio(true);
+      toast.info("Ajout d'audio à la vidéo en cours...");
+      
+      const response = await addAudioToVideo({
+        videoId: generatedVideoId,
+        params: {
+          prompt: audioPrompt,
+          negativePrompt: negativePrompt || undefined
+        }
+      });
+      
+      console.log("Réponse après l'ajout d'audio:", response);
+      
+      // Mettre à jour le contenu généré avec la nouvelle URL de vidéo avec audio
+      setGeneratedContent(prev => ({
+        ...prev,
+        video: {
+          type: 'video',
+          content: response.videoAudioUrl
+        }
+      }));
+      
+      // Réinitialiser les états de vérification de vidéo pour éventuellement vérifier 
+      // la disponibilité de la nouvelle vidéo avec audio
+      setIsVideoReady(false);
+      setIsCheckingVideo(false);
+      
+      // Commencer à vérifier la disponibilité de la nouvelle vidéo avec audio
+      startVideoAvailabilityCheck(response.videoAudioUrl);
+      
+      toast.success(response.message || "Audio ajouté avec succès à la vidéo");
+    } catch (error) {
+      console.error("Erreur lors de l'ajout d'audio à la vidéo:", error);
+      toast.error("Erreur lors de l'ajout d'audio à la vidéo");
+    } finally {
+      setIsAddingAudio(false);
+    }
   };
 
   const renderGeneratedContent = () => {
@@ -596,8 +667,17 @@ const ContentGeneration = () => {
       case 'video':
         return (
           <div className="mt-6 space-y-4">
-            {/* Utiliser le composant VideoTest pour afficher la vidéo */}
-            <VideoTest videoUrl={content.content} />
+            <h3 className="text-lg font-medium">Vidéo générée</h3>
+            {isCheckingVideo ? (
+              <div className="p-4 text-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+                <p>Vérification de la disponibilité de la vidéo... 
+                  Tentative {videoCheckAttempts}/{MAX_VIDEO_CHECK_ATTEMPTS}
+                </p>
+              </div>
+            ) : (
+              <VideoTest videoUrl={content.content} />
+            )}
           </div>
         );
       default:
@@ -1071,6 +1151,8 @@ const ContentGeneration = () => {
                             id="negativePrompt"
                             placeholder="Décrivez les éléments que vous souhaitez éviter dans l'audio..."
                             className="min-h-20"
+                            value={negativePrompt}
+                            onChange={(e) => setNegativePrompt(e.target.value)}
                           />
                         </div>
                         
@@ -1093,12 +1175,17 @@ const ContentGeneration = () => {
                           
                           <Button 
                             className="w-full"
-                            onClick={() => {
-                              toast.info("La génération audio sera bientôt disponible");
-                            }}
+                            disabled={!audioPrompt || !generatedVideoId || isAddingAudio}
+                            onClick={handleAddAudioToVideo}
                           >
-                            <Wand2 className="mr-2 h-4 w-4" />
-                            Générer l'audio
+                            {isAddingAudio ? (
+                              <>Génération de l'audio en cours...</>
+                            ) : (
+                              <>
+                                <Wand2 className="mr-2 h-4 w-4" />
+                                Générer l'audio
+                              </>
+                            )}
                           </Button>
                         </div>
                       </CardContent>

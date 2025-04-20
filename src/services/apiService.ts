@@ -208,13 +208,23 @@ export interface VideoGenerationResponse {
   id: string;
 }
 
+export interface AddAudioToVideoParams {
+  audioUrl: string;
+  startTime: number;
+}
+
+export interface AddAudioToVideoResponse {
+  message: string;
+  videoUrl: string;
+}
+
 // Classe principale du service API
 class ApiService {
   private api: AxiosInstance;
   private token: string | null = null;
 
   constructor() {
-    const baseURL = import.meta.env.VITE_REACT_APP_BACKEND_URL || 'http://localhost:3001/';
+    const baseURL = import.meta.env.VITE_REACT_APP_BACKEND_URL || 'https://backend-module-generation-contenu.up.railway.app/';
     
     this.api = axios.create({
       baseURL,
@@ -518,6 +528,30 @@ class ApiService {
       return response.data;
     } catch (error) {
       console.error('Error generating video:', error);
+      throw error;
+    }
+  }
+
+  // Ajouter de l'audio à une vidéo générée
+  async addAudioToVideo(videoId: string, params: AddAudioToVideoParams): Promise<AddAudioToVideoResponse> {
+    try {
+      console.log("Envoi de la requête d'ajout d'audio avec ID:", videoId, "et params:", params);
+      
+      const response = await this.api.post<AddAudioToVideoResponse>(
+        `/video/generation/${videoId}/audio`, 
+        params
+      );
+      
+      console.log("Réponse de l'API après ajout d'audio:", response.data);
+      
+      toast({
+        title: 'Audio ajouté',
+        description: 'L\'audio a été ajouté à la vidéo avec succès!',
+      });
+      
+      return response.data;
+    } catch (error) {
+      console.error('Error adding audio to video:', error);
       throw error;
     }
   }

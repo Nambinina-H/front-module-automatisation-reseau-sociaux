@@ -19,11 +19,20 @@ const VideoTest: React.FC<VideoTestProps> = ({ videoUrl, simplified = true }) =>
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Réinitialiser l'état lorsque l'URL change
+  useEffect(() => {
+    setBlobUrl(null);
+    setError(null);
+  }, [videoUrl]);
+
   // Fonction pour créer un URL blob à partir de l'URL distante
   const createBlobUrl = async () => {
     try {
       setIsLoading(true);
       setError(null);
+      
+      // Afficher l'URL reçue pour débogage
+      console.log('Tentative de téléchargement de la vidéo depuis:', videoUrl);
       
       const response = await fetch(videoUrl, {
         method: 'GET',
