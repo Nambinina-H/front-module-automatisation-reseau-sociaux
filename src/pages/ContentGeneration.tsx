@@ -546,14 +546,14 @@ const ContentGeneration = () => {
                           </SelectTrigger>
                           <SelectContent>
                             {Object.entries(filterTemplatesByCategory()).map(([category, templates]) => (
-                              <React.Fragment key={category}>
+                              <div key={category}>
                                 <div className="px-2 py-1 text-sm font-semibold text-gray-500">{category}</div>
                                 {templates.map(template => (
                                   <SelectItem key={template.id} value={template.id}>
                                     {template.name}
                                   </SelectItem>
                                 ))}
-                              </React.Fragment>
+                              </div>
                             ))}
                           </SelectContent>
                         </Select>
