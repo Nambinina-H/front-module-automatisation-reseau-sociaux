@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import Sidebar from '@/components/layout/Sidebar';
 import Navbar from '@/components/layout/Navbar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -28,6 +28,9 @@ import Maintenance from '@/components/ui/Maintenance';
 
 // Ajoutez l'import du nouveau hook
 import { useVideoDescription } from '@/hooks/useApi';
+
+// Ajoutez l'import du composant VideoTest
+import VideoTest from '@/components/test/VideoTest';
 
 // Sample template data - triés alphabétiquement dans chaque catégorie
 const initialTemplates = [
@@ -251,6 +254,67 @@ const ContentGeneration = () => {
     toast.success('Variable supprimée');
   };
   
+  // Ajouter ces nouveaux états pour la gestion de vidéo avancée
+  const [isVideoReady, setIsVideoReady] = useState<boolean>(false);
+  const [isCheckingVideo, setIsCheckingVideo] = useState<boolean>(false);
+  const [videoCheckAttempts, setVideoCheckAttempts] = useState<number>(0);
+  const MAX_VIDEO_CHECK_ATTEMPTS = 10; // Maximum d'essais de vérification
+
+  // Fonction pour vérifier si une vidéo est accessible
+  const checkVideoAvailability = useCallback(async (url: string) => {
+    if (!url) return false;
+    
+    try {
+      const response = await fetch(url, {
+        method: 'HEAD',
+        cache: 'no-cache',
+      });
+      return response.ok;
+    } catch (error) {
+      console.log("Vidéo pas encore disponible, nouvel essai bientôt...");
+      return false;
+    }
+  }, []);
+
+  // Fonction pour démarrer le polling de vérification vidéo
+  const startVideoAvailabilityCheck = useCallback((url: string) => {
+    if (!url) return;
+    
+    setIsCheckingVideo(true);
+    setVideoCheckAttempts(0);
+    setIsVideoReady(false);
+    
+    const checkInterval = setInterval(async () => {
+      setVideoCheckAttempts(prev => {
+        const newAttempts = prev + 1;
+        
+        // Si on dépasse le nombre max d'essais, on arrête
+        if (newAttempts > MAX_VIDEO_CHECK_ATTEMPTS) {
+          clearInterval(checkInterval);
+          setIsCheckingVideo(false);
+          console.log("Nombre maximum de tentatives atteint - arrêt de la vérification");
+          return newAttempts;
+        }
+        
+        return newAttempts;
+      });
+      
+      const isAvailable = await checkVideoAvailability(url);
+      
+      if (isAvailable) {
+        clearInterval(checkInterval);
+        setIsVideoReady(true);
+        setIsCheckingVideo(false);
+        console.log("La vidéo est maintenant disponible !");
+        toast.success("La vidéo est prête à être visualisée");
+      }
+    }, 3000); // Vérification toutes les 3 secondes
+    
+    // Nettoyage de l'intervalle si le composant est démonté
+    return () => clearInterval(checkInterval);
+  }, [checkVideoAvailability]);
+
+  // Modifier la fonction handleGeneration pour intégrer la vérification vidéo
   const handleGeneration = async () => {
     if (activeTab === 'video' && !prompt) {
       toast.error("Veuillez remplir la description de la vidéo");
@@ -358,21 +422,23 @@ const ContentGeneration = () => {
           const response = await generateVideo(videoParams);
           console.log("Réponse de l'API vidéo:", response);
           
+          // Stocker l'URL de la vidéo et démarrer la vérification de disponibilité
+          const videoUrl = response.videoUrl;
+          
           setGeneratedContent(prev => ({
             ...prev,
             video: {
               type: 'video',
-              content: response.videoUrl
+              content: videoUrl
             }
           }));
           
-          console.log("Video URL reçue:", response.videoUrl);
-          console.log("Contenu généré mis à jour:", {
-            type: 'video',
-            content: response.videoUrl
-          });
+          console.log("Video URL reçue:", videoUrl);
           
-          toast.success(response.message || "Vidéo générée avec succès");
+          // Démarrer le processus de vérification de la vidéo
+          startVideoAvailabilityCheck(videoUrl);
+          
+          toast.success(response.message || "Vidéo générée avec succès! Vérification en cours...");
         } catch (error) {
           console.error("Erreur lors de la génération de la vidéo:", error);
           toast.error("Erreur lors de la génération de la vidéo");
@@ -505,58 +571,8 @@ const ContentGeneration = () => {
       case 'video':
         return (
           <div className="mt-6 space-y-4">
-            <h3 className="text-lg font-medium">Vidéo générée</h3>
-            <div className="p-2 bg-white border rounded-md shadow-sm">
-              <div className="relative pt-[56.25%] bg-gray-100 rounded-md">
-                <video 
-                  src={content.content} 
-                  className="absolute inset-0 w-full h-full rounded-md" 
-                  controls
-                  poster="/video-placeholder.png"
-                  onError={(e) => {
-                    console.error("Erreur lors du chargement de la vidéo:", e);
-                    console.log("URL de la vidéo qui a échoué:", content.content);
-                  }}
-                  onLoadedData={() => console.log("Vidéo chargée avec succès")}
-                />
-              </div>
-            </div>
-            <div className="p-2 bg-gray-100 rounded-md text-xs overflow-auto">
-              <p>URL vidéo: {content.content}</p>
-            </div>
-            <div className="flex justify-end space-x-2">
-              <Button 
-                onClick={() => {
-                  fetch(content.content)
-                    .then(response => {
-                      console.log("Réponse fetch:", response);
-                      if (!response.ok) {
-                        throw new Error(`Erreur HTTP: ${response.status}`);
-                      }
-                      return response.blob();
-                    })
-                    .then(blob => {
-                      console.log("Blob vidéo:", blob);
-                      const url = window.URL.createObjectURL(blob);
-                      const link = document.createElement('a');
-                      link.href = url;
-                      link.download = `video-generee-${new Date().toISOString().slice(0, 10)}.mp4`;
-                      document.body.appendChild(link);
-                      link.click();
-                      document.body.removeChild(link);
-                      window.URL.revokeObjectURL(url);
-                      toast.success("Vidéo téléchargée avec succès");
-                    })
-                    .catch((error) => {
-                      console.error("Erreur lors du téléchargement:", error);
-                      toast.error("Erreur lors du téléchargement de la vidéo");
-                    });
-                }}
-              >
-                <Download className="mr-2 h-4 w-4" />
-                Télécharger
-              </Button>
-            </div>
+            {/* Utiliser le composant VideoTest pour afficher la vidéo */}
+            <VideoTest videoUrl={content.content} />
           </div>
         );
       default:
@@ -1004,7 +1020,7 @@ const ContentGeneration = () => {
                       </CardContent>
                     </Card>
                     
-                    {/* Nouvelle carte pour la génération audio */}
+                    {/* Carte pour la génération audio */}
                     <Card>
                       <CardHeader>
                         <CardTitle>Génération d'Audio</CardTitle>
@@ -1045,8 +1061,10 @@ const ContentGeneration = () => {
                       </CardContent>
                     </Card>
                   </div>
+                  
+                  {/* Affichage du contenu généré (vidéo) */}
+                  {renderGeneratedContent()}
                 </TabsContent>
-                
               </div>
               {activeTab === 'text' && (
                 <div className="lg:col-span-1 space-y-6">

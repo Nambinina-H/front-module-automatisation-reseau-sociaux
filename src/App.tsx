@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -18,6 +17,7 @@ import Logs from "./pages/Logs";
 import UserManagement from "./pages/UserManagement";
 import Publications from "./pages/Publications";
 import { apiService } from "./services/apiService";
+import VideoTest from '@/components/test/VideoTest';
 
 const queryClient = new QueryClient();
 
@@ -70,6 +70,7 @@ const App = () => {
             <Route path="/gestion-utilisateurs" element={<PrivateRoute><UserManagement /></PrivateRoute>} />
             <Route path="/logs" element={<PrivateRoute><Logs /></PrivateRoute>} />
             <Route path="/publications" element={<PrivateRoute><Publications /></PrivateRoute>} />
+            <Route path="/video-test" element={<VideoTest />} />
             
             {/* Route 404 */}
             <Route path="*" element={<NotFound />} />
