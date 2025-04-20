@@ -507,10 +507,10 @@ const Settings = () => {
       // Rafraîchir les configurations
       await fetchConfigs();
       
-      toast.success("Configuration Make.com enregistrée avec succès");
+      // Suppression de l'appel à toast.success ici
     } catch (error) {
       console.error("Erreur lors de l'enregistrement de la configuration Make.com:", error);
-      toast.error("Erreur lors de l'enregistrement de la configuration");
+      // Nous gardons l'erreur qui est gérée par le hook useConfig
     }
   };
 
@@ -781,7 +781,7 @@ const Settings = () => {
                         {isMakeConfigured ? (
                           <div className="space-y-4">
                             <div className="flex items-center gap-2">
-                              <p>Webhook URL: {makePlatformFields.webhookURL}</p>
+                              <p>Webhook URL : {makePlatformFields.webhookURL}</p>
                             </div>
                             <Button 
                               variant="outline" 
