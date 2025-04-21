@@ -301,10 +301,11 @@ const PostCreator: React.FC<PostCreatorProps> = ({ className }) => {
         title: "Publication réussie",
         description: "Votre contenu a été publié avec succès",
       });
-    } catch (error) {
+    } catch (error: any) {
+      const backendMessage = error.response?.data?.message || "Une erreur est survenue lors de la publication.";
       toast({
         title: "Erreur de publication",
-        description: "Vérifiez que votre site WordPress est bien connecté avant de réessayer.",
+        description: backendMessage,
         variant: "destructive"
       });
     }
