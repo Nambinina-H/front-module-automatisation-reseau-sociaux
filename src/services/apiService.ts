@@ -634,6 +634,20 @@ class ApiService {
     }
   }
 
+  // Planifier une publication
+  async schedulePublication(params: ImmediatePublishParams & { scheduledDate: string }): Promise<any> {
+    try {
+      const response = await this.api.post('/publish/schedule', params, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  }
+
   // Upload média
   async uploadMedia(file: File): Promise<MediaUploadResponse> {
     try {

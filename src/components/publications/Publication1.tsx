@@ -96,12 +96,14 @@ const Publication1: React.FC<Publication1Props> = ({ posts, isLoading = false })
                     </div>
                   </td>
                   <td className="px-4 py-2 border-b text-center">
-                    {post.published_at ? 
-                      new Date(post.published_at).toLocaleString() : 
-                      post.schedule_time ? 
-                        new Date(post.schedule_time).toLocaleString() :
-                        new Date(post.created_at).toLocaleString()
-                    }
+                    {new Date(post.schedule_time).toLocaleString()}
+                    {/* Autres options de date en commentaire :
+                      post.published_at ? 
+                        new Date(post.published_at).toLocaleString() : 
+                        post.schedule_time ? 
+                          new Date(post.schedule_time).toLocaleString() :
+                          new Date(post.created_at).toLocaleString()
+                    */}
                   </td>
                   <td className="px-4 py-2 border-b text-center">
                     <div className="flex justify-center">

@@ -17,7 +17,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { toast } from '@/hooks/use-toast';
 import { Button as ShadcnButton } from '@/components/ui/button';
 import { Checkbox } from "@/components/ui/checkbox";
-import { usePublishNow, useUploadMedia, usePublishToWordPress, usePublishToTwitter } from '@/hooks/useApi';
+import { usePublishNow, useUploadMedia, usePublishToWordPress, usePublishToTwitter, useSchedulePublication } from '@/hooks/useApi';
 
 type ContentType = 'text' | 'text-image' | 'text-video' | 'image' | 'video';
 
@@ -52,11 +52,15 @@ const PostCreator: React.FC<PostCreatorProps> = ({ className }) => {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [videoFile, setVideoFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
-  const { publishNow, loading } = usePublishNow();
+  const { publishNow, loading: publishNowLoading } = usePublishNow();
+  const { schedulePublication, loading: scheduleLoading } = useSchedulePublication();
   const { uploadMedia } = useUploadMedia();
   const { publishToWordPress, loading: wordpressLoading } = usePublishToWordPress();
   const { publishToTwitter, loading: twitterLoading } = usePublishToTwitter();
   const [title, setTitle] = useState<string>(''); // Add state for title
+  
+  // État de chargement combiné
+  const loading = publishNowLoading || scheduleLoading || wordpressLoading || twitterLoading;
   
   interface ImmediatePublishParams {
     platforms: string[];  // On garde le tableau pour la compatibilité avec l'API
@@ -288,18 +292,40 @@ const PostCreator: React.FC<PostCreatorProps> = ({ className }) => {
         };
         await publishToWordPress(publishParams);
       } else {
-        const publishParams: ImmediatePublishParams = {
+        // Paramètres de base communs aux deux types de publication
+        const baseParams: ImmediatePublishParams = {
           platforms: [selectedPlatform],
           type: contentType,
           content,
           mediaUrl,
         };
-        await publishNow(publishParams);
+
+        if (isScheduled && date) {
+          // Créer une date formatée pour la planification
+          const scheduledDate = new Date(
+            date.getFullYear(),
+            date.getMonth(),
+            date.getDate(),
+            parseInt(selectedHour),
+            parseInt(selectedMinute)
+          ).toISOString();
+
+          // Utiliser le endpoint /publish/schedule
+          await schedulePublication({
+            ...baseParams,
+            scheduledDate
+          });
+        } else {
+          // Utiliser le endpoint /publish/now pour une publication immédiate
+          await publishNow(baseParams);
+        }
       }
 
       toast({
         title: "Publication réussie",
-        description: "Votre contenu a été publié avec succès",
+        description: isScheduled && date 
+          ? "Votre contenu a été planifié avec succès" 
+          : "Votre contenu a été publié avec succès",
       });
     } catch (error: any) {
       const backendMessage = error.response?.data?.message || "Une erreur est survenue lors de la publication.";

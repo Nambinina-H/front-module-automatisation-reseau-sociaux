@@ -207,6 +207,18 @@ export function usePublishNow() {
   };
 }
 
+export function useSchedulePublication() {
+  const { execute, loading, error } = useApi<any, ImmediatePublishParams & { scheduledDate: string }>(
+    apiService.schedulePublication.bind(apiService)
+  );
+
+  return {
+    schedulePublication: execute,
+    loading,
+    error
+  };
+}
+
 export function useLogs() {
   const {
     data: logsData,
