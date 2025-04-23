@@ -538,7 +538,7 @@ const PostCreator: React.FC<PostCreatorProps> = ({ className }) => {
         <div className="space-y-3">
           <label className="text-sm font-medium">Plateformes</label>
           <div className="flex flex-wrap gap-2">
-            {(['wordpress', 'facebook', 'twitter', 'linkedin', 'instagram'] as const).map((platform) => (
+            {(['wordpress', 'facebook', 'linkedin', 'instagram', 'twitter'] as const).map((platform) => (
               <Toggle
                 key={platform}
                 pressed={selectedPlatform === platform}
