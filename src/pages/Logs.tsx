@@ -43,6 +43,11 @@ const Logs = () => {
     publish_facebook: 'Contenu publié sur Facebook',  
     publish_linkedin: 'Contenu publié sur LinkedIn', 
     publish_instagram: 'Contenu publié sur Instagram', // Nouvelle action
+    schedule_facebook: 'Planification sur Facebook', // Nouvelle action de planification
+    schedule_instagram: 'Planification sur Instagram', // Nouvelle action de planification
+    schedule_linkedin: 'Planification sur LinkedIn', // Nouvelle action de planification
+    schedule_wordpress: 'Planification sur WordPress', // Nouvelle action de planification
+    schedule_twitter: 'Planification sur Twitter', // Nouvelle action de planification
   };
 
   const actionColors = {
@@ -68,6 +73,11 @@ const Logs = () => {
     publish_facebook: 'bg-blue-100 text-blue-800', // Nouvelle action avec couleur bleue
     publish_linkedin: 'bg-blue-100 text-blue-800', // Nouvelle action avec couleur bleue
     publish_instagram: 'bg-pink-100 text-pink-800', // Couleur distinctive pour Instagram
+    schedule_facebook: 'bg-indigo-100 text-indigo-800', // Nouvelle couleur pour la planification Facebook
+    schedule_instagram: 'bg-indigo-100 text-indigo-800', // Nouvelle couleur pour la planification Instagram
+    schedule_linkedin: 'bg-indigo-100 text-indigo-800', // Nouvelle couleur pour la planification LinkedIn
+    schedule_wordpress: 'bg-indigo-100 text-indigo-800', // Nouvelle couleur pour la planification WordPress
+    schedule_twitter: 'bg-indigo-100 text-indigo-800', // Nouvelle couleur pour la planification Twitter
   };
 
   const getDetails = (log) => {
@@ -174,6 +184,11 @@ const Logs = () => {
                       <SelectItem value="publish_facebook">Publication sur Facebook</SelectItem> {/* Nouvelle option */}
                       <SelectItem value="publish_linkedin">Publication sur LinkedIn</SelectItem> {/* Nouvelle option */}
                       <SelectItem value="publish_instagram">Publication sur Instagram</SelectItem> {/* Nouvelle option */}
+                      <SelectItem value="schedule_facebook">Planification sur Facebook</SelectItem>
+                      <SelectItem value="schedule_instagram">Planification sur Instagram</SelectItem>
+                      <SelectItem value="schedule_linkedin">Planification sur LinkedIn</SelectItem>
+                      <SelectItem value="schedule_wordpress">Planification sur WordPress</SelectItem>
+                      <SelectItem value="schedule_twitter">Planification sur Twitter</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
