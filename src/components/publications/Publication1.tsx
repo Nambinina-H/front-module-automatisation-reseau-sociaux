@@ -96,13 +96,37 @@ const Publication1: React.FC<Publication1Props> = ({ posts, isLoading = false })
                     </div>
                   </td>
                   <td className="px-4 py-2 border-b text-center">
-                    {new Date(post.schedule_time).toLocaleString()}
+                    {new Date(post.schedule_time).toLocaleString(undefined, {
+                      year: 'numeric', 
+                      month: 'numeric', 
+                      day: 'numeric',
+                      hour: '2-digit', 
+                      minute: '2-digit'
+                    })}
                     {/* Autres options de date en commentaire :
                       post.published_at ? 
-                        new Date(post.published_at).toLocaleString() : 
+                        new Date(post.published_at).toLocaleString(undefined, {
+                          year: 'numeric', 
+                          month: 'numeric', 
+                          day: 'numeric',
+                          hour: '2-digit', 
+                          minute: '2-digit'
+                        }) : 
                         post.schedule_time ? 
-                          new Date(post.schedule_time).toLocaleString() :
-                          new Date(post.created_at).toLocaleString()
+                          new Date(post.schedule_time).toLocaleString(undefined, {
+                            year: 'numeric', 
+                            month: 'numeric', 
+                            day: 'numeric',
+                            hour: '2-digit', 
+                            minute: '2-digit'
+                          }) :
+                          new Date(post.created_at).toLocaleString(undefined, {
+                            year: 'numeric', 
+                            month: 'numeric', 
+                            day: 'numeric',
+                            hour: '2-digit', 
+                            minute: '2-digit'
+                          })
                     */}
                   </td>
                   <td className="px-4 py-2 border-b text-center">

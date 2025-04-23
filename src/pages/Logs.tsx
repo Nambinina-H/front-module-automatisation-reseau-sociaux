@@ -96,11 +96,17 @@ const Logs = () => {
       );
     }
   
-    // Nouveau traitement pour les dates ISO
+    // Nouveau traitement pour les dates ISO (sans secondes)
     if (isoDateRegex.test(details)) {
       details = details.replace(isoDateRegex, (isoDate) => {
         const date = new Date(isoDate);
-        return date.toLocaleString();
+        return date.toLocaleString(undefined, {
+          year: 'numeric', 
+          month: 'numeric', 
+          day: 'numeric',
+          hour: '2-digit', 
+          minute: '2-digit'
+        });
       });
     }
   
@@ -234,7 +240,13 @@ const Logs = () => {
                           <div dangerouslySetInnerHTML={{ __html: getDetails(log) }} />
                         </td>
                         <td className="px-4 py-2 border-b text-center">
-                          {new Date(log.created_at).toLocaleString()}
+                          {new Date(log.created_at).toLocaleString(undefined, {
+                            year: 'numeric', 
+                            month: 'numeric', 
+                            day: 'numeric',
+                            hour: '2-digit', 
+                            minute: '2-digit'
+                          })}
                         </td>
                       </tr>
                     ))}
