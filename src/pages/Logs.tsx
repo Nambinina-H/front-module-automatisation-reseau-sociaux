@@ -81,13 +81,29 @@ const Logs = () => {
   };
 
   const getDetails = (log) => {
+    // Expression régulière existante pour les URLs
     const urlRegex = /(https?:\/\/[^\s]+)/g;
-    const details = log.details;
-
+    
+    // Nouvelle expression régulière pour les dates ISO 8601
+    const isoDateRegex = /(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z)/g;
+    
+    let details = log.details;
+  
+    // Traitement des URLs (code existant)
     if (urlRegex.test(details)) {
-      return details.replace(urlRegex, (url) => `<a href="${url}" target="_blank" class="text-blue-500 underline">${url}</a>`);
+      details = details.replace(urlRegex, (url) => 
+        `<a href="${url}" target="_blank" class="text-blue-500 underline">${url}</a>`
+      );
     }
-
+  
+    // Nouveau traitement pour les dates ISO
+    if (isoDateRegex.test(details)) {
+      details = details.replace(isoDateRegex, (isoDate) => {
+        const date = new Date(isoDate);
+        return date.toLocaleString();
+      });
+    }
+  
     return details;
   };
 
