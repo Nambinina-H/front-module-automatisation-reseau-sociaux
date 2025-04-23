@@ -42,6 +42,7 @@ const Logs = () => {
     twitter_oauth_disconnect: 'Déconnexion Twitter OAuth réussie', // Ajout de cette ligne
     publish_facebook: 'Contenu publié sur Facebook',  
     publish_linkedin: 'Contenu publié sur LinkedIn', 
+    publish_instagram: 'Contenu publié sur Instagram', // Nouvelle action
   };
 
   const actionColors = {
@@ -66,6 +67,7 @@ const Logs = () => {
     twitter_oauth_disconnect: 'bg-red-100 text-red-800', // Ajout de cette ligne
     publish_facebook: 'bg-blue-100 text-blue-800', // Nouvelle action avec couleur bleue
     publish_linkedin: 'bg-blue-100 text-blue-800', // Nouvelle action avec couleur bleue
+    publish_instagram: 'bg-pink-100 text-pink-800', // Couleur distinctive pour Instagram
   };
 
   const getDetails = (log) => {
@@ -171,6 +173,7 @@ const Logs = () => {
                       <SelectItem value="twitter_oauth_disconnect">Déconnexion Twitter</SelectItem> {/* Ajout de cette ligne */}
                       <SelectItem value="publish_facebook">Publication sur Facebook</SelectItem> {/* Nouvelle option */}
                       <SelectItem value="publish_linkedin">Publication sur LinkedIn</SelectItem> {/* Nouvelle option */}
+                      <SelectItem value="publish_instagram">Publication sur Instagram</SelectItem> {/* Nouvelle option */}
                     </SelectContent>
                   </Select>
                 </div>
