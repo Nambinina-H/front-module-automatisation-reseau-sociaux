@@ -40,6 +40,8 @@ const Logs = () => {
     twitter_publish: 'Publication sur Twitter', // Ajout de cette ligne
     twitter_oauth_connect: 'Connexion Twitter OAuth réussie', // Ajout de cette ligne
     twitter_oauth_disconnect: 'Déconnexion Twitter OAuth réussie', // Ajout de cette ligne
+    publish_facebook: 'Contenu publié sur Facebook',  
+    publish_linkedin: 'Contenu publié sur LinkedIn', 
   };
 
   const actionColors = {
@@ -62,6 +64,8 @@ const Logs = () => {
     twitter_publish: 'bg-blue-100 text-blue-800', // Ajout de cette ligne
     twitter_oauth_connect: 'bg-green-100 text-green-800', // Ajout de cette ligne
     twitter_oauth_disconnect: 'bg-red-100 text-red-800', // Ajout de cette ligne
+    publish_facebook: 'bg-blue-100 text-blue-800', // Nouvelle action avec couleur bleue
+    publish_linkedin: 'bg-blue-100 text-blue-800', // Nouvelle action avec couleur bleue
   };
 
   const getDetails = (log) => {
@@ -165,6 +169,8 @@ const Logs = () => {
                       <SelectItem value="twitter_publish">Publication sur Twitter</SelectItem> {/* Ajout de cette ligne */}
                       <SelectItem value="twitter_oauth_connect">Connexion Twitter</SelectItem> {/* Ajout de cette ligne */}
                       <SelectItem value="twitter_oauth_disconnect">Déconnexion Twitter</SelectItem> {/* Ajout de cette ligne */}
+                      <SelectItem value="publish_facebook">Publication sur Facebook</SelectItem> {/* Nouvelle option */}
+                      <SelectItem value="publish_linkedin">Publication sur LinkedIn</SelectItem> {/* Nouvelle option */}
                     </SelectContent>
                   </Select>
                 </div>
