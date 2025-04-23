@@ -54,7 +54,7 @@ const PostCreator: React.FC<PostCreatorProps> = ({ className }) => {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const { publishNow, loading: publishNowLoading } = usePublishNow();
   const { schedulePublication, loading: scheduleLoading } = useSchedulePublication();
-  const { uploadMedia } = useUploadMedia();
+  const { uploadMedia, isUploading, uploadProgress } = useUploadMedia();
   const { publishToWordPress, loading: wordpressLoading } = usePublishToWordPress();
   const { publishToTwitter, loading: twitterLoading } = usePublishToTwitter();
   const [title, setTitle] = useState<string>(''); // Add state for title
@@ -149,7 +149,7 @@ const PostCreator: React.FC<PostCreatorProps> = ({ className }) => {
     }
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, type: 'image' | 'video') => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>, type: 'image' | 'video') => {
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -482,6 +482,19 @@ const PostCreator: React.FC<PostCreatorProps> = ({ className }) => {
                   </div>
                 </label>
               )}
+              
+              {isUploading && (
+                <div className="mt-4">
+                  <p className="text-sm text-gray-500 mb-1">Téléchargement en cours...</p>
+                  <div className="w-full bg-gray-200 rounded-full h-2.5">
+                    <div 
+                      className="bg-blue-600 h-2.5 rounded-full" 
+                      style={{ width: `${uploadProgress}%` }}
+                    ></div>
+                  </div>
+                  <p className="text-xs text-gray-500 mt-1">{uploadProgress}%</p>
+                </div>
+              )}
             </div>
           </div>
         )}
@@ -505,6 +518,19 @@ const PostCreator: React.FC<PostCreatorProps> = ({ className }) => {
                   </span>
                 </div>
               </label>
+              
+              {isUploading && (
+                <div className="mt-4">
+                  <p className="text-sm text-gray-500 mb-1">Téléchargement en cours...</p>
+                  <div className="w-full bg-gray-200 rounded-full h-2.5">
+                    <div 
+                      className="bg-blue-600 h-2.5 rounded-full" 
+                      style={{ width: `${uploadProgress}%` }}
+                    ></div>
+                  </div>
+                  <p className="text-xs text-gray-500 mt-1">{uploadProgress}%</p>
+                </div>
+              )}
             </div>
           </div>
         )}

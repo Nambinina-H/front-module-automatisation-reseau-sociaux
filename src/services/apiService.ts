@@ -649,7 +649,7 @@ class ApiService {
   }
 
   // Upload média
-  async uploadMedia(file: File): Promise<MediaUploadResponse> {
+  async uploadMedia(file: File, onProgress?: (progress: number) => void): Promise<MediaUploadResponse> {
     try {
       const formData = new FormData();
       formData.append('media', file);
@@ -658,6 +658,12 @@ class ApiService {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
+        onUploadProgress: (progressEvent) => {
+          if (progressEvent.total && onProgress) {
+            const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+            onProgress(percentCompleted);
+          }
+        }
       });
       return response.data;
     } catch (error) {

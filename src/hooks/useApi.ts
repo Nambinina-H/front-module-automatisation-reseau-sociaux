@@ -270,14 +270,30 @@ export function useLogs() {
 }
 
 export function useUploadMedia() {
-  const { execute, loading, error } = useApi<MediaUploadResponse, File>(
-    apiService.uploadMedia.bind(apiService)
-  );
+  const [uploadProgress, setUploadProgress] = useState<number>(0);
+  const [isUploading, setIsUploading] = useState<boolean>(false);
+
+  const uploadMedia = async (file: File) => {
+    try {
+      setIsUploading(true);
+      setUploadProgress(0);
+      
+      const result = await apiService.uploadMedia(file, (progress) => {
+        setUploadProgress(progress);
+      });
+      
+      return result;
+    } catch (error) {
+      throw error;
+    } finally {
+      setIsUploading(false);
+    }
+  };
 
   return {
-    uploadMedia: execute,
-    loading,
-    error
+    uploadMedia,
+    isUploading,
+    uploadProgress
   };
 }
 
