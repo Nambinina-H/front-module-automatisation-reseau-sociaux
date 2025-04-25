@@ -1,7 +1,6 @@
 import React from 'react';
-import { Search } from 'lucide-react';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
+import { useAuth } from '@/hooks/useApi';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
 
 interface NavbarProps {
@@ -9,6 +8,14 @@ interface NavbarProps {
 }
 
 const Navbar: React.FC<NavbarProps> = ({ className }) => {
+  const { user } = useAuth();
+  
+  // Obtenir les initiales de l'email pour l'avatar
+  const getInitials = (email: string | undefined) => {
+    if (!email) return 'U';
+    return email.charAt(0).toUpperCase();
+  };
+
   return (
     <header 
       className={cn(
@@ -21,7 +28,14 @@ const Navbar: React.FC<NavbarProps> = ({ className }) => {
       </div>
       
       <div className="flex items-center space-x-4">
-        
+        {user && (
+          <div className="flex items-center gap-2">
+            <Avatar className="h-8 w-8">
+              <AvatarFallback className="bg-primary text-primary-foreground">{getInitials(user.email)}</AvatarFallback>
+            </Avatar>
+            <span className="text-sm font-medium hidden md:inline">{user.email}</span>
+          </div>
+        )}
       </div>
     </header>
   );
