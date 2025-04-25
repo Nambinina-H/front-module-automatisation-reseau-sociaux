@@ -75,8 +75,6 @@ const App = () => {
             {/* Route 404 */}
             <Route path="*" element={<NotFound />} />
           </Routes>
-          {/* Exemple de lien vers la section "Intégrations" */}
-          <Link to="/parametres?tab=integrations">Aller à Intégrations</Link>
         </BrowserRouter>
       </TooltipProvider>
     </QueryClientProvider>
