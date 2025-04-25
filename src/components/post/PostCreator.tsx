@@ -227,17 +227,42 @@ const PostCreator: React.FC<PostCreatorProps> = ({ className }) => {
       }
 
       try {
+        // Si la publication de Twitter est planifiée, on prépare la date
+        let twitterScheduledDate: string | undefined;
+        if (isScheduled && date) {
+          twitterScheduledDate = new Date(
+            date.getFullYear(),
+            date.getMonth(),
+            date.getDate(),
+            parseInt(selectedHour),
+            parseInt(selectedMinute)
+          ).toISOString();
+        }
+
         if (contentType.includes('image') && imageFile) {
-          await publishToTwitter({ content, mediaFile: imageFile });
+          await publishToTwitter({ 
+            content, 
+            mediaFile: imageFile, 
+            scheduledDate: twitterScheduledDate 
+          });
         } else if (contentType.includes('video') && videoFile) {
-          await publishToTwitter({ content, mediaFile: videoFile });
+          await publishToTwitter({ 
+            content, 
+            mediaFile: videoFile, 
+            scheduledDate: twitterScheduledDate 
+          });
         } else {
-          await publishToTwitter({ content });
+          await publishToTwitter({ 
+            content, 
+            scheduledDate: twitterScheduledDate 
+          });
         }
 
         toast({
           title: "Publication réussie",
-          description: "Votre contenu a été publié avec succès sur Twitter!",
+          description: isScheduled && date
+            ? "Votre contenu a été planifié avec succès sur Twitter!"
+            : "Votre contenu a été publié avec succès sur Twitter!",
         });
       } catch (error) {
         console.error("Erreur lors de la publication sur Twitter:", error);

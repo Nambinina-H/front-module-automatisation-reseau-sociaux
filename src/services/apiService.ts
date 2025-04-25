@@ -715,18 +715,24 @@ class ApiService {
   }
 
   // Publier sur Twitter
-  async publishToTwitter(content: string, mediaFile?: File): Promise<any> {
+  async publishToTwitter(content: string, mediaFile?: File, scheduledDate?: string): Promise<any> {
     try {
       let response;
       if (mediaFile) {
         const formData = new FormData();
-        formData.append('content', content); // Assurez-vous que le champ est nommé "content"
-        formData.append('media', mediaFile); // Assurez-vous que le champ est nommé "media"
+        formData.append('content', content);
+        formData.append('media', mediaFile);
+        
+        // Ajout du paramètre scheduledDate pour la planification
+        if (scheduledDate) {
+          formData.append('scheduledDate', scheduledDate);
+        }
 
         // Log pour vérifier le contenu du FormData
         console.log('FormData envoyé à Twitter:', {
           content,
           media: mediaFile.name,
+          scheduledDate: scheduledDate || 'immédiat'
         });
 
         response = await this.api.post('/oauth/twitter/publish', formData, {
@@ -735,12 +741,19 @@ class ApiService {
           },
         });
       } else {
-        response = await this.api.post('/oauth/twitter/publish', { content });
+        // Pour les tweets sans média, on peut passer scheduledDate directement dans le corps de la requête
+        const payload = { content };
+        if (scheduledDate) {
+          payload['scheduledDate'] = scheduledDate;
+        }
+        response = await this.api.post('/oauth/twitter/publish', payload);
       }
 
       toast({
         title: 'Publication réussie',
-        description: 'Le contenu a été publié avec succès sur Twitter!',
+        description: scheduledDate 
+          ? 'Le contenu a été planifié avec succès sur Twitter!' 
+          : 'Le contenu a été publié avec succès sur Twitter!',
       });
       return response.data;
     } catch (error) {
