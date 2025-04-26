@@ -353,7 +353,7 @@ const PostCreator: React.FC<PostCreatorProps> = ({ className }) => {
           : "Votre contenu a été publié avec succès",
       });
     } catch (error: any) {
-      const backendMessage = error.response?.data?.message || "Une erreur est survenue lors de la publication.";
+      const backendMessage = error.response?.data?.error || "Une erreur est survenue lors de la publication.";
       toast({
         title: "Erreur de publication",
         description: backendMessage,
