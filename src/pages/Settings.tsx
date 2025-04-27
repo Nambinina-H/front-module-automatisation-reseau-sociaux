@@ -762,14 +762,18 @@ const Settings = () => {
                             </Button>
                           </div>
                         ) : (
-                          <Button 
-                            variant="outline" 
-                            onClick={handleTwitterConnect} 
-                            disabled={authLoading}
-                          >
-                            <PlatformIcon platform="twitter" size={24} className="mr-2" />
-                            Connecter
-                          </Button>
+                          <div className="space-y-2">
+                            <p className="text-sm text-500">Aucun compte Twitter connecté.</p>
+                            <br/>
+                            <Button 
+                              variant="outline" 
+                              onClick={handleTwitterConnect} 
+                              disabled={authLoading}
+                            >
+                              <PlatformIcon platform="twitter" size={24} className="mr-2" />
+                              Connecter
+                            </Button>
+                          </div>
                         )}
                       </div>
                       <div className="border rounded-lg p-4">
