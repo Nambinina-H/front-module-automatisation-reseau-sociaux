@@ -129,6 +129,7 @@ const Settings = () => {
       });
     }
 
+    // Gardons cette logique pour éviter les bugs, même si le formulaire est supprimé
     if (makeConfig?.keys) {
       setMakeWebhooksFields({
         facebook: makeConfig.keys.facebook || '',
@@ -1019,81 +1020,7 @@ const Settings = () => {
                           </div>
                         </form>
                       </div>
-                      {/* Add Make Webhooks Section */}
-                      <div className="border rounded-lg p-4">
-                        <h3 className="text-lg font-medium mb-4">Make Webhooks</h3>
-                        <form
-                          className="space-y-4"
-                          onSubmit={(e) => {
-                            e.preventDefault();
-                            handleFormSubmit("Make Webhooks");
-                          }}
-                        >
-                          <div className="space-y-2">
-                            <Label>MAKE_WEBHOOK_FACEBOOK</Label>
-                            <Input
-                              type="text"
-                              placeholder="Webhook URL pour Facebook"
-                              value={makeWebhooksFields.facebook}
-                              onChange={(e) =>
-                                setMakeWebhooksFields({
-                                  ...makeWebhooksFields,
-                                  facebook: e.target.value,
-                                })
-                              }
-                              required
-                            />
-                          </div>
-                          <div className="space-y-2">
-                            <Label>MAKE_WEBHOOK_LINKEDIN</Label>
-                            <Input
-                              type="text"
-                              placeholder="Webhook URL pour LinkedIn"
-                              value={makeWebhooksFields.linkedin}
-                              onChange={(e) =>
-                                setMakeWebhooksFields({
-                                  ...makeWebhooksFields,
-                                  linkedin: e.target.value,
-                                })
-                              }
-                              required
-                            />
-                          </div>
-                          <div className="space-y-2">
-                            <Label>MAKE_WEBHOOK_INSTAGRAM</Label>
-                            <Input
-                              type="text"
-                              placeholder="Webhook URL pour Instagram"
-                              value={makeWebhooksFields.instagram}
-                              onChange={(e) =>
-                                setMakeWebhooksFields({
-                                  ...makeWebhooksFields,
-                                  instagram: e.target.value,
-                                })
-                              }
-                              required
-                            />
-                          </div>
-                          <div className="space-y-2">
-                            <Label>MAKE_WEBHOOK_TWITTER</Label>
-                            <Input
-                              type="text"
-                              placeholder="Webhook URL pour Twitter"
-                              value={makeWebhooksFields.twitter}
-                              onChange={(e) =>
-                                setMakeWebhooksFields({
-                                  ...makeWebhooksFields,
-                                  twitter: e.target.value,
-                                })
-                              }
-                              required
-                            />
-                          </div>
-                          <div className="flex justify-end">
-                            <Button type="submit">Modifier</Button>
-                          </div>
-                        </form>
-                      </div>
+                      {/* La section Make Webhooks a été retirée ici */}
                     </div>
                   </CardContent>
                 </Card>
