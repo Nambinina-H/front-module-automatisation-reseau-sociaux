@@ -766,9 +766,11 @@ class ApiService {
           variant: 'destructive',
         });
       } else {
+        // Utiliser le message d'erreur spécifique de l'API si disponible
+        const errorMessage = error.response?.data?.error || 'Une erreur est survenue lors de la publication sur Twitter.';
         toast({
           title: 'Erreur',
-          description: 'Une erreur est survenue lors de la publication sur Twitter.',
+          description: errorMessage,
           variant: 'destructive',
         });
       }
