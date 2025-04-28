@@ -522,6 +522,10 @@ interface WeeklyStats {
     instagram: number;
     wordpress: number;
   };
+  period: {
+    startDate: string;
+    endDate: string;
+  };
 }
 
 export function useWeeklyAnalytics() {
@@ -562,7 +566,11 @@ export function useWeeklyAnalytics() {
       
       const result = {
         dailyData,
-        platformTotals: apiData.platformTotals
+        platformTotals: apiData.platformTotals,
+        period: {
+          startDate: apiData.startOfWeek,
+          endDate: apiData.endOfWeek
+        }
       };
       
       setData(result);

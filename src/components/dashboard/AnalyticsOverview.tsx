@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Legend } from 'recharts';
 import { cn } from '@/lib/utils';
 import PlatformIcon from '@/components/common/PlatformIcon';
@@ -9,6 +9,18 @@ import { Skeleton } from '@/components/ui/skeleton';
 interface AnalyticsOverviewProps {
   className?: string;
 }
+
+// Fonction helper pour utiliser exactement la date ISO de l'API au format DD/MM/YYYY
+const formatDate = (isoDate: string): string => {
+  if (!isoDate) return '';
+  
+  // Extraire simplement la date (YYYY-MM-DD) de la chaîne ISO
+  const datePart = isoDate.split('T')[0];
+  // Diviser et réorganiser en format DD/MM/YYYY
+  const [year, month, day] = datePart.split('-');
+  
+  return `${day}/${month}/${year}`;
+};
 
 const AnalyticsOverview: React.FC<AnalyticsOverviewProps> = ({ className }) => {
   const { data, loading, error, fetchWeeklyStats } = useWeeklyAnalytics();
@@ -107,10 +119,18 @@ const AnalyticsOverview: React.FC<AnalyticsOverviewProps> = ({ className }) => {
     { platform: 'instagram', label: 'Instagram', value: data.platformTotals.instagram },
   ] : fallbackStats;
 
+  // Préparer la description de la période en utilisant les dates exactes de l'API
+  const periodDescription = data?.period 
+    ? `Statistiques hebdomadaires du ${formatDate(data.period.startDate)} au ${formatDate(data.period.endDate)}`
+    : 'Statistiques hebdomadaires';
+
   return (
     <Card className={cn('w-full fancy-border', className)}>
       <CardHeader>
         <CardTitle className="text-xl font-medium">Analytics</CardTitle>
+        {!loading && data?.period && (
+          <CardDescription>{periodDescription}</CardDescription>
+        )}
       </CardHeader>
       <CardContent>
         {loading ? (
