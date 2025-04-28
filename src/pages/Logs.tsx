@@ -10,6 +10,13 @@ import { RefreshCw } from 'lucide-react';
 import { useLogs } from '@/hooks/useApi';
 import { Skeleton } from "@/components/ui/skeleton"; // Add this import
 
+// Composant pour afficher une ligne vide sans bordure
+const EmptyRow = () => (
+  <tr className="h-[48px] border-none">
+    <td colSpan={4} className="border-none"></td>
+  </tr>
+);
+
 const Logs = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filter, setFilter] = useState('all');
@@ -229,29 +236,55 @@ const Logs = () => {
                 {loading.fetch ? (
                   <LogsSkeleton />
                 ) : (
-                  <tbody>
-                    {filteredLogs.map(log => (
-                      <tr key={log.id}>
-                        <td className="px-4 py-2 border-b text-center">{log.email}</td>
-                        <td className="px-4 py-2 border-b text-center">
-                          <Badge className={`${actionColors[log.action]} whitespace-nowrap`}>
-                            {actionLabels[log.action]}
-                          </Badge>
-                        </td>
-                        <td className="px-4 py-2 border-b">
-                          <div dangerouslySetInnerHTML={{ __html: getDetails(log) }} />
-                        </td>
-                        <td className="px-4 py-2 border-b text-center">
-                          {new Date(log.created_at).toLocaleString(undefined, {
-                            year: 'numeric', 
-                            month: 'numeric', 
-                            day: 'numeric',
-                            hour: '2-digit', 
-                            minute: '2-digit'
-                          })}
-                        </td>
-                      </tr>
-                    ))}
+                  <tbody className={filteredLogs.length === 0 ? "border-none" : ""}>
+                    {filteredLogs.length > 0 ? (
+                      <>
+                        {filteredLogs.map(log => (
+                          <tr key={log.id}>
+                            <td className="px-4 py-2 border-b text-center">{log.email}</td>
+                            <td className="px-4 py-2 border-b text-center">
+                              <Badge className={`${actionColors[log.action]} whitespace-nowrap`}>
+                                {actionLabels[log.action]}
+                              </Badge>
+                            </td>
+                            <td className="px-4 py-2 border-b">
+                              <div dangerouslySetInnerHTML={{ __html: getDetails(log) }} />
+                            </td>
+                            <td className="px-4 py-2 border-b text-center">
+                              {new Date(log.created_at).toLocaleString(undefined, {
+                                year: 'numeric', 
+                                month: 'numeric', 
+                                day: 'numeric',
+                                hour: '2-digit', 
+                                minute: '2-digit'
+                              })}
+                            </td>
+                          </tr>
+                        ))}
+                      </>
+                    ) : (
+                      <>
+                        {/* Afficher 4 lignes vides au-dessus du message */}
+                        {Array(4).fill(0).map((_, index) => (
+                          <EmptyRow key={`empty-top-${index}`} />
+                        ))}
+                        
+                        {/* Ligne avec le message */}
+                        <tr className="border-none hover:bg-transparent">
+                          <td 
+                            colSpan={4} 
+                            className="px-4 py-8 text-center text-muted-foreground text-lg border-none"
+                          >
+                            Aucun log trouvé
+                          </td>
+                        </tr>
+                        
+                        {/* Afficher 5 lignes vides en-dessous du message */}
+                        {Array(5).fill(0).map((_, index) => (
+                          <EmptyRow key={`empty-bottom-${index}`} />
+                        ))}
+                      </>
+                    )}
                   </tbody>
                 )}
               </table>
