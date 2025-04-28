@@ -480,3 +480,109 @@ export function useAddAudioToVideo() {
     error
   };
 }
+
+interface WeeklyAnalyticsResponse {
+  message: string;
+  startOfWeek: string;
+  endOfWeek: string;
+  dailyStats: {
+    [day: string]: {
+      facebook: number;
+      linkedin: number;
+      twitter: number;
+      instagram: number;
+      wordpress: number;
+    };
+  };
+  platformTotals: {
+    facebook: number;
+    linkedin: number;
+    twitter: number;
+    instagram: number;
+    wordpress: number;
+  };
+}
+
+interface DailyStats {
+  name: string;
+  facebook: number;
+  linkedin: number;
+  twitter: number;
+  instagram: number;
+  wordpress: number;
+  total: number;
+}
+
+interface WeeklyStats {
+  dailyData: DailyStats[];
+  platformTotals: {
+    facebook: number;
+    linkedin: number;
+    twitter: number;
+    instagram: number;
+    wordpress: number;
+  };
+}
+
+export function useWeeklyAnalytics() {
+  const [data, setData] = useState<WeeklyStats | null>(null);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<Error | null>(null);
+  const [lastFetched, setLastFetched] = useState<number | null>(null);
+
+  const fetchWeeklyStats = useCallback(async (forceRefresh = false) => {
+    // Si les données existent déjà et que ça fait moins de 5 minutes qu'elles ont été chargées,
+    // et qu'on ne force pas le rafraîchissement, on ne fait pas de nouvelle requête
+    const now = Date.now();
+    const fiveMinutesInMs = 5 * 60 * 1000;
+
+    if (
+      !forceRefresh && 
+      data && 
+      lastFetched && 
+      now - lastFetched < fiveMinutesInMs
+    ) {
+      return data;
+    }
+
+    try {
+      setLoading(true);
+      const response = await apiService.api.get<WeeklyAnalyticsResponse>('/analytics/weekly');
+      const apiData = response.data;
+      
+      // Transformer les données pour le format attendu par les composants
+      const dailyData: DailyStats[] = Object.entries(apiData.dailyStats).map(([day, stats]) => {
+        const total = Object.values(stats).reduce((sum, value) => sum + value, 0);
+        return {
+          name: day.substring(0, 3), // Prendre les 3 premières lettres du jour
+          ...stats,
+          total
+        };
+      });
+      
+      const result = {
+        dailyData,
+        platformTotals: apiData.platformTotals
+      };
+      
+      setData(result);
+      setLastFetched(now);
+      setError(null);
+      return result;
+    } catch (err) {
+      const errorObj = err instanceof Error ? err : new Error(String(err));
+      setError(errorObj);
+      console.error("Erreur lors de la récupération des statistiques hebdomadaires:", errorObj);
+      throw errorObj;
+    } finally {
+      setLoading(false);
+    }
+  }, [data, lastFetched]);
+
+  return {
+    data,
+    loading,
+    error,
+    fetchWeeklyStats
+  };
+}

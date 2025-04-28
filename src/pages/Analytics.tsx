@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Sidebar from '@/components/layout/Sidebar';
 import Navbar from '@/components/layout/Navbar';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -6,82 +6,33 @@ import { ResponsiveContainer, BarChart, Bar, LineChart, Line, XAxis, YAxis, Cart
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import PlatformIcon from '@/components/common/PlatformIcon';
 import { Calendar } from '@/components/ui/calendar';
-import { BarChart3, PieChart as PieChartIcon, LineChart as LineChartIcon, Calendar as CalendarIcon } from 'lucide-react';
+import { BarChart3, PieChart as PieChartIcon, LineChart as LineChartIcon, Calendar as CalendarIcon, RefreshCw } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Button } from '@/components/ui/button';
 import { format, subDays } from 'date-fns';
 import { fr } from 'date-fns/locale';
+import { useWeeklyAnalytics } from '@/hooks/useApi';
+import AnalyticsOverview from '@/components/dashboard/AnalyticsOverview';
 
 const Analytics = () => {
   const [date, setDate] = useState<Date | undefined>(new Date());
+  const { fetchWeeklyStats, loading } = useWeeklyAnalytics();
+
+  // Fonction pour rafraîchir manuellement les données
+  const handleRefresh = () => {
+    fetchWeeklyStats(true)
+      .then(() => {
+        // Optionnellement, ajouter une notification de succès
+        console.log("Données rafraîchies avec succès");
+      })
+      .catch(error => {
+        console.error("Erreur lors du rafraîchissement des données:", error);
+      });
+  };
   
-  // Sample data for analytics
-  const weeklyData = [
-    {
-      name: 'Lun',
-      wordpress: 6,
-      facebook: 3,
-      twitter: 2,
-      linkedin: 4,
-      instagram: 5,
-      total: 20,
-    },
-    {
-      name: 'Mar',
-      wordpress: 4,
-      facebook: 2,
-      twitter: 6,
-      linkedin: 3,
-      instagram: 4,
-      total: 19,
-    },
-    {
-      name: 'Mer',
-      wordpress: 5,
-      facebook: 3,
-      twitter: 4,
-      linkedin: 5,
-      instagram: 6,
-      total: 23,
-    },
-    {
-      name: 'Jeu',
-      wordpress: 4,
-      facebook: 5,
-      twitter: 3,
-      linkedin: 7,
-      instagram: 4,
-      total: 23,
-    },
-    {
-      name: 'Ven',
-      wordpress: 7,
-      facebook: 4,
-      twitter: 5,
-      linkedin: 6,
-      instagram: 8,
-      total: 30,
-    },
-    {
-      name: 'Sam',
-      wordpress: 3,
-      facebook: 1,
-      twitter: 2,
-      linkedin: 4,
-      instagram: 5,
-      total: 15,
-    },
-    {
-      name: 'Dim',
-      wordpress: 1,
-      facebook: 0,
-      twitter: 1,
-      linkedin: 2,
-      instagram: 3,
-      total: 7,
-    },
-  ];
+  // On utilise maintenant le composant AnalyticsOverview mis à jour pour les données de la semaine
   
+  // Données statiques pour les autres graphiques (à remplacer plus tard par des appels API)
   const monthlyData = Array.from({ length: 30 }, (_, i) => {
     const day = format(subDays(new Date(), 29 - i), 'dd/MM');
     return {
@@ -124,48 +75,42 @@ const Analytics = () => {
           <div className="flex justify-between items-center mb-6">
             <h1 className="text-2xl font-semibold">Analytiques</h1>
             
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button variant="outline" className="flex gap-2">
-                  <CalendarIcon className="h-4 w-4" />
-                  {date ? format(date, 'dd MMMM yyyy', { locale: fr }) : 'Sélectionner une date'}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0" align="end">
-                <Calendar
-                  mode="single"
-                  selected={date}
-                  onSelect={setDate}
-                  initialFocus
-                  locale={fr}
-                />
-              </PopoverContent>
-            </Popover>
+            <div className="flex items-center gap-2">
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={handleRefresh}
+                disabled={loading}
+                className="flex items-center gap-2"
+              >
+                <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+                Rafraîchir
+              </Button>
+              
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button variant="outline" className="flex gap-2">
+                    <CalendarIcon className="h-4 w-4" />
+                    {date ? format(date, 'dd MMMM yyyy', { locale: fr }) : 'Sélectionner une date'}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="end">
+                  <Calendar
+                    mode="single"
+                    selected={date}
+                    onSelect={setDate}
+                    initialFocus
+                    locale={fr}
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
-            {[
-              { platform: 'wordpress', label: 'WordPress', value: 20 },
-              { platform: 'facebook', label: 'Facebook', value: 8 },
-              { platform: 'twitter', label: 'Twitter', value: 12 },
-              { platform: 'linkedin', label: 'LinkedIn', value: 35 },
-              { platform: 'instagram', label: 'Instagram', value: 25 },
-            ].map((stat) => (
-              <Card key={stat.platform} className="hover:shadow-md transition-shadow">
-                <CardContent className="p-6">
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <p className="text-sm font-medium text-gray-500">{stat.label}</p>
-                      <p className="text-2xl font-bold mt-1">{stat.value}%</p>
-                      <p className="text-xs text-gray-500 mt-1">Publications</p>
-                    </div>
-                    <PlatformIcon platform={stat.platform as any} size={24} />
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+          {/* Remplacer le grid avec les cartes par le composant AnalyticsOverview */}
+          <AnalyticsOverview className="mb-8" />
           
+          {/* Le reste du code reste inchangé */}
           <Tabs defaultValue="overview" className="space-y-6">
             <TabsList className="grid grid-cols-3 w-full max-w-md mx-auto mb-4">
               <TabsTrigger value="overview" className="flex items-center gap-2">

@@ -1,16 +1,27 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Legend } from 'recharts';
 import { cn } from '@/lib/utils';
 import PlatformIcon from '@/components/common/PlatformIcon';
+import { useWeeklyAnalytics } from '@/hooks/useApi';
+import { Skeleton } from '@/components/ui/skeleton';
 
 interface AnalyticsOverviewProps {
   className?: string;
 }
 
 const AnalyticsOverview: React.FC<AnalyticsOverviewProps> = ({ className }) => {
-  // Sample data for analytics
-  const data = [
+  const { data, loading, error, fetchWeeklyStats } = useWeeklyAnalytics();
+
+  // Charger les données une seule fois au montage du composant
+  useEffect(() => {
+    fetchWeeklyStats().catch(error => {
+      console.error("Erreur lors du chargement des analytics:", error);
+    });
+  }, [fetchWeeklyStats]);
+
+  // Données statiques de secours au cas où l'API échoue
+  const fallbackData = [
     {
       name: 'Lun',
       wordpress: 6,
@@ -18,6 +29,7 @@ const AnalyticsOverview: React.FC<AnalyticsOverviewProps> = ({ className }) => {
       twitter: 2,
       linkedin: 4,
       instagram: 5,
+      total: 20,
     },
     {
       name: 'Mar',
@@ -26,6 +38,7 @@ const AnalyticsOverview: React.FC<AnalyticsOverviewProps> = ({ className }) => {
       twitter: 6,
       linkedin: 3,
       instagram: 4,
+      total: 19,
     },
     {
       name: 'Mer',
@@ -34,6 +47,7 @@ const AnalyticsOverview: React.FC<AnalyticsOverviewProps> = ({ className }) => {
       twitter: 4,
       linkedin: 5,
       instagram: 6,
+      total: 23,
     },
     {
       name: 'Jeu',
@@ -42,6 +56,7 @@ const AnalyticsOverview: React.FC<AnalyticsOverviewProps> = ({ className }) => {
       twitter: 3,
       linkedin: 7,
       instagram: 4,
+      total: 23,
     },
     {
       name: 'Ven',
@@ -50,6 +65,7 @@ const AnalyticsOverview: React.FC<AnalyticsOverviewProps> = ({ className }) => {
       twitter: 5,
       linkedin: 6,
       instagram: 8,
+      total: 30,
     },
     {
       name: 'Sam',
@@ -58,6 +74,7 @@ const AnalyticsOverview: React.FC<AnalyticsOverviewProps> = ({ className }) => {
       twitter: 2,
       linkedin: 4,
       instagram: 5,
+      total: 15,
     },
     {
       name: 'Dim',
@@ -66,10 +83,11 @@ const AnalyticsOverview: React.FC<AnalyticsOverviewProps> = ({ className }) => {
       twitter: 1,
       linkedin: 2,
       instagram: 3,
+      total: 7,
     },
   ];
 
-  const stats = [
+  const fallbackStats = [
     { platform: 'wordpress', label: 'WordPress', value: 30 },
     { platform: 'facebook', label: 'Facebook', value: 19 },
     { platform: 'twitter', label: 'Twitter', value: 27 },
@@ -77,52 +95,77 @@ const AnalyticsOverview: React.FC<AnalyticsOverviewProps> = ({ className }) => {
     { platform: 'instagram', label: 'Instagram', value: 45 },
   ];
 
+  // Utiliser les données de l'API ou les données de secours en cas d'erreur
+  const chartData = data?.dailyData || fallbackData;
+  
+  // Préparer les statistiques par plateforme à partir des totaux de l'API
+  const platformStats = data ? [
+    { platform: 'wordpress', label: 'WordPress', value: data.platformTotals.wordpress },
+    { platform: 'facebook', label: 'Facebook', value: data.platformTotals.facebook },
+    { platform: 'twitter', label: 'Twitter', value: data.platformTotals.twitter },
+    { platform: 'linkedin', label: 'LinkedIn', value: data.platformTotals.linkedin },
+    { platform: 'instagram', label: 'Instagram', value: data.platformTotals.instagram },
+  ] : fallbackStats;
+
   return (
     <Card className={cn('w-full fancy-border', className)}>
       <CardHeader>
         <CardTitle className="text-xl font-medium">Analytics</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="grid grid-cols-5 gap-4 mb-6">
-          {stats.map((stat) => (
-            <div key={stat.platform} className="flex flex-col items-center justify-center p-3 bg-gray-50 rounded-lg">
-              <PlatformIcon platform={stat.platform as any} size={24} />
-              <p className="mt-2 text-2xl font-semibold">{stat.value}</p>
-              <p className="text-xs text-gray-500 mt-1">Publications</p>
+        {loading ? (
+          <>
+            <div className="grid grid-cols-5 gap-4 mb-6">
+              {[1, 2, 3, 4, 5].map((i) => (
+                <Skeleton key={i} className="h-24 w-full rounded-lg" />
+              ))}
             </div>
-          ))}
-        </div>
+            <Skeleton className="h-72 w-full" />
+          </>
+        ) : (
+          <>
+            <div className="grid grid-cols-5 gap-4 mb-6">
+              {platformStats.map((stat) => (
+                <div key={stat.platform} className="flex flex-col items-center justify-center p-3 bg-gray-50 rounded-lg">
+                  <PlatformIcon platform={stat.platform as any} size={24} />
+                  <p className="mt-2 text-2xl font-semibold">{stat.value}</p>
+                  <p className="text-xs text-gray-500 mt-1">Publications</p>
+                </div>
+              ))}
+            </div>
 
-        <div className="h-72 w-full">
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart
-              data={data}
-              margin={{
-                top: 10,
-                right: 10,
-                left: -20,
-                bottom: 0,
-              }}
-            >
-              <XAxis dataKey="name" />
-              <YAxis />
-              <Tooltip 
-                contentStyle={{
-                  backgroundColor: 'white',
-                  borderRadius: '8px',
-                  border: '1px solid #e2e8f0',
-                  boxShadow: '0 2px 10px rgba(0, 0, 0, 0.05)',
-                }}
-              />
-              <Legend />
-              <Bar dataKey="wordpress" fill="#21759b" radius={[4, 4, 0, 0]} />
-              <Bar dataKey="facebook" fill="#4267B2" radius={[4, 4, 0, 0]} />
-              <Bar dataKey="twitter" fill="#1DA1F2" radius={[4, 4, 0, 0]} />
-              <Bar dataKey="linkedin" fill="#0072b1" radius={[4, 4, 0, 0]} />
-              <Bar dataKey="instagram" fill="#E1306C" radius={[4, 4, 0, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
+            <div className="h-72 w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart
+                  data={chartData}
+                  margin={{
+                    top: 10,
+                    right: 10,
+                    left: -20,
+                    bottom: 0,
+                  }}
+                >
+                  <XAxis dataKey="name" />
+                  <YAxis />
+                  <Tooltip 
+                    contentStyle={{
+                      backgroundColor: 'white',
+                      borderRadius: '8px',
+                      border: '1px solid #e2e8f0',
+                      boxShadow: '0 2px 10px rgba(0, 0, 0, 0.05)',
+                    }}
+                  />
+                  <Legend />
+                  <Bar dataKey="wordpress" fill="#21759b" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="facebook" fill="#4267B2" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="twitter" fill="#1DA1F2" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="linkedin" fill="#0072b1" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="instagram" fill="#E1306C" radius={[4, 4, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </>
+        )}
       </CardContent>
     </Card>
   );
