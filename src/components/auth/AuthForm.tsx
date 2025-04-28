@@ -42,7 +42,7 @@ const AuthForm = () => {
       }
       
       // Redirection après connexion réussie
-      navigate('/');
+      navigate('/creer-post');
       
     } catch (error) {
       console.error('Erreur d\'authentification:', error);
