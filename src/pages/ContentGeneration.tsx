@@ -892,6 +892,7 @@ const ContentGeneration = () => {
                       
                       <Separator className="my-4" />
                       
+                      {/* Section Image personnalisée commentée pour le moment
                       <div className="space-y-2">
                         <Label className="flex items-center gap-2">
                           Image personnalisée
@@ -937,6 +938,7 @@ const ContentGeneration = () => {
                           )}
                         </div>
                       </div>
+                      */}
                       
                       <div className="space-y-2">
                         <Label>Mots-clés</Label>
