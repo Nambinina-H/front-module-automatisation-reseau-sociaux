@@ -579,6 +579,16 @@ const ContentGeneration = () => {
     }
   };
 
+  // Définition de la variable pour le prompt WordPress
+  const wordpressFormattingPrompt = `Transforme le texte suivant en HTML pour WordPress :
+- Mets les balises HTML nécessaires pour styler correctement le texte (<h1>, <h2>, <p>, <strong>...).
+- Réponds uniquement avec le code HTML brut, sans balises \`\`\`html, sans \`\`\` ni aucune explication ou commentaire.
+- Ne fais apparaître que le code HTML, prêt à être collé directement dans WordPress.
+
+Voici le texte :
+
+`;
+
   const renderGeneratedContent = () => {
     const content = generatedContent[activeTab];
     if (!content) return null;
@@ -609,6 +619,23 @@ const ContentGeneration = () => {
               >
                 Personnaliser
               </Button>
+              
+              {/* Nouveau bouton Mise en forme WordPress modifié pour utiliser la variable */}
+              <Button 
+                variant="outline" 
+                onClick={() => {
+                  setPrompt(wordpressFormattingPrompt + content.content);
+                  // Faire défiler vers le haut jusqu'à la zone de prompt
+                  const promptElement = document.getElementById('prompt');
+                  if (promptElement) {
+                    promptElement.scrollIntoView({ behavior: 'smooth' });
+                    promptElement.focus();
+                  }
+                }}
+              >
+                Mise en forme WordPress
+              </Button>
+              
               <Button onClick={() => {
                 // Créer un blob et télécharger le contenu
                 const blob = new Blob([content.content], { type: 'text/plain' });
