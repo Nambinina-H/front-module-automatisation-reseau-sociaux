@@ -172,12 +172,14 @@ const Logs = () => {
                   className="max-w-xs"
                 />
                 <div className="flex items-center gap-2">
+                  {/* Bouton de rafraîchissement commenté
                   <Button 
                     className="flex items-center gap-2"
-                    onClick={fetchLogs} // Add onClick handler to refresh logs
+                    onClick={fetchLogs} 
                   >
                     <RefreshCw className="h-4 w-4" />
                   </Button>
+                  */}
                   <Select value={filter} onValueChange={setFilter}>
                     <SelectTrigger className="w-24 flex items-center justify-center">
                       Action
