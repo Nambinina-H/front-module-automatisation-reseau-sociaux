@@ -209,9 +209,22 @@ export interface VideoGenerationResponse {
   id: string;
 }
 
+export interface ExtendVideoParams {
+  id: string;
+  prompt: string;
+}
+
+export interface ExtendVideoResponse {
+  message: string;
+  videoUrl: string;
+  id: string;
+}
+
 export interface AddAudioToVideoParams {
   audioUrl: string;
   startTime: number;
+  prompt: string;
+  negativePrompt?: string;
 }
 
 export interface AddAudioToVideoResponse {
@@ -529,6 +542,21 @@ class ApiService {
       return response.data;
     } catch (error) {
       console.error('Error generating video:', error);
+      throw error;
+    }
+  }
+
+  // Étendre une vidéo existante
+  async extendVideo(params: ExtendVideoParams): Promise<ExtendVideoResponse> {
+    try {
+      const response = await this.api.post<ExtendVideoResponse>('/video/extend', params);
+      toast({
+        title: 'Vidéo étendue',
+        description: 'La vidéo a été étendue avec succès!',
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error extending video:', error);
       throw error;
     }
   }

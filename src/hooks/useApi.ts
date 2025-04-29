@@ -481,6 +481,18 @@ export function useAddAudioToVideo() {
   };
 }
 
+export function useExtendVideo() {
+  const { execute, loading, error } = useApi<ExtendVideoResponse, ExtendVideoParams>(
+    apiService.extendVideo.bind(apiService)
+  );
+
+  return {
+    extendVideo: execute,
+    loading,
+    error
+  };
+}
+
 interface WeeklyAnalyticsResponse {
   message: string;
   startOfWeek: string;

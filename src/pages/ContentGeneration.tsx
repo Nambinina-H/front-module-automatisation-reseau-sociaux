@@ -38,6 +38,9 @@ import { useAudioDescription } from '@/hooks/useApi';
 // Importation du hook pour l'ajout d'audio à la vidéo
 import { useAddAudioToVideo } from '@/hooks/useApi';
 
+// Ajout du hook pour l'extension de vidéo
+import { useExtendVideo } from '@/hooks/useApi';
+
 // Sample template data - triés alphabétiquement dans chaque catégorie
 const initialTemplates = [
   // Modèles WordPress (triés alphabétiquement)
@@ -193,6 +196,9 @@ const ContentGeneration = () => {
   // Ajouter l'état pour le chargement lors de l'ajout d'audio
   const [isAddingAudio, setIsAddingAudio] = useState<boolean>(false);
 
+  // Ajouter cet état pour le chargement lors de l'extension de vidéo
+  const [isExtendingVideo, setIsExtendingVideo] = useState<boolean>(false);
+
   // Utiliser le hook useContent pour la génération de contenu
   const { 
     generateContent,
@@ -213,6 +219,9 @@ const ContentGeneration = () => {
 
   // Importation du hook pour l'ajout d'audio à la vidéo
   const { addAudioToVideo, loading: isAudioLoading } = useAddAudioToVideo();
+
+  // Ajouter le hook pour l'extension de vidéo
+  const { extendVideo, loading: isExtendVideoLoading } = useExtendVideo();
 
   const addKeyword = () => {
     if (newKeyword && !keywords.includes(newKeyword)) {
@@ -576,6 +585,58 @@ const ContentGeneration = () => {
       toast.error("Erreur lors de l'ajout d'audio à la vidéo");
     } finally {
       setIsAddingAudio(false);
+    }
+  };
+
+  // Fonction pour étendre une vidéo existante
+  const handleExtendVideo = async () => {
+    if (!generatedVideoId) {
+      toast.error("Aucune vidéo n'a été générée. Veuillez d'abord générer une vidéo.");
+      return;
+    }
+    
+    if (!prompt) {
+      toast.error("Veuillez entrer une description pour l'extension de la vidéo");
+      return;
+    }
+    
+    try {
+      // Indiquer que l'opération est en cours
+      setIsExtendingVideo(true);
+      toast.info("Extension de la vidéo en cours...");
+      
+      const response = await extendVideo({
+        id: generatedVideoId,
+        prompt: prompt
+      });
+      
+      console.log("Réponse après l'extension de la vidéo:", response);
+      
+      // Mettre à jour l'ID de la vidéo générée avec le nouvel ID
+      setGeneratedVideoId(response.id);
+      
+      // Mettre à jour le contenu généré avec la nouvelle URL de vidéo étendue
+      setGeneratedContent(prev => ({
+        ...prev,
+        video: {
+          type: 'video',
+          content: response.videoUrl
+        }
+      }));
+      
+      // Réinitialiser les états de vérification de vidéo
+      setIsVideoReady(false);
+      setIsCheckingVideo(false);
+      
+      // Commencer à vérifier la disponibilité de la nouvelle vidéo étendue
+      startVideoAvailabilityCheck(response.videoUrl);
+      
+      toast.success(response.message || "Vidéo étendue avec succès");
+    } catch (error) {
+      console.error("Erreur lors de l'extension de la vidéo:", error);
+      toast.error("Erreur lors de l'extension de la vidéo");
+    } finally {
+      setIsExtendingVideo(false);
     }
   };
 
@@ -1135,7 +1196,7 @@ Voici le texte :
                           )}
                         </div>
                         
-                        <div className="pt-4">
+                        <div className="pt-4 space-y-2">
                           <Button 
                             onClick={handleGeneration} 
                             disabled={isGenerating || isApiVideoGenerating}
@@ -1150,6 +1211,25 @@ Voici le texte :
                               </>
                             )}
                           </Button>
+                          
+                          {/* Ajouter le bouton pour étendre la vidéo */}
+                          {generatedVideoId && (
+                            <Button 
+                              onClick={handleExtendVideo} 
+                              disabled={isExtendingVideo || isExtendVideoLoading || !prompt}
+                              className="w-full"
+                              variant="outline"
+                            >
+                              {isExtendingVideo || isExtendVideoLoading ? (
+                                <>Extension en cours...</>
+                              ) : (
+                                <>
+                                  <Wand2 className="mr-2 h-4 w-4" />
+                                  Étendre la vidéo
+                                </>
+                              )}
+                            </Button>
+                          )}
                         </div>
                       </CardContent>
                     </Card>
