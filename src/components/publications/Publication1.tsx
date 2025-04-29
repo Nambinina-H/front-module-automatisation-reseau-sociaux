@@ -11,6 +11,12 @@ interface Publication1Props {
   isLoading?: boolean;
 }
 
+// Fonction utilitaire pour tronquer le texte
+const truncateText = (text: string, maxLength: number = 50): string => {
+  if (!text) return '';
+  return text.length > maxLength ? `${text.substring(0, maxLength)}...` : text;
+};
+
 // Composant pour afficher un squelette de ligne pendant le chargement
 const TableRowSkeleton = () => (
   <tr>
@@ -81,7 +87,9 @@ const Publication1: React.FC<Publication1Props> = ({ posts, isLoading = false })
               {/* Afficher les publications disponibles */}
               {posts.map((post) => (
                 <tr key={post.id}>
-                  <td className="px-4 py-2 border-b font-medium">{post.content_preview}</td>
+                  <td className="px-4 py-2 border-b font-medium" title={post.content_preview}>
+                    {truncateText(post.content_preview, 50)}
+                  </td>
                   <td className="px-4 py-2 border-b text-center">
                     <div className="flex justify-center items-center">
                       <PlatformIcon platform={post.platform} size={18} />
