@@ -734,8 +734,6 @@ Voici le texte :
               />
             </div>
             <div className="flex justify-end space-x-2">
-              {/* TODO: Enable the "Modifier" button functionality in the future */}
-              <Button variant="outline" disabled>Modifier</Button>
               <Button onClick={() => {
                 fetch(content.content)
                   .then(response => response.blob())
