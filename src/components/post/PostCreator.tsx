@@ -52,6 +52,8 @@ const PostCreator: React.FC<PostCreatorProps> = ({ className }) => {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [videoFile, setVideoFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  // Nouvel état pour l'URL de la vidéo
+  const [videoUrl, setVideoUrl] = useState<string>('');
   const { publishNow, loading: publishNowLoading } = usePublishNow();
   const { schedulePublication, loading: scheduleLoading } = useSchedulePublication();
   const { uploadMedia, isUploading, uploadProgress } = useUploadMedia();
@@ -282,10 +284,21 @@ const PostCreator: React.FC<PostCreatorProps> = ({ className }) => {
     // Validation du contenu selon le type
     if ((contentType.includes('text') && !content) ||
         (contentType.includes('image') && !imageFile) ||
-        (contentType.includes('video') && !videoFile)) {
+        ((contentType.includes('video') && !videoFile) && 
+         !(selectedPlatform === 'wordpress' && contentType === 'text-video' && videoUrl))) {
       toast({
         title: "Erreur",
         description: "Veuillez remplir tous les champs requis",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // Validation spécifique pour WordPress text-video avec URL vidéo
+    if (selectedPlatform === 'wordpress' && contentType === 'text-video' && !videoUrl && !videoFile) {
+      toast({
+        title: "Erreur",
+        description: "Veuillez entrer l'URL de la vidéo ou télécharger un fichier vidéo",
         variant: "destructive"
       });
       return;
@@ -308,13 +321,34 @@ const PostCreator: React.FC<PostCreatorProps> = ({ className }) => {
           ? new Date(date.getFullYear(), date.getMonth(), date.getDate(), parseInt(selectedHour), parseInt(selectedMinute)).toISOString()
           : undefined;
 
+        // Modifier le contenu pour WordPress si c'est text-video avec une URL vidéo
+        let processedContent = content;
+        
+        // Pour le type text-video avec WordPress
+        if (contentType === 'text-video') {
+          // Si on a une URL vidéo, on l'insère dans le contenu
+          if (videoUrl) {
+            // Ajouter l'URL vidéo dans un paragraphe centré à la fin du contenu
+            processedContent = `${content}\n\n<p style="text-align:center; margin-top:30px;">\n${videoUrl}\n</p>`;
+            
+            // Utiliser également l'URL vidéo comme mediaUrl
+            mediaUrl = videoUrl;
+          } 
+          // Si on a un fichier vidéo uploadé mais pas d'URL, on utilise le fichier (comportement actuel)
+          else if (videoFile) {
+            const response = await uploadMedia(videoFile);
+            mediaUrl = response.url;
+          }
+        }
+
         const publishParams = {
-          content,
+          content: processedContent, // Utiliser le contenu modifié
           mediaUrl,
           type: contentType,
           date: formattedDate,
           title,
         };
+        
         await publishToWordPress(publishParams);
       } else {
         // Paramètres de base communs aux deux types de publication
@@ -429,6 +463,7 @@ const PostCreator: React.FC<PostCreatorProps> = ({ className }) => {
               setVideoFile(null);
               setImagePreview(null);
               setContent('');
+              setVideoUrl(''); // Réinitialiser l'URL vidéo lors du changement de type
             }}
           >
             <SelectTrigger>
@@ -557,6 +592,21 @@ const PostCreator: React.FC<PostCreatorProps> = ({ className }) => {
                 </div>
               )}
             </div>
+          </div>
+        )}
+
+        {/* Ajouter le champ URL vidéo pour WordPress et contentType text-video */}
+        {selectedPlatform === 'wordpress' && contentType === 'text-video' && (
+          <div className="space-y-3">
+            <label className="text-sm font-medium">URL vidéo</label>
+            <Input 
+              placeholder="Entrez l'URL de la vidéo" 
+              value={videoUrl}
+              onChange={(e) => setVideoUrl(e.target.value)}
+            />
+            <p className="text-xs text-gray-500">
+              Cette URL sera affichée en bas de votre contenu WordPress dans un format centré.
+            </p>
           </div>
         )}
 
