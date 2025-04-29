@@ -735,20 +735,9 @@ Voici le texte :
             </div>
             <div className="flex justify-end space-x-2">
               <Button onClick={() => {
-                fetch(content.content)
-                  .then(response => response.blob())
-                  .then(blob => {
-                    const url = window.URL.createObjectURL(blob);
-                    const link = document.createElement('a');
-                    link.href = url;
-                    link.download = `image-generee-${new Date().toISOString().slice(0, 10)}.png`;
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
-                    window.URL.revokeObjectURL(url);
-                    toast.success("Image téléchargée avec succès");
-                  })
-                  .catch(() => toast.error("Erreur lors du téléchargement de l'image"));
+                // Ouvrir une nouvelle fenêtre avec l'URL de l'image
+                window.open(content.content, '_blank');
+                toast.success("Image ouverte dans un nouvel onglet pour téléchargement");
               }}>
                 <Download className="mr-2 h-4 w-4" />
                 Télécharger
