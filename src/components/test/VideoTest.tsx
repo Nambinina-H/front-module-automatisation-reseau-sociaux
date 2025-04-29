@@ -90,6 +90,25 @@ const VideoTest: React.FC<VideoTestProps> = ({ videoUrl, simplified = true }) =>
           </div>
         </CardHeader>
         <CardContent>
+          {/* Ajout du bloc d'affichage de l'URL avant les onglets */}
+          <div className="flex items-center gap-2 p-3 bg-gray-50 rounded-md mb-4">
+            <div className="flex-1 overflow-hidden">
+              <p className="text-sm text-gray-500 mb-1">URL de la vidéo:</p>
+              <p className="text-sm font-mono truncate">{videoUrl}</p>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                navigator.clipboard.writeText(videoUrl)
+                  .then(() => toast?.success?.("URL copiée dans le presse-papiers") || alert("URL copiée dans le presse-papiers"))
+                  .catch(() => toast?.error?.("Impossible de copier l'URL") || alert("Impossible de copier l'URL"));
+              }}
+            >
+              Copier
+            </Button>
+          </div>
+          
           <Tabs defaultValue="direct" className="w-full">
             <TabsList className="w-full grid grid-cols-2 mb-4">
               <TabsTrigger value="direct">URL directe</TabsTrigger>
