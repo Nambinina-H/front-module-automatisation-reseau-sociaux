@@ -559,7 +559,7 @@ const PostCreator: React.FC<PostCreatorProps> = ({ className }) => {
           </div>
         )}
 
-        {contentType.includes('video') && (
+        {contentType.includes('video') && !(selectedPlatform === 'wordpress' && contentType === 'text-video') && (
           <div className="space-y-3">
             <label className="text-sm font-medium">Vidéo</label>
             <div className="border-2 border-dashed rounded-lg p-4 text-center">
@@ -604,9 +604,6 @@ const PostCreator: React.FC<PostCreatorProps> = ({ className }) => {
               value={videoUrl}
               onChange={(e) => setVideoUrl(e.target.value)}
             />
-            <p className="text-xs text-gray-500">
-              Cette URL sera affichée en bas de votre contenu WordPress dans un format centré.
-            </p>
           </div>
         )}
 
