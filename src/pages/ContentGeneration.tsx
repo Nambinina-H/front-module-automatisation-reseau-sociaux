@@ -620,7 +620,7 @@ const ContentGeneration = () => {
         ...prev,
         video: {
           type: 'video',
-          content: response.videoUrl
+          content: response.extendedVideoUrl // Correction ici: utiliser extendedVideoUrl au lieu de videoUrl
         }
       }));
       
@@ -629,7 +629,7 @@ const ContentGeneration = () => {
       setIsCheckingVideo(false);
       
       // Commencer à vérifier la disponibilité de la nouvelle vidéo étendue
-      startVideoAvailabilityCheck(response.videoUrl);
+      startVideoAvailabilityCheck(response.extendedVideoUrl); // Correction ici également
       
       toast.success(response.message || "Vidéo étendue avec succès");
     } catch (error) {

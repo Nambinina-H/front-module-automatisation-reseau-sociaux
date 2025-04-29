@@ -216,7 +216,7 @@ export interface ExtendVideoParams {
 
 export interface ExtendVideoResponse {
   message: string;
-  videoUrl: string;
+  extendedVideoUrl: string; // S'assurer que cette propriété est définie ainsi
   id: string;
 }
 
