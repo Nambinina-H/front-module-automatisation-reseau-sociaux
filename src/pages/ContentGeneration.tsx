@@ -407,6 +407,8 @@ const ContentGeneration = () => {
             }
           }));
           toast.success(response.message || "Texte généré avec succès");
+          // Réinitialiser le prompt après une génération réussie
+          setPrompt('');
         } else {
           toast.error("Aucun contenu n'a été généré");
         }
@@ -432,6 +434,8 @@ const ContentGeneration = () => {
           }));
           
           toast.success(response.message || "Image générée avec succès");
+          // Réinitialiser le prompt après une génération réussie
+          setPrompt('');
         } catch (error) {
           console.error("Erreur lors de la génération de l'image:", error);
           toast.error("Erreur lors de la génération de l'image");
@@ -475,6 +479,8 @@ const ContentGeneration = () => {
           startVideoAvailabilityCheck(videoUrl);
           
           toast.success(response.message || "Vidéo générée avec succès! Vérification en cours...");
+          // Réinitialiser le prompt après une génération réussie
+          setPrompt('');
         } catch (error) {
           console.error("Erreur lors de la génération de la vidéo:", error);
           toast.error("Erreur lors de la génération de la vidéo");
