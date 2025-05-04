@@ -488,9 +488,14 @@ class ApiService {
         description: 'Le contenu a été généré avec succès!',
       });
       return response.data;
-    } catch (error) {
-      console.error('Error generating content:', error);
-      throw error;
+    } catch (error: any) {
+      const message = error.response?.data?.error || "Une erreur est survenue lors de la génération du contenu.";
+      toast({
+        title: 'Erreur',
+        description: message,
+        variant: 'destructive',
+      });
+      throw new Error(message); // Ensure no additional toast is triggered elsewhere.
     }
   }
 

@@ -488,7 +488,6 @@ const ContentGeneration = () => {
       }
     } catch (error) {
       console.error("Erreur lors de la génération du contenu:", error);
-      toast.error("Erreur lors de la génération du contenu");
     } finally {
       setIsGenerating(false);
     }
